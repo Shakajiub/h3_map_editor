@@ -10,10 +10,11 @@ import src.handler_02_player_specs as h2
 def main():
     with gzip.open(sys.argv[1], 'rb') as io.map_file:
         general      = h1.parse_general()
-        player_specs = h2.parse_player_specs(general["format"])
+        player_specs = h2.parse_player_specs()
         last_data    = io.map_file.read()
     
 #    general["description"] = "I have now edited the description from here!"
+#    player_specs[6]["generate_hero"] = True
 
     print("\nGeneral:\n\n", general)
     print("\nPlayer Specs:\n")
