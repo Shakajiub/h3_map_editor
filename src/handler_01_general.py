@@ -2,35 +2,35 @@
 
 import src.map_io as io
 
-def parse_map_info():
-    map_info = {
+def parse_general():
+    info = {
         "format"  : 0,     "hota_version": 0,     "hota_data" : b'',
         "name"    : "",    "description" : "",    "size"      : 0,
         "has_hero": False, "two_level"   : False, "difficulty": 0
     }
-    map_info["format"] = io.read_int(4)
+    info["format"] = io.read_int(4)
     
-    if map_info["format"] == 32:
-        map_info["hota_version"] = io.read_int(1)
+    if info["format"] == 32:
+        info["hota_version"] = io.read_int(1)
         
-        if map_info["hota_version"] == 1:
-            map_info["hota_data"] = io.read_raw(5)
-        elif map_info["hota_version"] == 3:
-            map_info["hota_data"] = io.read_raw(9)
+        if info["hota_version"] == 1:
+            info["hota_data"] = io.read_raw(5)
+        elif info["hota_version"] == 3:
+            info["hota_data"] = io.read_raw(9)
         else:
             print("Unhandled HotA version!")
-            return map_info
+            return info
             
-    map_info["has_hero"]    = io.read_int(1)
-    map_info["size"]        = io.read_int(4)
-    map_info["two_level"]   = io.read_int(1)
-    map_info["name"]        = io.read_str(io.read_int(4))
-    map_info["description"] = io.read_str(io.read_int(4))
-    map_info["difficulty"]  = io.read_int(1)
+    info["has_hero"]    = bool(io.read_int(1))
+    info["size"]        =      io.read_int(4)
+    info["two_level"]   = bool(io.read_int(1))
+    info["name"]        =      io.read_str(io.read_int(4))
+    info["description"] =      io.read_str(io.read_int(4))
+    info["difficulty"]  =      io.read_int(1)
 
-    return map_info
+    return info
     
-def write_map_info(info):
+def write_general(info):
     io.write_int(    info["format"], 4)
     
     if info["format"] == 32:
