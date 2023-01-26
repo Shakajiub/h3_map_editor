@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import src.map_io as io
+import src.file_io as io
 
 def parse_general():
     info = {

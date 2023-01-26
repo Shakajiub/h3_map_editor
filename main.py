@@ -3,15 +3,15 @@
 import sys
 import gzip
 
-import src.map_io as io
+import src.file_io as io
 import src.handler_01_general as h1
 import src.handler_02_player_specs as h2
 
 def main():
-    with gzip.open(sys.argv[1], 'rb') as io.map_file:
+    with gzip.open(sys.argv[1], 'rb') as io.in_file:
         general      = h1.parse_general()
         player_specs = h2.parse_player_specs()
-        last_data    = io.map_file.read()
+        last_data    = io.in_file.read()
     
 #    general["description"] = "I have now edited the description from here!"
 #    player_specs[6]["generate_hero"] = True
