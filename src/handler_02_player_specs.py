@@ -18,7 +18,7 @@ def parse_player_specs():
             "has_main_town"        : False,
             "generate_hero"        : False,
             "town_type"            : 0,
-            "town_coords"          : [],
+            "town_coords"          : [0, 0, 0],
             "has_random_hero"      : False,
             "starting_hero_type"   : 255,
             "starting_hero_face"   : 255,
@@ -27,6 +27,13 @@ def parse_player_specs():
             "mystery_byte"         : b'\x00',
             "unhandled_bytes"      : b''
         }
+        
+        # skip_mastery - This is something I can only assume is a bug,
+        # or I'm missing something. If a player has any custom heroes
+        # (starting_hero_type != 255 below), then the information for
+        # the NEXT player will not have the byte indicating mastery
+        # level. If we skip reading this byte all the information is
+        # parsed properly. Very weird.
 
         if not skip_mastery:
             info["mastery_cap"] = io.read_int(1)
@@ -41,11 +48,11 @@ def parse_player_specs():
         info["has_main_town"]         = bool(io.read_int(1))
 
         if info["has_main_town"]:
-            info["generate_hero"] = bool(io.read_int(1))
-            info["town_type"]     =      io.read_int(1)
-            info["town_coords"].append(  io.read_int(1))
-            info["town_coords"].append(  io.read_int(1))
-            info["town_coords"].append(  io.read_int(1))
+            info["generate_hero"]  = bool(io.read_int(1))
+            info["town_type"]      =      io.read_int(1)
+            info["town_coords"][0] =      io.read_int(1)
+            info["town_coords"][1] =      io.read_int(1)
+            info["town_coords"][2] =      io.read_int(1)
 
         info["has_random_hero"]    = bool(io.read_int(1))
         info["starting_hero_type"] =      io.read_int(1)
@@ -66,6 +73,12 @@ def parse_player_specs():
         else: info["unhandled_bytes"] = io.read_raw(4)
 
         specs.append(info)
+
+    # Go back one byte if the last player has custom heroes
+    # (this is very bad, TODO: figure out why this is necessary).
+
+    if skip_mastery:
+        io.seek(-1)
 
     return specs
     
@@ -110,3 +123,6 @@ def write_player_specs(specs):
                 io.write_str(    h["name"])
 
         io.write_raw(info["unhandled_bytes"])
+        
+#    if skip_mastery:
+#        io.seek(-1)
