@@ -26,3 +26,16 @@ def write_int(i, length):
 def write_str(s):
     global out_file
     out_file.write(s.encode())
+    
+def seek(l):
+    global in_file
+    in_file.seek(l, 1)
+
+def peek(l):
+    global in_file
+    data = read_raw(l)
+    s = ""
+    for b in data:
+        s += str(b) + ", "
+    print(s)
+    in_file.seek(-l, 1)
