@@ -2,9 +2,9 @@
 
 import src.file_io as io
 
-from enum import Enum
+from enum import IntEnum
 
-class VictoryType(Enum):
+class VictoryType(IntEnum):
     NONE                 = 255
     ACQUIRE_ARTIFACT     = 0
     ACCUMULATE_CREATURES = 1
@@ -20,7 +20,7 @@ class VictoryType(Enum):
     ELIMINATE_MONSTERS   = 11
     SURVIVE              = 12
     
-class LossType(Enum):
+class LossType(IntEnum):
     NONE         = 255
     LOSE_TOWN    = 0
     LOSE_HERO    = 1
@@ -43,10 +43,6 @@ def parse_victory_conditions():
     info["mystery_byte"] = io.read_raw(1)
     vc =       VictoryType(io.read_int(1))
     info["victory_condition"] = vc
-    
-    #
-    # Victory Conditions:
-    #
     
     if vc != VictoryType.NONE:
         info["allow_normal_win"]     = bool(io.read_int(1))
@@ -80,10 +76,6 @@ def parse_victory_conditions():
             case VictoryType.SURVIVE:
                 info["objective_value_one"] = io.read_int(4)
     
-    #
-    # Loss Conditions:
-    #
-    
     lc = LossType(io.read_int(1))
     info["loss_condition"] = lc
 
@@ -97,4 +89,48 @@ def parse_victory_conditions():
     return info
     
 def write_victory_conditions(info):
-    pass
+    io.write_raw(info["mystery_byte"])
+    vc = info["victory_condition"]
+    io.write_int(vc, 1)
+    
+    if vc != VictoryType.NONE:
+        io.write_int(info["allow_normal_win"], 1)
+        io.write_int(info["allow_ai_special_win"], 1)
+
+        match vc:
+            case VictoryType.ACQUIRE_ARTIFACT:
+                io.write_int(info["objective_value_one"], 2)
+            case VictoryType.ACCUMULATE_CREATURES:
+                io.write_int(info["objective_value_one"], 2)
+                io.write_int(info["objective_value_two"], 4)
+            case VictoryType.ACCUMULATE_RESOURCES:
+                io.write_int(info["objective_value_one"], 1)
+                io.write_int(info["objective_value_two"], 4)
+            case VictoryType.UPGRADE_TOWN:
+                io.write_int(info["objective_coords"][0], 1)
+                io.write_int(info["objective_coords"][1], 1)
+                io.write_int(info["objective_coords"][2], 1)
+                io.write_int(info["objective_value_one"], 1)
+                io.write_int(info["objective_value_two"], 1)
+            case (VictoryType.BUILD_THE_GRAIL | VictoryType.DEFEAT_HERO |
+                  VictoryType.CAPTURE_TOWN    | VictoryType.DEFEAT_MONSTER):
+                io.write_int(info["objective_coords"][0], 1)
+                io.write_int(info["objective_coords"][1], 1)
+                io.write_int(info["objective_coords"][2], 1)
+            case VictoryType.TRANSPORT_ARTIFACT:
+                io.write_int(info["objective_value_one"], 1)
+                io.write_int(info["objective_coords"][0], 1)
+                io.write_int(info["objective_coords"][1], 1)
+                io.write_int(info["objective_coords"][2], 1)
+            case VictoryType.SURVIVE:
+                io.write_int(info["objective_value_one"], 4)
+        
+    lc = info["loss_condition"]
+    io.write_int(lc, 1)
+    
+    if lc == LossType.TIME_EXPIRES:
+        io.write_int(info["loss_timer"], 2)
+    elif lc != LossType.NONE:
+        io.write_int(info["loss_coords"][0], 1)
+        io.write_int(info["loss_coords"][1], 1)
+        io.write_int(info["loss_coords"][2], 1)

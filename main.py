@@ -19,6 +19,9 @@ def main():
 #    general["description"] = "I have now edited the description from here!"
 #    player_specs[0]["starting_hero_name"] = "Hackerman"
 
+#    conditions["victory_condition"] = h3.VictoryType.SURVIVE
+#    conditions["objective_value_one"] = 21
+
     print("\nGeneral:\n\n", general)
     print("\nPlayer Specs:")
     for i in range(8):
