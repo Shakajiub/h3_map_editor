@@ -81,6 +81,33 @@ def parse_player_specs():
         io.seek(-1)
 
     return specs
+
+def parse_teams():
+    info = {
+        "amount_of_teams": 0,
+        "Player1": 0,
+        "Player2": 0,
+        "Player3": 0,
+        "Player4": 0,
+        "Player5": 0,
+        "Player6": 0,
+        "Player7": 0,
+        "Player8": 0
+    }
+
+    info["amount_of_teams"] = io.read_int(1)
+
+    if info["amount_of_teams"] != 0:
+        info["Player1"] = io.read_int(1)
+        info["Player2"] = io.read_int(1)
+        info["Player3"] = io.read_int(1)
+        info["Player4"] = io.read_int(1)
+        info["Player5"] = io.read_int(1)
+        info["Player6"] = io.read_int(1)
+        info["Player7"] = io.read_int(1)
+        info["Player8"] = io.read_int(1)
+    
+    return info
     
 def write_player_specs(specs):
     skip_mastery = False
@@ -126,3 +153,16 @@ def write_player_specs(specs):
         
 #    if skip_mastery:
 #        io.seek(-1)
+
+def write_teams(info):
+    io.write_int(info["amount_of_teams"], 1)
+
+    if info["amount_of_teams"] != 0:
+        io.write_int(info["Player1"], 1)
+        io.write_int(info["Player2"], 1)
+        io.write_int(info["Player3"], 1)
+        io.write_int(info["Player4"], 1)
+        io.write_int(info["Player5"], 1)
+        io.write_int(info["Player6"], 1)
+        io.write_int(info["Player7"], 1)
+        io.write_int(info["Player8"], 1)
