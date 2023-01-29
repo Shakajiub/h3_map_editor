@@ -20,7 +20,7 @@ def parse_player_specs():
             "town_type"            : 0,
             "town_coords"          : [0, 0, 0],
             "has_random_hero"      : False,
-            "starting_hero_type"   : 255,
+            "starting_hero_id"     : 255,
             "starting_hero_face"   : 255,
             "starting_hero_name"   : "",
             "available_heroes"     : [],
@@ -30,7 +30,7 @@ def parse_player_specs():
         
         # skip_mastery - This is something I can only assume is a bug,
         # or I'm missing something. If a player has any custom heroes
-        # (starting_hero_type != 255 below), then the information for
+        # (starting_hero_id != 255 below), then the information for
         # the NEXT player will not have the byte indicating mastery
         # level. If we skip reading this byte all the information is
         # parsed properly. Very weird.
@@ -54,10 +54,10 @@ def parse_player_specs():
             info["town_coords"][1] =      io.read_int(1)
             info["town_coords"][2] =      io.read_int(1)
 
-        info["has_random_hero"]    = bool(io.read_int(1))
-        info["starting_hero_type"] =      io.read_int(1)
+        info["has_random_hero"]  = bool(io.read_int(1))
+        info["starting_hero_id"] =      io.read_int(1)
 
-        if info["starting_hero_type"] != 255:
+        if info["starting_hero_id"] != 255:
             skip_mastery = True
 
             info["starting_hero_face"] = io.read_int(1)
@@ -133,9 +133,9 @@ def write_player_specs(specs):
             io.write_int(info["town_coords"][2], 1)
             
         io.write_int(info["has_random_hero"], 1)
-        io.write_int(info["starting_hero_type"], 1)
+        io.write_int(info["starting_hero_id"], 1)
 
-        if info["starting_hero_type"] != 255:
+        if info["starting_hero_id"] != 255:
             skip_mastery = True
 
             io.write_int(    info["starting_hero_face"], 1)

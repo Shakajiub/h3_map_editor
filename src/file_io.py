@@ -34,8 +34,16 @@ def seek(l):
 def peek(l):
     global in_file
     data = read_raw(l)
-    s = ""
+
+    s = "\n"
+    i = 1
     for b in data:
-        s += str(b) + ", "
+        n = str(b)
+        s += ("  " if i < 10 else " ") + str(i) + ": "
+        s += ' ' * (3-len(n))  + n + ' '
+        s += format(int(n), '#010b').removeprefix('0b')
+        s += '\n'
+        i += 1
+
     print(s)
     in_file.seek(-l, 1)
