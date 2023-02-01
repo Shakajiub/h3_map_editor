@@ -25,7 +25,7 @@ def parse_player_specs() -> dict:
             "garbage_byte"         : b'\x00',
             "unhandled_bytes"      : b''
         }
-        
+
         info["playability_human"]     = bool(io.read_int(1))
         info["playability_ai"]        = bool(io.read_int(1))
         info["ai_behavior"]           =      io.read_int(1)
@@ -86,9 +86,9 @@ def parse_teams() -> dict:
         info["Player6"] = io.read_int(1)
         info["Player7"] = io.read_int(1)
         info["Player8"] = io.read_int(1)
-    
+
     return info
-    
+
 def write_player_specs(specs: dict) -> None:
     for info in specs:
         io.write_int(info["playability_human"], 1)
@@ -105,7 +105,7 @@ def write_player_specs(specs: dict) -> None:
             io.write_int(info["town_coords"][0], 1)
             io.write_int(info["town_coords"][1], 1)
             io.write_int(info["town_coords"][2], 1)
-            
+
         io.write_int(info["has_random_hero"], 1)
         io.write_int(info["starting_hero_id"], 1)
 
@@ -115,14 +115,14 @@ def write_player_specs(specs: dict) -> None:
             io.write_str(    info["starting_hero_name"])
             io.write_raw(    info["garbage_byte"])
             io.write_int(len(info["available_heroes"]), 4)
-            
+
             for h in info["available_heroes"]:
                 io.write_int(    h["id"], 1)
                 io.write_int(len(h["name"]), 4)
                 io.write_str(    h["name"])
 
         else: io.write_raw(info["unhandled_bytes"])
-        
+
 def write_teams(info: dict) -> None:
     io.write_int(info["amount_of_teams"], 1)
 

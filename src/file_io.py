@@ -10,19 +10,19 @@ def read_raw(length: int) -> bytes:
 def read_int(length: int) -> int:
     global in_file
     return int.from_bytes(in_file.read(length), 'little')
-    
+
 def read_str(length: int) -> str:
     global in_file
     return in_file.read(length).decode('utf-8')
-    
+
 def write_raw(b: bytes):
     global out_file
     out_file.write(b)
-    
+
 def write_int(i: int, length: int) -> None:
     global out_file
     out_file.write(i.to_bytes(length, 'little'))
-    
+
 def write_str(s: str) -> None:
     global out_file
     out_file.write(s.encode())

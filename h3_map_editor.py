@@ -20,7 +20,7 @@ def main() -> None:
         teams            = h2.parse_teams()
         available_heroes = h4.parse_heroes(general["map_format"])
         unhandled_data   = io.in_file.read()
-    
+
 #    general["description"] = "I have now edited the description from here!"
 #    player_specs[0]["starting_hero_name"] = "Hackerman"
 
@@ -31,13 +31,13 @@ def main() -> None:
 #    available_heroes["hero_flags"][heroes.ID.Haart_Lich] = 1
 
     print("\nGeneral:\n\n", general)
-    print("\nPlayer Specs:")
-    for i in range(8):
-        print("\nPlayer", i+1)
-        print(player_specs[i])
-    print("\nTeams:\n\n", teams)
-    print("\nVictory/Loss Conditions:\n\n", conditions)
-    print("\nAvailable Heroes:\n\n", available_heroes)
+#    print("\nPlayer Specs:")
+#    for i in range(8):
+#        print("\nPlayer", i+1)
+#        print(player_specs[i])
+#    print("\nTeams:\n\n", teams)
+#    print("\nVictory/Loss Conditions:\n\n", conditions)
+#    print("\nAvailable Heroes:\n\n", available_heroes)
 
     with gzip.open("output.h3m", 'wb') as io.out_file:
         h1.write_general(general)

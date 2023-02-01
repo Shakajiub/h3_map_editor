@@ -33,7 +33,7 @@ def parse_heroes(version: int) -> dict:
 def write_heroes(info: dict) -> None:
     if info["hota_data"] != b'':
         io.write_raw(info["hota_data"])
-        
+
     temp_flags = info["hero_flags"]
     for i in range(0, len(temp_flags), 8):
         s = ""

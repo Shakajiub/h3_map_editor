@@ -19,7 +19,7 @@ class VictoryType(IntEnum):
     TRANSPORT_ARTIFACT   = 10
     ELIMINATE_MONSTERS   = 11
     SURVIVE              = 12
-    
+
 class LossType(IntEnum):
     NONE         = 255
     LOSE_TOWN    = 0
@@ -38,10 +38,10 @@ def parse_victory_conditions() -> None:
         "loss_coords"         : [0, 0, 0],
         "loss_timer"          : 0
     }
-    
+
     vc = VictoryType(io.read_int(1))
     info["victory_condition"] = vc
-    
+
     if vc != VictoryType.NONE:
         info["allow_normal_win"]     = bool(io.read_int(1))
         info["allow_ai_special_win"] = bool(io.read_int(1))
@@ -73,7 +73,7 @@ def parse_victory_conditions() -> None:
                 info["objective_coords"][2] = io.read_int(1)
             case VictoryType.SURVIVE:
                 info["objective_value_one"] = io.read_int(4)
-    
+
     lc = LossType(io.read_int(1))
     info["loss_condition"] = lc
 
@@ -85,11 +85,11 @@ def parse_victory_conditions() -> None:
         info["loss_coords"][2] = io.read_int(1)
 
     return info
-    
+
 def write_victory_conditions(info: dict) -> None:
     vc = info["victory_condition"]
     io.write_int(vc, 1)
-    
+
     if vc != VictoryType.NONE:
         io.write_int(info["allow_normal_win"], 1)
         io.write_int(info["allow_ai_special_win"], 1)
@@ -121,10 +121,10 @@ def write_victory_conditions(info: dict) -> None:
                 io.write_int(info["objective_coords"][2], 1)
             case VictoryType.SURVIVE:
                 io.write_int(info["objective_value_one"], 4)
-        
+
     lc = info["loss_condition"]
     io.write_int(lc, 1)
-    
+
     if lc == LossType.TIME_EXPIRES:
         io.write_int(info["loss_timer"], 2)
     elif lc != LossType.NONE:
