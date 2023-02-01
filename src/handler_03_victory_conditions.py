@@ -26,7 +26,7 @@ class LossType(IntEnum):
     LOSE_HERO    = 1
     TIME_EXPIRES = 2
 
-def parse_victory_conditions():
+def parse_victory_conditions() -> None:
     info = {
         "victory_condition"   : VictoryType.NONE,
         "allow_normal_win"    : False,
@@ -88,7 +88,7 @@ def parse_victory_conditions():
 
     return info
     
-def write_victory_conditions(info):
+def write_victory_conditions(info: dict) -> None:
     io.write_raw(info["mystery_byte"])
     vc = info["victory_condition"]
     io.write_int(vc, 1)

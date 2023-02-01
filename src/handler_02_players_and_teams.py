@@ -2,7 +2,7 @@
 
 import src.file_io as io
 
-def parse_player_specs():
+def parse_player_specs() -> dict:
     specs = []
     skip_mastery = False
 
@@ -82,7 +82,7 @@ def parse_player_specs():
 
     return specs
 
-def parse_teams():
+def parse_teams() -> dict:
     info = {
         "amount_of_teams": 0,
         "Player1": 0,
@@ -109,7 +109,7 @@ def parse_teams():
     
     return info
     
-def write_player_specs(specs):
+def write_player_specs(specs: dict) -> None:
     skip_mastery = False
 
     for info in specs:
@@ -154,7 +154,7 @@ def write_player_specs(specs):
 #    if skip_mastery:
 #        io.seek(-1)
 
-def write_teams(info):
+def write_teams(info: dict) -> None:
     io.write_int(info["amount_of_teams"], 1)
 
     if info["amount_of_teams"] != 0:

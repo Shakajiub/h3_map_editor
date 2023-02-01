@@ -2,7 +2,7 @@
 
 import src.file_io as io
 
-def parse_general():
+def parse_general() -> dict:
     info = {
         "map_format"  : 0,
         "hota_version": 0,
@@ -37,7 +37,7 @@ def parse_general():
 
     return info
     
-def write_general(info):
+def write_general(info: dict) -> None:
     io.write_int(info["map_format"], 4)
     
     if info["map_format"] == 32: # HotA
