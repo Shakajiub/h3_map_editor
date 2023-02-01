@@ -4,8 +4,9 @@ import src.file_io as io
 
 def parse_heroes(version: int) -> dict:
     info = {
-        "hota_data" : b'',
-        "hero_flags": []
+        "hota_data"    : b'',
+        "hero_flags"   : [],
+        "custom_heroes": []
     }
 
     temp_flags = []
@@ -23,10 +24,15 @@ def parse_heroes(version: int) -> dict:
             temp_flags.append(1 if b == '1' else 0)
 
     info["hero_flags"] = temp_flags
+    io.seek(4) # Skip 4 always-empty bytes
 
-#    io.seek(4) # Skip 4 always-empty bytes
-
-    # TODO: Parse custom heroes.
+    for i in range(io.read_int(1)):
+        hero = {}
+        hero["id"]   = io.read_int(1)
+        hero["face"] = io.read_int(1)
+        hero["name"] = io.read_str(io.read_int(4))
+        hero["may_be_hired_by"]  = io.read_int(1)
+        info["custom_heroes"].append(hero)
 
     return info
 
@@ -41,4 +47,12 @@ def write_heroes(info: dict) -> None:
             s += '1' if temp_flags[i + b] else '0'
         io.write_int(int(s[::-1], 2), 1)
 
-#    io.write_int(0, 4) # Write 4 always-empty bytes
+    io.write_int(0, 4) # Write 4 always-empty bytes
+    io.write_int(len(info["custom_heroes"]), 1)
+
+    for h in info["custom_heroes"]:
+        io.write_int(    h["id"], 1)
+        io.write_int(    h["face"], 1)
+        io.write_int(len(h["name"]), 4)
+        io.write_str(    h["name"])
+        io.write_int(    h["may_be_hired_by"], 1)
