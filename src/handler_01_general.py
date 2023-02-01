@@ -2,6 +2,30 @@
 
 import src.file_io as io
 
+from enum import IntEnum
+
+class MapFormat(IntEnum):
+    RoE  = 14
+    AB   = 21
+    SoD  = 28
+    HotA = 32
+
+class MapSize(IntEnum):
+    S  =  36
+    M  =  72
+    L  = 108
+    XL = 144
+    H  = 180
+    XH = 216
+    G  = 252
+
+class Difficulty(IntEnum):
+    Easy       = 0
+    Normal     = 1
+    Hard       = 2
+    Expert     = 3
+    Impossible = 4
+
 def parse_general() -> dict:
     info = {
         "map_format"  : 0,
@@ -16,9 +40,9 @@ def parse_general() -> dict:
         "level_cap"   : 0
     }
 
-    info["map_format"] = io.read_int(4)
+    info["map_format"] = MapFormat(io.read_int(4))
 
-    if info["map_format"] == 32: # HotA
+    if info["map_format"] == MapFormat.HotA:
         info["hota_version"] = io.read_int(1)
 
         if info["hota_version"] == 1:
@@ -29,20 +53,20 @@ def parse_general() -> dict:
             print("Unhandled HotA version!")
             return info
 
-    info["has_hero"]     = bool(io.read_int(1))
-    info["map_size"]     =      io.read_int(4)
-    info["is_two_level"] = bool(io.read_int(1))
-    info["name"]         =      io.read_str(io.read_int(4))
-    info["description"]  =      io.read_str(io.read_int(4))
-    info["difficulty"]   =      io.read_int(1)
-    info["level_cap"]    =      io.read_int(1)
+    info["has_hero"]     =       bool(io.read_int(1))
+    info["map_size"]     =    MapSize(io.read_int(4))
+    info["is_two_level"] =       bool(io.read_int(1))
+    info["name"]         =            io.read_str(io.read_int(4))
+    info["description"]  =            io.read_str(io.read_int(4))
+    info["difficulty"]   = Difficulty(io.read_int(1))
+    info["level_cap"]    =            io.read_int(1)
 
     return info
 
 def write_general(info: dict) -> None:
     io.write_int(info["map_format"], 4)
 
-    if info["map_format"] == 32: # HotA
+    if info["map_format"] == MapFormat.HotA:
         io.write_int(info["hota_version"], 1)
         io.write_raw(info["hota_data"])
 
