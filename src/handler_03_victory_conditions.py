@@ -36,12 +36,10 @@ def parse_victory_conditions() -> None:
         "objective_coords"    : [0, 0, 0],
         "loss_condition"      : LossType.NONE,
         "loss_coords"         : [0, 0, 0],
-        "loss_timer"          : 0,
-        "mystery_byte"        : b''
+        "loss_timer"          : 0
     }
-
-    info["mystery_byte"] = io.read_raw(1)
-    vc =       VictoryType(io.read_int(1))
+    
+    vc = VictoryType(io.read_int(1))
     info["victory_condition"] = vc
     
     if vc != VictoryType.NONE:
@@ -89,7 +87,6 @@ def parse_victory_conditions() -> None:
     return info
     
 def write_victory_conditions(info: dict) -> None:
-    io.write_raw(info["mystery_byte"])
     vc = info["victory_condition"]
     io.write_int(vc, 1)
     

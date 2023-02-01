@@ -12,9 +12,10 @@ def parse_general() -> dict:
         "map_size"    : 0,
         "has_hero"    : False,
         "is_two_level": False,
-        "difficulty"  : 0
+        "difficulty"  : 0,
+        "mastery_cap" : 0
     }
-
+    
     info["map_format"] = io.read_int(4)
     
     if info["map_format"] == 32: # HotA
@@ -34,6 +35,7 @@ def parse_general() -> dict:
     info["name"]         =      io.read_str(io.read_int(4))
     info["description"]  =      io.read_str(io.read_int(4))
     info["difficulty"]   =      io.read_int(1)
+    info["mastery_cap"]  =      io.read_int(1)
 
     return info
     
@@ -52,3 +54,4 @@ def write_general(info: dict) -> None:
     io.write_int(len(info["description"]), 4)
     io.write_str(    info["description"])
     io.write_int(    info["difficulty"], 1)
+    io.write_int(    info["mastery_cap"], 1)

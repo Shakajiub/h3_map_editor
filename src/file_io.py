@@ -26,7 +26,7 @@ def write_int(i: int, length: int) -> None:
 def write_str(s: str) -> None:
     global out_file
     out_file.write(s.encode())
-    
+
 def seek(l: int) -> None:
     global in_file
     in_file.seek(l, 1)

@@ -4,11 +4,9 @@ import src.file_io as io
 
 def parse_player_specs() -> dict:
     specs = []
-    skip_mastery = False
 
     for i in range(8):
         info = {
-            "mastery_cap"          : 0,
             "playability_human"    : False,
             "playability_ai"       : False,
             "ai_behavior"          : 0,
@@ -24,21 +22,10 @@ def parse_player_specs() -> dict:
             "starting_hero_face"   : 255,
             "starting_hero_name"   : "",
             "available_heroes"     : [],
-            "mystery_byte"         : b'\x00',
+            "garbage_byte"         : b'\x00',
             "unhandled_bytes"      : b''
         }
         
-        # skip_mastery - This is something I can only assume is a bug,
-        # or I'm missing something. If a player has any custom heroes
-        # (starting_hero_id != 255 below), then the information for
-        # the NEXT player will not have the byte indicating mastery
-        # level. If we skip reading this byte all the information is
-        # parsed properly. Very weird.
-
-        if not skip_mastery:
-            info["mastery_cap"] = io.read_int(1)
-        else: skip_mastery = False
-
         info["playability_human"]     = bool(io.read_int(1))
         info["playability_ai"]        = bool(io.read_int(1))
         info["ai_behavior"]           =      io.read_int(1)
@@ -58,27 +45,20 @@ def parse_player_specs() -> dict:
         info["starting_hero_id"] =      io.read_int(1)
 
         if info["starting_hero_id"] != 255:
-            skip_mastery = True
 
             info["starting_hero_face"] = io.read_int(1)
             info["starting_hero_name"] = io.read_str(io.read_int(4))
-            info["mystery_byte"]       = io.read_raw(1)
+            info["garbage_byte"]       = io.read_raw(1)
 
-            for i in range(io.read_int(4)):
+            for h in range(io.read_int(4)):
                 hero = {}
                 hero["id"]   = io.read_int(1)
                 hero["name"] = io.read_str(io.read_int(4))
                 info["available_heroes"].append(hero)
 
-        else: info["unhandled_bytes"] = io.read_raw(4)
+        else: info["unhandled_bytes"] = io.read_raw(5)
 
         specs.append(info)
-
-    # Go back one byte if the last player has custom heroes
-    # (this is very bad, TODO: figure out why this is necessary).
-
-    if skip_mastery:
-        io.seek(-1)
 
     return specs
 
@@ -110,13 +90,7 @@ def parse_teams() -> dict:
     return info
     
 def write_player_specs(specs: dict) -> None:
-    skip_mastery = False
-
     for info in specs:
-        if not skip_mastery:
-            io.write_int(info["mastery_cap"], 1)
-        else: skip_mastery = False
-
         io.write_int(info["playability_human"], 1)
         io.write_int(info["playability_ai"], 1)
         io.write_int(info["ai_behavior"], 1)
@@ -136,12 +110,10 @@ def write_player_specs(specs: dict) -> None:
         io.write_int(info["starting_hero_id"], 1)
 
         if info["starting_hero_id"] != 255:
-            skip_mastery = True
-
             io.write_int(    info["starting_hero_face"], 1)
             io.write_int(len(info["starting_hero_name"]), 4)
             io.write_str(    info["starting_hero_name"])
-            io.write_raw(    info["mystery_byte"])
+            io.write_raw(    info["garbage_byte"])
             io.write_int(len(info["available_heroes"]), 4)
             
             for h in info["available_heroes"]:
@@ -149,11 +121,8 @@ def write_player_specs(specs: dict) -> None:
                 io.write_int(len(h["name"]), 4)
                 io.write_str(    h["name"])
 
-        io.write_raw(info["unhandled_bytes"])
+        else: io.write_raw(info["unhandled_bytes"])
         
-#    if skip_mastery:
-#        io.seek(-1)
-
 def write_teams(info: dict) -> None:
     io.write_int(info["amount_of_teams"], 1)
 
