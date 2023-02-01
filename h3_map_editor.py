@@ -27,22 +27,17 @@ def main() -> None:
 #    conditions["victory_condition"] = h3.VictoryType.SURVIVE
 #    conditions["objective_value_one"] = 21
 
-    print("\nAvailable Heroes:\n\n", available_heroes)
+#    available_heroes["hero_flags"][heroes.ID.Solmyr] = 1
+#    available_heroes["hero_flags"][heroes.ID.Haart_Lich] = 1
 
-#    hero_flags = available_heroes["hero_flags"]
-#    hero_flags = enable_hero(hero_flags, heroes.ID.Solmyr)
-#    hero_flags = enable_hero(hero_flags, heroes.ID.Drakon)
-
-#    available_heroes["hero_flags"][heroes.ID.Drakon] = 1
-
-    print("\nGeneral:\n\n", general)
-    print("\nPlayer Specs:")
-    for i in range(8):
-        print("\nPlayer", i+1)
-        print(player_specs[i])
-    print("\nTeams:\n\n", teams)
-    print("\nVictory/Loss Conditions:\n\n", conditions)
-    print("\nAvailable Heroes:\n\n", available_heroes)
+#    print("\nGeneral:\n\n", general)
+#    print("\nPlayer Specs:")
+#    for i in range(8):
+#        print("\nPlayer", i+1)
+#        print(player_specs[i])
+#    print("\nTeams:\n\n", teams)
+#    print("\nVictory/Loss Conditions:\n\n", conditions)
+#    print("\nAvailable Heroes:\n\n", available_heroes)
 
     with gzip.open("output.h3m", 'wb') as io.out_file:
         h1.write_general(general)
