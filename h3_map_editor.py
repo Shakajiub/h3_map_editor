@@ -11,6 +11,7 @@ import src.handler_03_victory_conditions as h3
 import src.handler_04_heroes             as h4
 import src.handler_05_artifacts          as h5
 import src.handler_06_rumors             as h6
+import src.handler_07_terrain            as h7
 
 #import data.heroes    as hero_data
 #import data.artifacts as art_data
@@ -25,6 +26,9 @@ def main() -> None:
         artifacts  = h5.parse_artifacts()
         rumors     = h6.parse_rumors()
         hero_data  = h4.parse_hero_data()
+        terrain    = h7.parse_terrain(general["map_size"],
+                                      general["is_two_level"])
+
         unhandled  = io.in_file.read()
 
     print("\nGeneral:\n\n", general)
@@ -47,6 +51,7 @@ def main() -> None:
         h5.write_artifacts(artifacts)
         h6.write_rumors(rumors)
         h4.write_hero_data(hero_data)
+        h7.write_terrain(terrain)
         io.out_file.write(unhandled)
 
 if __name__ == "__main__":
