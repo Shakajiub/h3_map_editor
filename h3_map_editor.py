@@ -10,9 +10,10 @@ import src.handler_02_players_and_teams  as h2
 import src.handler_03_victory_conditions as h3
 import src.handler_04_heroes             as h4
 import src.handler_05_artifacts          as h5
+import src.handler_06_rumors             as h6
 
-import data.heroes    as hero_data
-import data.artifacts as art_data
+#import data.heroes    as hero_data
+#import data.artifacts as art_data
 
 def main() -> None:
     with gzip.open(sys.argv[1], 'rb') as io.in_file:
@@ -22,6 +23,7 @@ def main() -> None:
         teams      = h2.parse_teams()
         heroes     = h4.parse_heroes(general["map_format"])
         artifacts  = h5.parse_artifacts()
+        rumors     = h6.parse_rumors()
         unhandled  = io.in_file.read()
 
     print("\nGeneral:\n\n", general)
@@ -33,6 +35,7 @@ def main() -> None:
     print("\nVictory/Loss Conditions:\n\n", conditions)
     print("\nHeroes:\n\n", heroes)
     print("\nArtifacts:\n\n", artifacts)
+    print("\nRumors:\n\n", rumors)
 
     with gzip.open("output.h3m", 'wb') as io.out_file:
         h1.write_general(general)
@@ -41,6 +44,7 @@ def main() -> None:
         h2.write_teams(teams)
         h4.write_heroes(heroes)
         h5.write_artifacts(artifacts)
+        h6.write_rumors(rumors)
         io.out_file.write(unhandled)
 
 if __name__ == "__main__":

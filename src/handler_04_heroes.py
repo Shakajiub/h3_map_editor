@@ -15,6 +15,7 @@ def parse_heroes(version: int) -> dict:
     if version == MapFormat.HotA:
         info["hota_data"]  = io.read_raw(4)
         info["hero_flags"] = io.read_bits(23)
+
     elif version == MapFormat.SoD:
         info["hero_flags"] = io.read_bits(20)
 
@@ -28,7 +29,6 @@ def parse_heroes(version: int) -> dict:
         hero["may_be_hired_by"]  = io.read_int(1)
         info["custom_heroes"].append(hero)
 
-    # Read some bytes until the section for the next parser starts.
     info["unhandled_bytes"] = io.read_raw(49)
 
     return info

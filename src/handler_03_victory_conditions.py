@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import src.file_io as io
+import src.file_io    as io
 import data.artifacts as art_data
 import data.resources as res_data
 
