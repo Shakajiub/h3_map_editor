@@ -9,9 +9,9 @@ def parse_flags() -> dict:
         "skills"   : []
     }
 
-    info["artifacts"]  = io.read_bits(21)
-    info["spells"]     = io.read_bits(9)
-    info["skills"]     = io.read_bits(4)
+    info["artifacts"] = io.read_bits(21)
+    info["spells"]    = io.read_bits(9)
+    info["skills"]    = io.read_bits(4)
 
     return info
 

@@ -12,6 +12,7 @@ import src.handler_04_heroes             as h4
 import src.handler_05_additional_flags   as h5
 import src.handler_06_rumors             as h6
 import src.handler_07_terrain            as h7
+import src.handler_08_objects            as h8
 
 #import data.heroes    as hero_data
 #import data.artifacts as art_data
@@ -28,19 +29,21 @@ def main() -> None:
         hero_data  = h4.parse_hero_data()
         terrain    = h7.parse_terrain(general["map_size"],
                                       general["is_two_level"])
-
+        objects    = h8.parse_objects()
+        o_details  = h8.parse_object_details()
         unhandled  = io.in_file.read()
 
-    print("\nGeneral:\n\n", general)
-    print("\nPlayer Specs:")
-    for i in range(8):
-        print("\nPlayer", i+1)
-        print(players[i])
-    print("\nTeams:\n\n", teams)
-    print("\nVictory/Loss Conditions:\n\n", conditions)
-    print("\nHeroes:\n\n", hero_flags, "\n\n", hero_data)
-    print("\nBans:\n\n", ban_flags)
-    print("\nRumors:\n\n", rumors)
+#    print("\nGeneral:\n\n", general)
+#    print("\nPlayer Specs:")
+#    for i in range(8):
+#        print("\nPlayer", i+1)
+#        print(players[i])
+#    print("\nTeams:\n\n", teams)
+#    print("\nVictory/Loss Conditions:\n\n", conditions)
+#    print("\nHeroes:\n\n", hero_flags, "\n\n", hero_data)
+#    print("\nBans:\n\n", ban_flags)
+#    print("\nRumors:\n\n", rumors)
+#    print("\nObjects:\n\n", objects)
 
     with gzip.open("output.h3m", 'wb') as io.out_file:
         h1.write_general(general)
@@ -52,6 +55,8 @@ def main() -> None:
         h6.write_rumors(rumors)
         h4.write_hero_data(hero_data)
         h7.write_terrain(terrain)
+        h8.write_objects(objects)
+        h8.write_object_details(o_details)
         io.out_file.write(unhandled)
 
 if __name__ == "__main__":

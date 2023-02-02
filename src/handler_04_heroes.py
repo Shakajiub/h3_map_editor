@@ -89,8 +89,7 @@ def parse_hero_data() -> list:
         if io.read_int(1): # Is biography set?
             hero["biography"] = io.read_str(io.read_int(4))
 
-        if io.read_int(1) != 255: # Is gender set?
-            hero["gender"] = io.read_int(1)
+        hero["gender"] = io.read_int(1)
 
         if io.read_int(1): # Are spells set?
             hero["spells"] = io.read_raw(9) # TODO: Parse spells.
@@ -184,10 +183,7 @@ def write_hero_data(info: list) -> None:
         else: io.write_int(0, 1)
 
         #
-        if hero["gender"] != 255:
-            io.write_int(1, 1)
-            io.write_int(hero["gender"], 1)
-        else: io.write_int(255, 1)
+        io.write_int(hero["gender"], 1)
 
         #
         if hero["spells"] != b'':
