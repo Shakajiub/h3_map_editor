@@ -21,9 +21,10 @@ def main() -> None:
         players    = h2.parse_player_specs()
         conditions = h3.parse_victory_conditions()
         teams      = h2.parse_teams()
-        heroes     = h4.parse_heroes(general["map_format"])
+        hero_flags = h4.parse_hero_flags(general["map_format"])
         artifacts  = h5.parse_artifacts()
         rumors     = h6.parse_rumors()
+        hero_data  = h4.parse_hero_data()
         unhandled  = io.in_file.read()
 
     print("\nGeneral:\n\n", general)
@@ -33,7 +34,7 @@ def main() -> None:
         print(players[i])
     print("\nTeams:\n\n", teams)
     print("\nVictory/Loss Conditions:\n\n", conditions)
-    print("\nHeroes:\n\n", heroes)
+    print("\nHeroes:\n\n", hero_flags, "\n\n", hero_data)
     print("\nArtifacts:\n\n", artifacts)
     print("\nRumors:\n\n", rumors)
 
@@ -42,9 +43,10 @@ def main() -> None:
         h2.write_player_specs(players)
         h3.write_victory_conditions(conditions)
         h2.write_teams(teams)
-        h4.write_heroes(heroes)
+        h4.write_hero_flags(hero_flags)
         h5.write_artifacts(artifacts)
         h6.write_rumors(rumors)
+        h4.write_hero_data(hero_data)
         io.out_file.write(unhandled)
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ def parse_rumors() -> dict:
         "rumors": []
     }
 
-    for i in range(io.read_int(4)):
+    for _ in range(io.read_int(4)):
         rumor = {}
         rumor["name"] = io.read_str(io.read_int(4))
         rumor["text"] = io.read_str(io.read_int(4))
@@ -18,8 +18,8 @@ def parse_rumors() -> dict:
 def write_rumors(info: dict) -> None:
     io.write_int(len(info["rumors"]), 4)
 
-    for r in info["rumors"]:
-        io.write_int(len(r["name"]), 4)
-        io.write_str(    r["name"])
-        io.write_int(len(r["text"]), 4)
-        io.write_str(    r["text"])
+    for rumor in info["rumors"]:
+        io.write_int(len(rumor["name"]), 4)
+        io.write_str(    rumor["name"])
+        io.write_int(len(rumor["text"]), 4)
+        io.write_str(    rumor["text"])

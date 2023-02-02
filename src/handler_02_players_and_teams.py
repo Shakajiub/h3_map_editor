@@ -19,7 +19,7 @@ class Factions(IntEnum):
 def parse_player_specs() -> dict:
     specs = []
 
-    for i in range(8):
+    for _ in range(8):
         info = {
             "playability_human"    : False,
             "playability_ai"       : False,
@@ -64,7 +64,7 @@ def parse_player_specs() -> dict:
             info["starting_hero_name"] = io.read_str(io.read_int(4))
             info["garbage_byte"]       = io.read_raw(1)
 
-            for h in range(io.read_int(4)):
+            for _ in range(io.read_int(4)):
                 hero = {}
                 hero["id"]   = io.read_int(1)
                 hero["name"] = io.read_str(io.read_int(4))
@@ -130,10 +130,10 @@ def write_player_specs(specs: dict) -> None:
             io.write_raw(    info["garbage_byte"])
             io.write_int(len(info["available_heroes"]), 4)
 
-            for h in info["available_heroes"]:
-                io.write_int(    h["id"], 1)
-                io.write_int(len(h["name"]), 4)
-                io.write_str(    h["name"])
+            for hero in info["available_heroes"]:
+                io.write_int(    hero["id"], 1)
+                io.write_int(len(hero["name"]), 4)
+                io.write_str(    hero["name"])
 
         else: io.write_raw(info["unhandled_bytes"])
 
