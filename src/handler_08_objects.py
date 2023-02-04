@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-import src.file_io as io
+import src.file_io  as io
+import data.objects as ob
 
 def parse_objects() -> list:
     info = []
 
-    for _ in range(io.read_int(4)):
+    for _ in range(io.read_int(4)): # Amount of objects
         obj = {}
         obj["sprite"]            = io.read_str(io.read_int(4))
         obj["red_squares"]       = io.read_bits(6)
@@ -26,7 +27,7 @@ def parse_object_details() -> dict:
 
 #    io.peek(64)
 
-#    for _ in range(io.read_int(4)):
+#    for _ in range(io.read_int(4)): # Amount of objects
 #        pass
 
     return info
@@ -36,16 +37,17 @@ def write_objects(info: list) -> None:
 
     for obj in info:
         io.write_int(len(obj["sprite"]), 4)
-        io.write_str(obj["sprite"])
+
+        io.write_str( obj["sprite"])
         io.write_bits(obj["red_squares"])
         io.write_bits(obj["yellow_squares"])
         io.write_bits(obj["placeable_terrain"])
         io.write_bits(obj["editor_section"])
-        io.write_int(obj["id"], 4)
-        io.write_int(obj["sub_id"], 4)
-        io.write_int(obj["editor_group"], 1)
-        io.write_int(obj["below_ground"], 1)
-        io.write_raw(obj["null_bytes"])
+        io.write_int( obj["id"], 4)
+        io.write_int( obj["sub_id"], 4)
+        io.write_int( obj["editor_group"], 1)
+        io.write_int( obj["below_ground"], 1)
+        io.write_raw( obj["null_bytes"])
 
 def write_object_details(info: dict) -> None:
     pass

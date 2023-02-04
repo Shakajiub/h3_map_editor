@@ -24,7 +24,7 @@ class ID(IntEnum):
     Creature_Generator_2        =  18
     Creature_Generator_3        =  19
     Creature_Generator_4        =  20
-    Cursed_Ground               =  21
+    Cursed_Ground_RoE           =  21
     Corpse                      =  22
     Marletto_Tower              =  23
     Derelict_Ship               =  24
@@ -49,7 +49,7 @@ class ID(IntEnum):
     Monolith_One_Way_Entrance   =  43
     Monolith_One_Way_Exit       =  44
     Two_Way_Monolith            =  45
-    Magic_Plains                =  46
+    Magic_Plains_RoE            =  46
     School_of_Magic             =  47
     Magic_Spring                =  48
     Magic_Well                  =  49
@@ -142,14 +142,14 @@ class ID(IntEnum):
     Outcropping                 = 136
     Pine_Trees                  = 137
     Plant                       = 138
-    #                             139
-    #                             140
-    #                             141
-    #                             142
+    HotA_Decoration_1           = 139 # HotA
+    HotA_Decoration_2           = 140 # HotA
+    HotA_Ground                 = 141 # HotA
+    HotA_Warehouse              = 142 # HotA
     River_Delta                 = 143
-    #                             144
-    #                             145
-    #                             146
+    HotA_Visitable_1            = 144 # HotA
+    HotA_Collectible            = 145 # HotA
+    HotA_Visitable_2            = 146 # HotA
     Rock                        = 147
     Sand_Dune                   = 148
     Sand_Pit                    = 149
@@ -220,20 +220,20 @@ class ID(IntEnum):
     Hero_Placeholder            = 214
     Quest_Guard                 = 215
     Random_Dwelling             = 216
-    #                             217
-    #                             218
-    Garrison_2                  = 219
-    Mine_2                      = 220
-    Trading_Post_2              = 221
+    Random_Dwelling_Leveled     = 217
+    Random_Dwelling_Faction     = 218
+    Garrison_Vertical           = 219
+    Abandoned_Mine              = 220
+    Trading_Post_Snow           = 221
     Clover_Field                = 222
-    Cursed_Ground_2             = 223
+    Cursed_Ground               = 223
     Evil_Fog                    = 224
     Favorable_Winds             = 225
     Fiery_Fields                = 226
     Holy_Ground                 = 227
     Lucid_Pools                 = 228
     Magic_Clouds                = 229
-    Magic_Plains_2              = 230
+    Magic_Plains                = 230
     Rocklands                   = 231
     #                             232
     #                             233
@@ -259,3 +259,148 @@ class ID(IntEnum):
     #                             253
     #                             254
     #                             255
+
+class CreatureBank(IntEnum): # ID 16
+    Cyclops_Stockpile    =  0
+    Dwarven_Treasury     =  1
+    Griffin_Conservatory =  2
+    Imp_Cache            =  3
+    Medusa_Stores        =  4
+    Naga_Bank            =  5
+    Dragon_Fly_Hive      =  6
+    Shipwreck            =  7
+    Derelict_Ship        =  8
+    Crypt                =  9
+    Dragon_Utopia        = 10
+    #                      11
+    #                      12
+    #                      13
+    #                      14
+    #                      15
+    #                      16
+    #                      17
+    #                      18
+    #                      19
+    #                      20
+    Beholders_Sanctuary  = 21
+    Temple_of_the_Sea    = 22
+    Pirate_Cavern        = 23
+    Mansion              = 24
+    Spit                 = 25
+    Red_Tower            = 26
+    Black_Tower          = 27
+    Ivory_Tower          = 28
+    Churchyard           = 29
+    Experimental_Shop    = 30
+    Wolf_Raider_Picket   = 31
+    Ruins                = 32
+
+class TwoWayMonolith(IntEnum): # ID 45
+    Small_Green      =  0
+    Small_Brown      =  1
+    Small_Violet     =  2
+    Small_Orange     =  3
+    Big_Green        =  4
+    Big_Yellow       =  5
+    Big_Red          =  6
+    Big_Cyan         =  7
+    Water_White      =  8
+    Small_Pink       =  9
+    Small_Turquoise  = 10
+    Small_Yellow     = 11
+    Small_Black      = 12
+    Big_Chartreuse   = 13
+    Big_Turquoise    = 14
+    Big_Violet       = 15
+    Big_Orange       = 16
+    Small_Blue       = 17
+    Small_Red        = 18
+    Big_Pink         = 19
+    Big_Blue         = 20
+    Water_Red        = 21
+    Water_Blue       = 22
+    Water_Chartreuse = 23
+    Water_Yellow     = 24
+
+class HotA_Decoration_1(IntEnum): # ID 139
+    Crate                    =  0
+    Crates                   =  1
+    Sack                     =  2
+    Barrels                  =  3
+    Jaw                      =  4
+    Rope                     =  5
+    Frog                     =  6
+    Frogs                    =  7
+    Chicken                  =  8
+    Rooster                  =  9
+    Bluebottle               = 10
+    Ruined_Camp              = 11
+    Ruined_Fountain          = 12
+    Pig                      = 13
+    Ancient_Altar            = 14
+    Abandoned_Boat           = 15
+    Fence                    = 16
+    Waterfalls               = 17
+    Fire                     = 18
+    Ruined_Subterranean_Gate = 19
+    Carnivorous_Plant        = 20
+    Bridge                   = 21
+    Bone                     = 22
+    Sacks                    = 23
+    Puddles                  = 24
+    Rubble                   = 25
+    Limestone_Puddles        = 26
+
+class HotA_Decoration_2(IntEnum): # ID 140
+    Stony_Sphere   = 0
+    Stone          = 1
+    Palms          = 2
+    Ice_Block      = 3
+    Pile_of_Stones = 4
+    Snow_Hills     = 5
+    Barchan_Dunes  = 6
+    Spruces        = 7
+    Limestone_Lake = 8
+
+class HotA_Ground(IntEnum): # ID 141
+    Cracked_Ice     = 0
+    Dunes           = 1
+    Fields_of_Glory = 2
+
+class HotA_Visitable_1(IntEnum): # ID 144
+    Temple_of_Loyalty     =  0
+    Skeleton_Transformer  =  1
+    Colosseum_of_the_Magi =  2
+    Watering_Place        =  3
+    Mineral_Spring        =  4
+    Hermits_Shack         =  5
+    Gazebo                =  6
+    Junkman               =  7
+    Derrick               =  8
+    Warlocks_Lab          =  9
+    Prospector            = 10
+    Trailblazer           = 11
+
+class HotA_Collectible(IntEnum): # ID 145
+    Ancient_Lamp = 0
+    Sea_Barrel   = 1
+    Jetsam       = 2
+    Vial_of_Mana = 3
+
+class HotA_Visitable_2(IntEnum): # ID 146
+    Seafaring_Academy = 0
+    Observatory       = 1
+    Altar_of_Mana     = 2
+    Town_Gate         = 3
+
+class BorderGate(IntEnum): # ID 212
+    Light_Blue =    0
+    Green      =    1
+    Red        =    2
+    Dark_Blue  =    3
+    Brown      =    4
+    Purple     =    5
+    White      =    6
+    Black      =    7
+    Quest_Gate = 1000 # HotA
+    Grave      = 1001 # HotA
