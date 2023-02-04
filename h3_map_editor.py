@@ -14,9 +14,6 @@ import src.handler_06_rumors             as h6
 import src.handler_07_terrain            as h7
 import src.handler_08_objects            as h8
 
-#import data.heroes    as hero_data
-#import data.artifacts as art_data
-
 def main() -> None:
     with gzip.open(sys.argv[1], 'rb') as io.in_file:
         general    = h1.parse_general()
@@ -30,7 +27,7 @@ def main() -> None:
         terrain    = h7.parse_terrain(general["map_size"],
                                       general["is_two_level"])
         objects    = h8.parse_objects()
-        o_details  = h8.parse_object_details()
+        o_details  = h8.parse_object_details(objects)
         unhandled  = io.in_file.read()
 
 #    print("\nGeneral:\n\n", general)
@@ -44,6 +41,7 @@ def main() -> None:
 #    print("\nBans:\n\n", ban_flags)
 #    print("\nRumors:\n\n", rumors)
 #    print("\nObjects:\n\n", objects)
+#    print("\nObject Data:\n\n", o_details)
 
     with gzip.open("output.h3m", 'wb') as io.out_file:
         h1.write_general(general)
@@ -56,7 +54,7 @@ def main() -> None:
         h4.write_hero_data(hero_data)
         h7.write_terrain(terrain)
         h8.write_objects(objects)
-        h8.write_object_details(o_details)
+        h8.write_object_details(objects, o_details)
         io.out_file.write(unhandled)
 
 if __name__ == "__main__":

@@ -260,7 +260,7 @@ class ID(IntEnum):
     #                             254
     #                             255
 
-class CreatureBank(IntEnum): # ID 16
+class Bank(IntEnum): # ID 16
     Cyclops_Stockpile    =  0
     Dwarven_Treasury     =  1
     Griffin_Conservatory =  2
@@ -295,6 +295,115 @@ class CreatureBank(IntEnum): # ID 16
     Wolf_Raider_Picket   = 31
     Ruins                = 32
 
+class Dwelling(IntEnum): # ID 17
+    Basilisk            =   0
+    Behemoth            =   1
+    Beholder            =   2
+    Black_Knight        =   3
+    Bone_Dragon         =   4
+    Cavalier            =   5
+    Centaur             =   6
+    Air_Elemental_Big   =   7
+    Angel               =   8
+    Cyclops             =   9
+    Devil               =  10
+    Serpent_Fly         =  11
+    Dwarf               =  12
+    Earth_Elemental_Big =  13
+    Efreeti             =  14
+    Wood_Elf            =  15
+    Fire_Elemental_Big  =  16
+    Stone_Gargoyle      =  17
+    Genie               =  18
+    Wolf_Rider          =  19
+    Gnoll               =  20
+    Goblin              =  21
+    Gog                 =  22
+    Gorgon              =  23
+    Green_Dragon        =  24
+    Griffin             =  25
+    Harpy               =  26
+    Hell_Hound          =  27
+    Hydra               =  28
+    Imp                 =  29
+    Lizardman           =  30
+    Mage                =  31
+    Manticore           =  32
+    Medusa              =  33
+    Minotaur            =  34
+    Monk                =  35
+    Naga                =  36
+    Demon               =  37
+    Ogre                =  38
+    Orc                 =  39
+    Pit_Fiend           =  40
+    Red_Dragon          =  41
+    Roc                 =  42
+    Gremlin             =  43
+    Giant               =  44
+    Dendroid_Guard      =  45
+    Troglodyte          =  46
+    Water_Elemental_Big =  47
+    Wight               =  48
+    Wyvern              =  49
+    Pegasus             =  50
+    Unicorn_Big         =  51
+    Lich                =  52
+    Vampire             =  53
+    Skeleton            =  54
+    Walking_Dead        =  55
+    Pikeman             =  56
+    Archer              =  57
+    Swordsman           =  58
+    Pixie               =  59
+    Psychic_Elemental   =  60
+    Firebird            =  61
+    Azure_Dragon        =  62
+    Crystal_Dragon      =  63
+    Faerie_Dragon       =  64
+    Rust_Dragon         =  65
+    Enchanter           =  66
+    Sharpshooter        =  67
+    Unicorn             =  68
+    Air_Elemental       =  69
+    Earth_Elemental     =  70
+    Fire_Elemental      =  71
+    Water_Elemental     =  72
+    Halfling            =  73
+    Peasant             =  74
+    Boar                =  75
+    Mummy               =  76
+    Nomad               =  77
+    Rogue               =  78
+    Troll               =  79
+    #                      80
+    #                      81
+    #                      82
+    #                      83
+    #                      84
+    #                      85
+    #                      86
+    #                      87
+    #                      88
+    #                      89
+    #                      90
+    Sea_Serpent_Big     =  91
+    Nymph               =  92
+    Crew_Mate           =  93
+    Pirate              =  94
+    Stormbird           =  95
+    Sea_Witch           =  96
+    Nix_Big             =  97
+    Sea_Serpent         =  98
+    Nix                 =  99
+    Satyr               = 100
+    Fangarm             = 101
+    Leprechaun          = 102
+
+class Dwelling_Multi(IntEnum): # ID 20
+    Elementals = 0
+    Golems     = 1
+
 class TwoWayMonolith(IntEnum): # ID 45
     Small_Green      =  0
     Small_Brown      =  1
@@ -321,6 +430,15 @@ class TwoWayMonolith(IntEnum): # ID 45
     Water_Blue       = 22
     Water_Chartreuse = 23
     Water_Yellow     = 24
+
+class Resource(IntEnum): # ID 79
+    Wood    = 0
+    Mercury = 1
+    Ore     = 2
+    Sulfur  = 3
+    Crystal = 4
+    Gems    = 5
+    Gold    = 6
 
 class HotA_Decoration_1(IntEnum): # ID 139
     Crate                    =  0

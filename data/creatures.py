@@ -3,6 +3,8 @@
 from enum import IntEnum
 
 class ID(IntEnum):
+    NONE = 65535
+
     Pikeman             =   0
     Halberdier          =   1
     Archer              =   2
@@ -27,8 +29,8 @@ class ID(IntEnum):
     Silver_Pegasus      =  21
     Dendroid_Guard      =  22
     Dendroid_Soldier    =  23
-    Unicorn	Unicorns    =  24
-    War_Unicorn	War     =  25
+    Unicorn             =  24
+    War_Unicorn         =  25
     Green_Dragon        =  26
     Gold_Dragon         =  27
     Gremlin             =  28

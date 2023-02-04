@@ -2,7 +2,7 @@
 
 import src.file_io    as io
 import data.artifacts as art_data
-import data.resources as res_data
+from data.objects import Resource
 
 from enum import IntEnum
 
@@ -55,7 +55,7 @@ def parse_victory_conditions() -> None:
                 info["objective_value_1"] = io.read_int(2)
                 info["objective_value_2"] = io.read_int(4)
             case VictoryType.ACCUMULATE_RESOURCES:
-                info["objective_value_1"] = res_data.ID(io.read_int(1))
+                info["objective_value_1"] = Resource(io.read_int(1))
                 info["objective_value_2"] = io.read_int(4)
             case VictoryType.UPGRADE_TOWN:
                 info["objective_coords"][0] = io.read_int(1)
