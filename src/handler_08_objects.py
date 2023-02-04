@@ -51,7 +51,7 @@ def parse_object_details(objects: list) -> list:
     info = []
 
     for _ in range(io.read_int(4)): # Amount of objects
-        io.peek(64)
+#        io.peek(128)
 
         obj = { "coords": [0, 0, 0] }
         obj["coords"][0] = io.read_int(1)
@@ -138,6 +138,84 @@ def write_common(obj: dict) -> None:
 
     io.write_int(0, 4)
 
+def parse_contents(obj: dict) -> dict:
+    obj["contents"] = {
+        "Experience"      : 0,
+        "Spell_Points"    : 0,
+        "Morale"          : 0,
+        "Luck"            : 0,
+        "Resources"       : [],
+        "Primary_Skills"  : [],
+        "Secondary_Skills": [],
+        "Artifacts"       : [],
+        "Spells"          : [],
+        "Creatures"       : []
+    }
+
+    obj["contents"]["Experience"]   = io.read_int(4)
+    obj["contents"]["Spell_Points"] = io.read_int(4)
+    obj["contents"]["Morale"]       = io.read_int(1)
+    obj["contents"]["Luck"]         = io.read_int(1)
+
+    for _ in range(7):
+        obj["contents"]["Resources"].append(io.read_int(4))
+
+    for _ in range(4):
+        obj["contents"]["Primary_Skills"].append(io.read_int(1))
+
+    for _ in range(io.read_int(1)):
+        skill = {}
+        skill["id"] = io.read_int(1)
+        skill["level"] = io.read_int(1)
+        obj["contents"]["Secondary_Skills"].append(skill)
+
+    for _ in range(io.read_int(1)):
+        obj["contents"]["Artifacts"].append(io.read_int(2))
+
+    for _ in range(io.read_int(1)):
+        obj["contents"]["Spells"].append(io.read_int(1))
+
+    for _ in range(io.read_int(1)):
+        creature = {}
+        creature["id"] = cd.ID(io.read_int(2))
+        creature["amount"]   = io.read_int(2)
+        obj["contents"]["Creatures"].append(creature)
+
+    io.seek(8)
+    return obj
+
+def write_contents(contents: dict) -> None:
+    io.write_int(contents["Experience"], 4)
+    io.write_int(contents["Spell_Points"], 4)
+    io.write_int(contents["Morale"], 1)
+    io.write_int(contents["Luck"], 1)
+
+    for value in contents["Resources"]:
+        io.write_int(value, 4)
+
+    for value in contents["Primary_Skills"]:
+        io.write_int(value, 1)
+
+    io.write_int(len(contents["Secondary_Skills"]), 1)
+    for skill in contents["Secondary_Skills"]:
+        io.write_int(skill["id"], 1)
+        io.write_int(skill["level"], 1)
+
+    io.write_int(len(contents["Artifacts"]), 1)
+    for value in contents["Artifacts"]:
+        io.write_int(value, 2)
+
+    io.write_int(len(contents["Spells"]), 1)
+    for value in contents["Spells"]:
+        io.write_int(value, 1)
+
+    io.write_int(len(contents["Creatures"]), 1)
+    for creature in contents["Creatures"]:
+        io.write_int(creature["id"], 2)
+        io.write_int(creature["amount"], 2)
+
+    io.write_int(0, 8)
+
 def parse_artifact(obj: dict) -> dict:
     if io.read_int(1):
         return parse_common(obj)
@@ -149,10 +227,17 @@ def write_artifact(obj: dict) -> None:
     else: io.write_int(0, 1)
 
 def parse_pandoras_box(obj: dict) -> dict:
+    if io.read_int(1):
+        obj = parse_common(obj)
+    obj = parse_contents(obj)
     return obj
 
 def write_pandoras_box(obj: dict) -> None:
-    pass
+    if len(obj) > 3:
+        write_common(obj)
+    else: io.write_int(0, 1)
+
+    write_contents(obj["contents"])
 
 def parse_resource(obj: dict) -> dict:
     if io.read_int(1):
