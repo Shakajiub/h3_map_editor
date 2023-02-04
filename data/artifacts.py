@@ -205,8 +205,8 @@ class ID(IntEnum):
 #
 # Byte 19 ... (144-151)
 #
-    #
-    #
+    # Highlighted slot
+    # Artifact lock
     Cannon                 = 146
     Trident_of_Dominion    = 147
     Shield_of_Naval_Glory  = 148

@@ -8,7 +8,9 @@ class MapFormat(IntEnum):
     RoE  = 14
     AB   = 21
     SoD  = 28
+    CHR  = 29
     HotA = 32
+    WoG  = 51
 
 class MapSize(IntEnum):
     S  =  36
@@ -45,13 +47,11 @@ def parse_general() -> dict:
     if info["map_format"] == MapFormat.HotA:
         info["hota_version"] = io.read_int(1)
 
-        if info["hota_version"] == 1:
-            info["hota_data"] = io.read_raw(5)
-        elif info["hota_version"] == 3:
+        if info["hota_version"] == 3:
             info["hota_data"] = io.read_raw(9)
-        else:
-            print("Unhandled HotA version!")
-            return info
+
+        else: raise NotImplementedError(info["hota_version"])
+    else: raise NotImplementedError(info["map_format"])
 
     info["has_hero"]     =       bool(io.read_int(1))
     info["map_size"]     =    MapSize(io.read_int(4))
