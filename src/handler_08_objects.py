@@ -117,7 +117,6 @@ def parse_common(obj: dict) -> dict:
 
     if message_length > 0:
         obj["message"] = io.read_str(message_length)
-
     if io.read_int(1):
         obj["guards"] = parse_guards()
 
@@ -140,15 +139,14 @@ def write_common(obj: dict) -> None:
     io.write_int(0, 4)
 
 def parse_artifact(obj: dict) -> dict:
-    if not io.read_int(1):
-        return obj
-    return parse_common(obj)
+    if io.read_int(1):
+        return parse_common(obj)
+    return obj
 
 def write_artifact(obj: dict) -> None:
-    if len(obj) == 2:
-        io.write_int(0, 1)
-        return
-    write_common(obj)
+    if len(obj) > 2:
+        write_common(obj)
+    else: io.write_int(0, 1)
 
 def parse_pandoras_box(obj: dict) -> dict:
     return obj
@@ -157,25 +155,17 @@ def write_pandoras_box(obj: dict) -> None:
     pass
 
 def parse_resource(obj: dict) -> dict:
-    if not io.read_int(1):
-        obj["amount"] = io.read_int(4)
-        io.seek(4)
-        return obj
+    if io.read_int(1):
+        obj = parse_common(obj)
 
-    obj = parse_common(obj)
     obj["amount"] = io.read_int(4)
-
     io.seek(4)
     return obj
 
 def write_resource(obj: dict) -> None:
-    if len(obj) == 3:
-        io.write_int(0, 1)
-        io.write_int(obj["amount"], 4)
-        io.write_int(0, 4)
-        return
-
-    write_common(obj)
+    if len(obj) > 3:
+        write_common(obj)
+    else: io.write_int(0, 1)
 
     io.write_int(obj["amount"], 4)
     io.write_int(0, 4)
