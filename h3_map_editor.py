@@ -27,7 +27,7 @@ def main() -> None:
         terrain    = h7.parse_terrain(general["map_size"],
                                       general["is_two_level"])
         objects    = h8.parse_objects()
-        o_details  = h8.parse_object_details(objects)
+        obj_data   = h8.parse_object_data(objects)
         unhandled  = io.in_file.read()
 
 #    print("\nGeneral:\n\n", general)
@@ -41,7 +41,7 @@ def main() -> None:
 #    print("\nBans:\n\n", ban_flags)
 #    print("\nRumors:\n\n", rumors)
 #    print("\nObjects:\n\n", objects)
-#    print("\nObject Data:\n\n", o_details)
+#    print("\nObject Data:\n\n", obj_data)
 
     with gzip.open("output.h3m", 'wb') as io.out_file:
         h1.write_general(general)
@@ -54,7 +54,7 @@ def main() -> None:
         h4.write_hero_data(hero_data)
         h7.write_terrain(terrain)
         h8.write_objects(objects)
-        h8.write_object_details(objects, o_details)
+        h8.write_object_data(objects, obj_data)
         io.out_file.write(unhandled)
 
 if __name__ == "__main__":

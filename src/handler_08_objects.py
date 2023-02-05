@@ -47,11 +47,11 @@ def write_objects(info: list) -> None:
         io.write_int(    obj["below_ground"], 1)
         io.write_raw(    obj["null_bytes"])
 
-def parse_object_details(objects: list) -> list:
+def parse_object_data(objects: list) -> list:
     info = []
 
     for _ in range(io.read_int(4)): # Amount of objects
-#        io.peek(128)
+#        io.peek(64)
 
         obj = { "coords": [0, 0, 0] }
         obj["coords"][0] = io.read_int(1)
@@ -62,14 +62,22 @@ def parse_object_details(objects: list) -> list:
         obj["id"] = temp_id
         io.seek(5)
 
-        match objects[temp_id]["type"]:
-            case od.ID.Artifact:
-                obj = parse_artifact(obj)
-            case od.ID.Pandoras_Box:
-                obj = parse_pandoras_box(obj)
-            case od.ID.Resource:
-                obj = parse_resource(obj)
-            case (od.ID.Altar_of_Sacrifice | od.ID.Arena):
+        obj_type = objects[temp_id]["type"]
+
+        match obj_type:
+            case od.ID.Artifact:     obj = parse_artifact(obj)
+            case od.ID.Pandoras_Box: obj = parse_pandoras_box(obj)
+            case od.ID.Resource:     obj = parse_resource(obj)
+
+            case _ if obj_type in od.CREATURE_BANKS:
+                obj = parse_bank(obj)
+
+            case (od.ID.Altar_of_Sacrifice | od.ID.Arena |
+                  od.ID.Black_Market       | od.ID.Boat  |
+                  od.ID.Border_Guard       | od.ID.Keymasters_Tent |
+                  od.ID.Buoy               | od.ID.Campfire  |
+                  od.ID.Cartographer       | od.ID.Swan_Pond |
+                  od.ID.Cover_of_Darkness):
                 pass
             case _:
                 raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
@@ -78,7 +86,7 @@ def parse_object_details(objects: list) -> list:
 
     return info
 
-def write_object_details(objects: list, info: list) -> None:
+def write_object_data(objects: list, info: list) -> None:
     io.write_int(len(info), 4)
 
     for obj in info:
@@ -90,13 +98,15 @@ def write_object_details(objects: list, info: list) -> None:
         io.write_int(temp_id, 4)
         io.write_int(0, 5)
 
-        match objects[temp_id]["type"]:
-            case od.ID.Artifact:
-                write_artifact(obj)
-            case od.ID.Pandoras_Box:
-                write_pandoras_box(obj)
-            case od.ID.Resource:
-                write_resource(obj)
+        obj_type = objects[temp_id]["type"]
+
+        match obj_type:
+            case od.ID.Artifact:     write_artifact(obj)
+            case od.ID.Pandoras_Box: write_pandoras_box(obj)
+            case od.ID.Resource:     write_resource(obj)
+
+            case _ if obj_type in od.CREATURE_BANKS:
+                write_bank(obj)
 
 def parse_guards() -> list:
     info = []
@@ -236,13 +246,28 @@ def write_pandoras_box(obj: dict) -> None:
     if len(obj) > 3:
         write_common(obj)
     else: io.write_int(0, 1)
-
     write_contents(obj["contents"])
+
+def parse_bank(obj: dict) -> dict:
+    obj["difficulty"] = io.read_int(4)
+    obj["upgraded_stack"] = io.read_int(1)
+    obj["rewards"] = []
+    for _ in range(io.read_int(4)):
+        obj["rewards"].append(ad.ID(io.read_int(4)))
+    return obj
+
+def write_bank(obj: dict) -> None:
+    io.write_int(obj["difficulty"], 4)
+    io.write_int(obj["upgraded_stack"], 1)
+
+    io.write_int(len(obj["rewards"]), 4)
+    if obj["rewards"]:
+        for reward in obj["rewards"]:
+            io.write_int(reward, 4)
 
 def parse_resource(obj: dict) -> dict:
     if io.read_int(1):
         obj = parse_common(obj)
-
     obj["amount"] = io.read_int(4)
     io.seek(4)
     return obj
@@ -251,6 +276,5 @@ def write_resource(obj: dict) -> None:
     if len(obj) > 3:
         write_common(obj)
     else: io.write_int(0, 1)
-
     io.write_int(obj["amount"], 4)
     io.write_int(0, 4)
