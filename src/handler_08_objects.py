@@ -51,7 +51,7 @@ def parse_object_data(objects: list) -> list:
     info = []
 
     for _ in range(io.read_int(4)): # Amount of objects
-#        io.peek(80)
+        io.peek(64)
 
         obj = { "coords": [0, 0, 0] }
         obj["coords"][0] = io.read_int(1)
@@ -70,9 +70,11 @@ def parse_object_data(objects: list) -> list:
             case od.ID.Event:        obj = parse_event(obj)
             case od.ID.Resource:     obj = parse_resource(obj)
 
-            case (od.ID.Creature_Generator_1 |
-                  od.ID.Creature_Generator_4):
+            case (od.ID.Creature_Generator_1 | od.ID.Creature_Generator_4):
                 obj = parse_owner(obj)
+
+            case (od.ID.Garrison | od.ID.Garrison_Vertical):
+                obj = parse_garrison(obj)
 
             case _ if obj_type in od.CREATURE_BANKS:
                 obj = parse_bank(obj)
@@ -89,7 +91,10 @@ def parse_object_data(objects: list) -> list:
                   od.ID.Holy_Ground        | od.ID.Lucid_Pools  |
                   od.ID.Magic_Clouds       | od.ID.Rocklands |
                   od.ID.HotA_Ground        | od.ID.Corpse    |
-                  od.ID.Marletto_Tower):
+                  od.ID.Marletto_Tower     | od.ID.Eye_of_the_Magi |
+                  od.ID.Faerie_Ring        | od.ID.Flotsam |
+                  od.ID.Fountain_of_Fortune | od.ID.Fountain_of_Youth |
+                  od.ID.Garden_of_Revelation):
                 pass
             case _:
                 raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
@@ -120,17 +125,19 @@ def write_object_data(objects: list, info: list) -> None:
 
             case (od.ID.Creature_Generator_1 |
                   od.ID.Creature_Generator_4):
-                write_owner(obj)
+                write_owner(obj["owner"])
+
+            case (od.ID.Garrison | od.ID.Garrison_Vertical):
+                write_garrison(obj)
 
             case _ if obj_type in od.CREATURE_BANKS:
                 write_bank(obj)
 
-def parse_owner(obj: dict) -> dict:
-    obj["owner"] = io.read_int(4)
-    return obj
+def parse_owner() -> int:
+    return io.read_int(4)
 
-def write_owner(obj: dict) -> None:
-    io.write_int(obj["owner"], 4)
+def write_owner(owner: int) -> None:
+    io.write_int(owner, 4)
 
 def parse_guards() -> list:
     info = []
@@ -172,8 +179,8 @@ def write_common(obj: dict) -> None:
 
     io.write_int(0, 4)
 
-def parse_contents(obj: dict) -> dict:
-    obj["contents"] = {
+def parse_contents() -> dict:
+    contents = {
         "Experience"      : 0,
         "Spell_Points"    : 0,
         "Morale"          : 0,
@@ -186,37 +193,37 @@ def parse_contents(obj: dict) -> dict:
         "Creatures"       : []
     }
 
-    obj["contents"]["Experience"]   = io.read_int(4)
-    obj["contents"]["Spell_Points"] = io.read_int(4)
-    obj["contents"]["Morale"]       = io.read_int(1)
-    obj["contents"]["Luck"]         = io.read_int(1)
+    contents["Experience"]   = io.read_int(4)
+    contents["Spell_Points"] = io.read_int(4)
+    contents["Morale"]       = io.read_int(1)
+    contents["Luck"]         = io.read_int(1)
 
     for _ in range(7):
-        obj["contents"]["Resources"].append(io.read_int(4))
+        contents["Resources"].append(io.read_int(4))
 
     for _ in range(4):
-        obj["contents"]["Primary_Skills"].append(io.read_int(1))
+        contents["Primary_Skills"].append(io.read_int(1))
 
     for _ in range(io.read_int(1)):
         skill = {}
         skill["id"] = io.read_int(1)
         skill["level"] = io.read_int(1)
-        obj["contents"]["Secondary_Skills"].append(skill)
+        contents["Secondary_Skills"].append(skill)
 
     for _ in range(io.read_int(1)):
-        obj["contents"]["Artifacts"].append(io.read_int(2))
+        contents["Artifacts"].append(io.read_int(2))
 
     for _ in range(io.read_int(1)):
-        obj["contents"]["Spells"].append(io.read_int(1))
+        contents["Spells"].append(io.read_int(1))
 
     for _ in range(io.read_int(1)):
         creature = {}
         creature["id"] = cd.ID(io.read_int(2))
         creature["amount"]   = io.read_int(2)
-        obj["contents"]["Creatures"].append(creature)
+        contents["Creatures"].append(creature)
 
     io.seek(8)
-    return obj
+    return contents
 
 def write_contents(contents: dict) -> None:
     io.write_int(contents["Experience"], 4)
@@ -263,7 +270,7 @@ def write_artifact(obj: dict) -> None:
 def parse_pandoras_box(obj: dict) -> dict:
     if io.read_int(1):
         obj = parse_common(obj)
-    obj = parse_contents(obj)
+    obj["contents"] = parse_contents()
     return obj
 
 def write_pandoras_box(obj: dict) -> None:
@@ -272,10 +279,28 @@ def write_pandoras_box(obj: dict) -> None:
     else: io.write_int(0, 1)
     write_contents(obj["contents"])
 
+def parse_bank(obj: dict) -> dict:
+    obj["difficulty"]     = io.read_int(4)
+    obj["upgraded_stack"] = io.read_int(1)
+    obj["rewards"]        = []
+
+    for _ in range(io.read_int(4)):
+        obj["rewards"].append(ad.ID(io.read_int(4)))
+
+    return obj
+
+def write_bank(obj: dict) -> None:
+    io.write_int(obj["difficulty"], 4)
+    io.write_int(obj["upgraded_stack"], 1)
+
+    io.write_int(len(obj["rewards"]), 4)
+    for reward in obj["rewards"]:
+        io.write_int(reward, 4)
+
 def parse_event(obj: dict) -> dict:
     if io.read_int(1):
         obj = parse_common(obj)
-    obj = parse_contents(obj)
+    obj["contents"] = parse_contents()
 
     obj["allowed_players"] =      io.read_bits(1)
     obj["allow_ai"]        = bool(io.read_int(1))
@@ -297,23 +322,18 @@ def write_event(obj: dict) -> None:
     io.write_int( obj["cancel_event"], 5)
     io.write_int( obj["allow_human"], 1)
 
-def parse_bank(obj: dict) -> dict:
-    obj["difficulty"]     = io.read_int(4)
-    obj["upgraded_stack"] = io.read_int(1)
-    obj["rewards"]        = []
+def parse_garrison(obj: dict) -> dict:
+    obj["owner"]  = parse_owner()
+    obj["guards"] = parse_guards()
+    obj["troops_removable"] = io.read_int(1)
 
-    for _ in range(io.read_int(4)):
-        obj["rewards"].append(ad.ID(io.read_int(4)))
-
+    io.seek(8)
     return obj
 
-def write_bank(obj: dict) -> None:
-    io.write_int(obj["difficulty"], 4)
-    io.write_int(obj["upgraded_stack"], 1)
-
-    io.write_int(len(obj["rewards"]), 4)
-    for reward in obj["rewards"]:
-        io.write_int(reward, 4)
+def write_garrison(obj: dict) -> None:
+    write_owner( obj["owner"])
+    write_guards(obj["guards"])
+    io.write_int(obj["troops_removable"], 9)
 
 def parse_resource(obj: dict) -> dict:
     if io.read_int(1):
