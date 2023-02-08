@@ -10,7 +10,7 @@ import src.handler_02_players_and_teams  as h2
 import src.handler_03_victory_conditions as h3
 import src.handler_04_heroes             as h4
 import src.handler_05_additional_flags   as h5
-import src.handler_06_rumors             as h6
+import src.handler_06_rumors_and_events  as h6
 import src.handler_07_terrain            as h7
 import src.handler_08_objects            as h8
 
@@ -28,7 +28,12 @@ def main() -> None:
                                       general["is_two_level"])
         objects    = h8.parse_objects()
         obj_data   = h8.parse_object_data(objects)
-        unhandled  = io.in_file.read()
+        events     = h6.parse_events()
+        null_bytes = io.in_file.read()
+
+    # Something like this to check the last bytes.
+#    if len(null_bytes != 124):
+#        print("Unusual amount of null bytes at the end of the file.")
 
 #    print("\nGeneral:\n\n", general)
 #    print("\nPlayer Specs:")
@@ -55,7 +60,8 @@ def main() -> None:
         h7.write_terrain(terrain)
         h8.write_objects(objects)
         h8.write_object_data(objects, obj_data)
-        io.out_file.write(unhandled)
+        h6.write_events(events)
+        io.out_file.write(null_bytes)
 
 if __name__ == "__main__":
     main()

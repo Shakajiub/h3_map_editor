@@ -138,6 +138,9 @@ def write_object_data(objects: list, info: list) -> None:
                 write_bank(obj)
 
 def parse_owner() -> int:
+    # TODO: The owner is actually just one byte, usually followed by three null
+    # bytes (but not always!). Remove this method and just read the owner
+    # everywhere by themselves. 
     return io.read_int(4)
 
 def write_owner(owner: int) -> None:
