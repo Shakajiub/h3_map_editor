@@ -33,6 +33,23 @@ def parse_hero_flags(version: int) -> dict:
 
     return info
 
+def write_hero_flags(info: dict) -> None:
+    if info["hota_data"] != b'':
+        io.write_raw(info["hota_data"])
+
+    io.write_bits(info["hero_flags"])
+    io.write_int(0, 4) # Write 4 always-empty bytes
+    io.write_int(len(info["custom_heroes"]), 1)
+
+    for hero in info["custom_heroes"]:
+        io.write_int(    hero["id"], 1)
+        io.write_int(    hero["face"], 1)
+        io.write_int(len(hero["name"]), 4)
+        io.write_str(    hero["name"])
+        io.write_int(    hero["may_be_hired_by"], 1)
+
+    io.write_raw(info["unhandled_bytes"])
+
 def parse_hero_data() -> list:
     info = []
     
@@ -103,23 +120,6 @@ def parse_hero_data() -> list:
         info.append(hero)
 
     return info
-
-def write_hero_flags(info: dict) -> None:
-    if info["hota_data"] != b'':
-        io.write_raw(info["hota_data"])
-
-    io.write_bits(info["hero_flags"])
-    io.write_int(0, 4) # Write 4 always-empty bytes
-    io.write_int(len(info["custom_heroes"]), 1)
-
-    for hero in info["custom_heroes"]:
-        io.write_int(    hero["id"], 1)
-        io.write_int(    hero["face"], 1)
-        io.write_int(len(hero["name"]), 4)
-        io.write_str(    hero["name"])
-        io.write_int(    hero["may_be_hired_by"], 1)
-
-    io.write_raw(info["unhandled_bytes"])
 
 def write_hero_data(info: list) -> None:
     io.write_int(len(info), 4)
