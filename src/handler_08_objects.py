@@ -4,6 +4,7 @@ import src.file_io    as io
 import data.objects   as od # Object details
 import data.creatures as cd # Creature details
 import data.artifacts as ad # Artifact details
+import data.heroes    as hd # Hero details
 
 from enum import IntEnum
 
@@ -67,11 +68,14 @@ def parse_object_data(objects: list) -> list:
         obj_type = objects[temp_id]["type"]
 
         match obj_type:
-            case od.ID.Artifact:     obj = parse_artifact(obj)
             case od.ID.Pandoras_Box: obj = parse_pandoras_box(obj)
             case od.ID.Event:        obj = parse_event(obj)
-            case od.ID.Hero:         obj = parse_hero(obj)
-            case od.ID.Resource:     obj = parse_resource(obj)
+
+            case (od.ID.Resource | od.ID.Random_Resource):
+                obj = parse_resource(obj)
+
+            case (od.ID.Hero | od.ID.Prison | od.ID.Random_Hero):
+                obj = parse_hero(obj)
 
             case (od.ID.Monster          | od.ID.Random_Monster   |
                   od.ID.Random_Monster_1 | od.ID.Random_Monster_2 |
@@ -82,6 +86,15 @@ def parse_object_data(objects: list) -> list:
 
             case od.ID.Grail:
                 obj["radius"] = io.read_int(4)
+
+            case (od.ID.Artifact                 | od.ID.Random_Artifact |
+                  od.ID.Random_Treasure_Artifact | od.ID.Random_Minor_Artifact |
+                  od.ID.Random_Major_Artifact    | od.ID.Random_Relic):
+                obj = parse_artifact(obj)
+
+            case od.ID.Ocean_Bottle:
+                obj["message"] = io.read_str(io.read_int(4))
+                io.seek(4)
 
             case (od.ID.Creature_Generator_1 | od.ID.Lighthouse |
                   od.ID.Creature_Generator_4 | od.ID.Mine):
@@ -99,29 +112,33 @@ def parse_object_data(objects: list) -> list:
 
             # Just a temporary list to make sure I've looked at all objects.
             # This will be the default case once everything has been parsed.
-            case (od.ID.Altar_of_Sacrifice   | od.ID.Arena |
-                  od.ID.Black_Market         | od.ID.Boat  |
+            case (od.ID.Altar_of_Sacrifice   | od.ID.Arena           |
+                  od.ID.Black_Market         | od.ID.Boat            |
                   od.ID.Border_Guard         | od.ID.Keymasters_Tent |
-                  od.ID.Buoy                 | od.ID.Campfire  |
-                  od.ID.Cartographer         | od.ID.Swan_Pond |
+                  od.ID.Buoy                 | od.ID.Campfire        |
+                  od.ID.Cartographer         | od.ID.Swan_Pond       |
                   od.ID.Cover_of_Darkness    | od.ID.Cursed_Ground_RoE |
                   od.ID.Cursed_Ground        | od.ID.Magic_Plains_RoE  |
-                  od.ID.Magic_Plains         | od.ID.Clover_Field |
-                  od.ID.Evil_Fog             | od.ID.Fiery_Fields |
-                  od.ID.Holy_Ground          | od.ID.Lucid_Pools  |
-                  od.ID.Magic_Clouds         | od.ID.Rocklands |
-                  od.ID.HotA_Ground          | od.ID.Corpse    |
+                  od.ID.Magic_Plains         | od.ID.Clover_Field    |
+                  od.ID.Evil_Fog             | od.ID.Fiery_Fields    |
+                  od.ID.Holy_Ground          | od.ID.Lucid_Pools     |
+                  od.ID.Magic_Clouds         | od.ID.Rocklands       |
+                  od.ID.HotA_Ground          | od.ID.Corpse          |
                   od.ID.Marletto_Tower       | od.ID.Eye_of_the_Magi |
-                  od.ID.Faerie_Ring          | od.ID.Flotsam |
+                  od.ID.Faerie_Ring          | od.ID.Flotsam         |
                   od.ID.Fountain_of_Fortune  | od.ID.Fountain_of_Youth |
-                  od.ID.Garden_of_Revelation | od.ID.Hill_Fort  |
+                  od.ID.Garden_of_Revelation | od.ID.Hill_Fort       |
                   od.ID.Hut_of_the_Magi      | od.ID.Idol_of_Fortune |
                   od.ID.Lean_To              | od.ID.Library_of_Enlightenment |
-                  od.ID.Monolith_One_Way_Entrance | od.ID.Magic_Well |
+                  od.ID.Monolith_One_Way_Entrance | od.ID.Magic_Well       |
                   od.ID.Monolith_One_Way_Exit     | od.ID.Two_Way_Monolith |
-                  od.ID.School_of_Magic      | od.ID.Magic_Spring |
-                  od.ID.Market_of_Time       | od.ID.Mercenary_Camp |
-                  od.ID.Mermaids):
+                  od.ID.School_of_Magic      | od.ID.Magic_Spring    |
+                  od.ID.Market_of_Time       | od.ID.Mercenary_Camp  |
+                  od.ID.Mermaids             | od.ID.Mystical_Garden |
+                  od.ID.Oasis                | od.ID.Obelisk         |
+                  od.ID.Redwood_Observatory  | od.ID.Pillar_of_Fire  |
+                  od.ID.Star_Axis            | od.ID.Pyramid         |
+                  od.ID.Rally_Flag):
                 pass
             case _:
                 raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
@@ -145,11 +162,14 @@ def write_object_data(objects: list, info: list) -> None:
         obj_type = objects[temp_id]["type"]
 
         match obj_type:
-            case od.ID.Artifact:     write_artifact(obj)
             case od.ID.Pandoras_Box: write_pandoras_box(obj)
             case od.ID.Event:        write_event(obj)
-            case od.ID.Hero:         write_hero(obj)
-            case od.ID.Resource:     write_resource(obj)
+
+            case (od.ID.Resource | od.ID.Random_Resource):
+                write_resource(obj)
+
+            case (od.ID.Hero | od.ID.Prison | od.ID.Random_Hero):
+                write_hero(obj)
 
             case (od.ID.Monster          | od.ID.Random_Monster   |
                   od.ID.Random_Monster_1 | od.ID.Random_Monster_2 |
@@ -159,6 +179,16 @@ def write_object_data(objects: list, info: list) -> None:
                 write_monster(obj)
 
             case od.ID.Grail: io.write_int(obj["radius"], 4)
+
+            case (od.ID.Artifact                 | od.ID.Random_Artifact |
+                  od.ID.Random_Treasure_Artifact | od.ID.Random_Minor_Artifact |
+                  od.ID.Random_Major_Artifact    | od.ID.Random_Relic):
+                write_artifact(obj)
+
+            case od.ID.Ocean_Bottle:
+                io.write_int(len(obj["message"]))
+                io.write_str(    obj["message"])
+                io.write_int(0, 4)
 
             case (od.ID.Creature_Generator_1 | od.ID.Lighthouse |
                   od.ID.Creature_Generator_4 | od.ID.Mine):
@@ -174,8 +204,8 @@ def write_object_data(objects: list, info: list) -> None:
             case _ if obj_type in od.CREATURE_BANKS:
                 write_bank(obj)
 
-            case _:
-                raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
+#            case _:
+#                raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
 
 def parse_owner() -> int:
     # TODO: The owner is actually just one byte, usually followed by three null
@@ -407,7 +437,7 @@ def parse_hero(obj: dict) -> dict:
         "primary_skills"    : {}
     }
 
-    hero["id"] = io.read_int(1)
+    hero["id"] = hd.ID(io.read_int(1))
 
     if io.read_int(1): # Is the name set?
         hero["name"] = io.read_str(io.read_int(4))

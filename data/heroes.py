@@ -3,7 +3,7 @@
 from enum import IntEnum
 
 class ID(IntEnum):
-    Invalid = 255
+    Default = 255
 #
 # Byte 1 ... (0-7)
 #
