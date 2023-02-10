@@ -22,7 +22,7 @@ def write_rumors(info: list) -> None:
         io.write_int(len(rumor["text"]), 4)
         io.write_str(    rumor["text"])
 
-def parse_events() -> list:
+def parse_events(is_town: bool = False) -> list:
     info = []
 
     for _ in range(io.read_int(4)): # Amount of timed events
@@ -39,13 +39,20 @@ def parse_events() -> list:
         event["apply_ai"]         = bool(io.read_int(1))
         event["first_occurence"]  =      io.read_int(2)
         event["subsequent_occurences"] = io.read_int(1)
-
         io.seek(17)
+
+        if is_town:
+            event["buildings"] = io.read_bits(6)
+            event["creatures"] = []
+            for _ in range(7):
+                event["creatures"].append(io.read_int(2))
+            io.seek(4)
+
         info.append(event)
 
     return info
 
-def write_events(info: list) -> None:
+def write_events(info: list, is_town: bool = False) -> None:
     io.write_int(len(info), 4)
 
     for event in info:
@@ -63,3 +70,9 @@ def write_events(info: list) -> None:
         io.write_int( event["first_occurence"], 2)
         io.write_int( event["subsequent_occurences"], 1)
         io.write_int(0, 17)
+
+        if is_town:
+            io.write_bits(event["buildings"])
+            for creature in event["creatures"]:
+                io.write_int(creature, 2)
+            io.write_int(0, 4)

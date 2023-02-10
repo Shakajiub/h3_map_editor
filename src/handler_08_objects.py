@@ -6,6 +6,8 @@ import data.creatures as cd # Creature details
 import data.artifacts as ad # Artifact details
 import data.heroes    as hd # Hero details
 
+from src.handler_06_rumors_and_events import parse_events, write_events
+
 from enum import IntEnum
 
 def parse_objects() -> list:
@@ -70,6 +72,9 @@ def parse_object_data(objects: list) -> list:
         match obj_type:
             case od.ID.Pandoras_Box: obj = parse_pandoras_box(obj)
             case od.ID.Event:        obj = parse_event(obj)
+
+            case (od.ID.Town | od.ID.Random_Town):
+                obj = parse_town(obj)
 
             case (od.ID.Resource | od.ID.Random_Resource):
                 obj = parse_resource(obj)
@@ -164,6 +169,9 @@ def write_object_data(objects: list, info: list) -> None:
         match obj_type:
             case od.ID.Pandoras_Box: write_pandoras_box(obj)
             case od.ID.Event:        write_event(obj)
+
+            case (od.ID.Town | od.ID.Random_Town):
+                write_town(obj)
 
             case (od.ID.Resource | od.ID.Random_Resource):
                 write_resource(obj)
@@ -625,22 +633,20 @@ def parse_monster(obj: dict) -> dict:
     obj["disposition"] = Disposition(io.read_int(1))
 
     if io.read_int(1):
-        obj["message"]   = io.read_str(io.read_int(4))
+        obj["message"] = io.read_str(io.read_int(4))
         obj["resources"] = []
         for _ in range(7):
             obj["resources"].append(io.read_int(4))
         obj["artifact"] = ad.ID(io.read_int(2))
 
-    obj["monster_never_flees"]    = bool(io.read_int(1))
-    obj["quantity_does_not_grow"] = bool(io.read_int(1))
-
-    obj["middle_bytes"] = io.read_raw(2)
-
-    obj["precise_disposition"]      =      io.read_int(4)
-    obj["join_only_for_money"]      = bool(io.read_int(1))
-    obj["joining_monster_percent"]  =      io.read_int(4)
-    obj["upgraded_stack"]           =      io.read_int(4)
-    obj["stack_count"]              =      io.read_int(4)
+    obj["monster_never_flees"]     = bool(io.read_int(1))
+    obj["quantity_does_not_grow"]  = bool(io.read_int(1))
+    obj["middle_bytes"]            =      io.read_raw(2)
+    obj["precise_disposition"]     =      io.read_int(4)
+    obj["join_only_for_money"]     = bool(io.read_int(1))
+    obj["joining_monster_percent"] =      io.read_int(4)
+    obj["upgraded_stack"]          =      io.read_int(4)
+    obj["stack_count"]             =      io.read_int(4)
 
     return obj
 
@@ -666,6 +672,67 @@ def write_monster(obj: dict) -> None:
     io.write_int(obj["joining_monster_percent"], 4)
     io.write_int(obj["upgraded_stack"], 4)
     io.write_int(obj["stack_count"], 4)
+
+def parse_town(obj: dict) -> dict:
+    obj["start_bytes"] = io.read_raw(4)
+    obj["owner"]       = io.read_int(1)
+
+    if io.read_int(1): # Is the name set?
+        obj["name"] = io.read_str(io.read_int(4))
+
+    if io.read_int(1): # Is the garrison customized?
+        obj["garrison_guards"] = parse_guards()
+
+    obj["garrison_formation"] = io.read_int(1)
+
+    if io.read_int(1): # Are the buildings customized?
+        obj["buildings_built"]    =      io.read_bits(6)
+        obj["buildings_disabled"] =      io.read_bits(6)
+    else: obj["has_fort"]         = bool(io.read_int(1))
+
+    obj["spells_must_appear"]  =      io.read_bits(9)
+    obj["spells_cant_appear"]  =      io.read_bits(9)
+    obj["spell_research"]      = bool(io.read_int(1))
+
+    obj["events"]    = parse_events(is_town=True)
+    obj["alignment"] = io.read_int(1)
+
+    io.seek(3)
+    return obj
+
+def write_town(obj: dict) -> None:
+    io.write_raw(obj["start_bytes"])
+    io.write_int(obj["owner"], 1)
+
+    if "name" in obj:
+        io.write_int(1, 1)
+        io.write_int(len(obj["name"]), 1)
+        io.write_str(    obj["name"])
+    else: io.write_int(0, 1)
+
+    if "garrison_guards" in obj:
+        io.write_int(1, 1)
+        write_guards(obj["garrison_guards"])
+    else: io.write_int(0, 1)
+
+    io.write_int(obj["garrison_formation"], 1)
+
+    if "buildings_built" in obj:
+        io.write_int(1, 1)
+        io.write_bits(obj["buildings_built"])
+        io.write_bits(obj["buildings_disabled"])
+    else:
+        io.write_int(0, 1)
+        io.write_int(obj["has_fort"], 1)
+
+    io.write_bits(obj["spells_must_appear"])
+    io.write_bits(obj["spells_cant_appear"])
+    io.write_int( obj["spell_research"], 1)
+
+    write_events(obj["events"], is_town=True)
+
+    io.write_int(obj["alignment"], 1)
+    io.write_int(0, 3)
 
 def parse_resource(obj: dict) -> dict:
     if io.read_int(1):
