@@ -755,29 +755,23 @@ def write_resource(obj: dict) -> None:
     io.write_int(obj["amount"], 4)
     io.write_int(0, 4)
 
-class Reward(IntEnum):
-    Random          = 255
-    Primary_Skill   =   0
-    Secondary_Skill =   1
-    Spell           =   2
-
 def parse_scholar(obj: dict) -> dict:
-    obj["reward"] = Reward(io.read_int(1))
+    obj["type"] = io.read_int(1)
     
-    match obj["reward"]:
-        case Reward.Random:          io.seek(1)
-        case Reward.Primary_Skill:   obj["value"] = skd.Primary(io.read_int(1))
-        case Reward.Secondary_Skill: obj["value"] = skd.Secondary(io.read_int(1))
-        case Reward.Spell:           obj["value"] = spd.ID(io.read_int(1))
+    match obj["type"]:
+        case 255: io.seek(1) # Random
+        case 0:   obj["reward"] = skd.Primary(io.read_int(1))
+        case 1:   obj["reward"] = skd.Secondary(io.read_int(1))
+        case 2:   obj["reward"] = spd.ID(io.read_int(1))
 
     io.seek(6)
     return obj
 
 def write_scholar(obj: dict) -> None:
-    io.write_int(obj["reward"], 1)
+    io.write_int(obj["type"], 1)
 
-    if "value" in obj:
-        io.write_int(obj["value"], 1)
+    if "reward" in obj:
+        io.write_int(obj["reward"], 1)
     else: io.write_int(0, 0)
 
     io.write_int(0, 6)
