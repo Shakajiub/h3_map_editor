@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
 import src.file_io    as io
-import data.objects   as od # Object details
-import data.creatures as cd # Creature details
-import data.artifacts as ad # Artifact details
-import data.heroes    as hd # Hero details
+import data.objects   as od  # Object details
+import data.creatures as cd  # Creature details
+import data.artifacts as ad  # Artifact details
+import data.heroes    as hd  # Hero details
+import data.skills    as skd # Skill details
+import data.spells    as spd # Spell details
 
 from src.handler_06_rumors_and_events import parse_events, write_events
 
@@ -56,7 +58,7 @@ def parse_object_data(objects: list) -> list:
     info = []
 
     for _ in range(io.read_int(4)): # Amount of objects
-        io.peek(80)
+#        io.peek(80)
 
         obj = { "coords": [0, 0, 0] }
         obj["coords"][0] = io.read_int(1)
@@ -72,6 +74,7 @@ def parse_object_data(objects: list) -> list:
         match obj_type:
             case od.ID.Pandoras_Box: obj = parse_pandoras_box(obj)
             case od.ID.Event:        obj = parse_event(obj)
+            case od.ID.Scholar:      obj = parse_scholar(obj)
 
             case (od.ID.Town | od.ID.Random_Town):
                 obj = parse_town(obj)
@@ -143,7 +146,8 @@ def parse_object_data(objects: list) -> list:
                   od.ID.Oasis                | od.ID.Obelisk         |
                   od.ID.Redwood_Observatory  | od.ID.Pillar_of_Fire  |
                   od.ID.Star_Axis            | od.ID.Pyramid         |
-                  od.ID.Rally_Flag):
+                  od.ID.Rally_Flag           | od.ID.Refugee_Camp    |
+                  od.ID.Sanctuary):
                 pass
             case _:
                 raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
@@ -169,6 +173,7 @@ def write_object_data(objects: list, info: list) -> None:
         match obj_type:
             case od.ID.Pandoras_Box: write_pandoras_box(obj)
             case od.ID.Event:        write_event(obj)
+            case od.ID.Scholar:      write_scholar(obj)
 
             case (od.ID.Town | od.ID.Random_Town):
                 write_town(obj)
@@ -749,3 +754,30 @@ def write_resource(obj: dict) -> None:
 
     io.write_int(obj["amount"], 4)
     io.write_int(0, 4)
+
+class Reward(IntEnum):
+    Random          = 255
+    Primary_Skill   =   0
+    Secondary_Skill =   1
+    Spell           =   2
+
+def parse_scholar(obj: dict) -> dict:
+    obj["reward"] = Reward(io.read_int(1))
+    
+    match obj["reward"]:
+        case Reward.Random:          io.seek(1)
+        case Reward.Primary_Skill:   obj["value"] = skd.Primary(io.read_int(1))
+        case Reward.Secondary_Skill: obj["value"] = skd.Secondary(io.read_int(1))
+        case Reward.Spell:           obj["value"] = spd.ID(io.read_int(1))
+
+    io.seek(6)
+    return obj
+
+def write_scholar(obj: dict) -> None:
+    io.write_int(obj["reward"], 1)
+
+    if "value" in obj:
+        io.write_int(obj["value"], 1)
+    else: io.write_int(0, 0)
+
+    io.write_int(0, 6)
