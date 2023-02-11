@@ -58,7 +58,7 @@ def parse_object_data(objects: list) -> list:
     info = []
 
     for _ in range(io.read_int(4)): # Amount of objects
-#        io.peek(80)
+        io.peek(160)
 
         obj = { "coords": [0, 0, 0] }
         obj["coords"][0] = io.read_int(1)
@@ -75,6 +75,7 @@ def parse_object_data(objects: list) -> list:
             case od.ID.Pandoras_Box: obj = parse_pandoras_box(obj)
             case od.ID.Event:        obj = parse_event(obj)
             case od.ID.Scholar:      obj = parse_scholar(obj)
+            case od.ID.Seers_Hut:    obj = parse_seers_hut(obj)
 
             case (od.ID.Town | od.ID.Random_Town):
                 obj = parse_town(obj)
@@ -100,7 +101,7 @@ def parse_object_data(objects: list) -> list:
                   od.ID.Random_Major_Artifact    | od.ID.Random_Relic):
                 obj = parse_artifact(obj)
 
-            case od.ID.Ocean_Bottle:
+            case (od.ID.Ocean_Bottle | od.ID.Sign):
                 obj["message"] = io.read_str(io.read_int(4))
                 io.seek(4)
 
@@ -147,7 +148,7 @@ def parse_object_data(objects: list) -> list:
                   od.ID.Redwood_Observatory  | od.ID.Pillar_of_Fire  |
                   od.ID.Star_Axis            | od.ID.Pyramid         |
                   od.ID.Rally_Flag           | od.ID.Refugee_Camp    |
-                  od.ID.Sanctuary):
+                  od.ID.Sanctuary            | od.ID.Sea_Chest):
                 pass
             case _:
                 raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
@@ -174,6 +175,7 @@ def write_object_data(objects: list, info: list) -> None:
             case od.ID.Pandoras_Box: write_pandoras_box(obj)
             case od.ID.Event:        write_event(obj)
             case od.ID.Scholar:      write_scholar(obj)
+            case od.ID.Seers_Hut:    write_seers_hut(obj)
 
             case (od.ID.Town | od.ID.Random_Town):
                 write_town(obj)
@@ -198,7 +200,7 @@ def write_object_data(objects: list, info: list) -> None:
                   od.ID.Random_Major_Artifact    | od.ID.Random_Relic):
                 write_artifact(obj)
 
-            case od.ID.Ocean_Bottle:
+            case (od.ID.Ocean_Bottle | od.ID.Sign):
                 io.write_int(len(obj["message"]))
                 io.write_str(    obj["message"])
                 io.write_int(0, 4)
@@ -229,16 +231,16 @@ def parse_owner() -> int:
 def write_owner(owner: int) -> None:
     io.write_int(owner, 4)
 
-def parse_guards() -> list:
+def parse_creatures(amount: int = 7) -> list:
     info = []
-    for _ in range(7):
-        guard = {}
-        guard["id"] = cd.ID(io.read_int(2))
-        guard["amount"]   = io.read_int(2)
-        info.append(guard)
+    for _ in range(amount):
+        creature = {}
+        creature["id"] = cd.ID(io.read_int(2))
+        creature["amount"]   = io.read_int(2)
+        info.append(creature)
     return info
 
-def write_guards(info: list) -> None:
+def write_creatures(info: list) -> None:
     for guard in info:
         io.write_int(guard["id"], 2)
         io.write_int(guard["amount"], 2)
@@ -249,7 +251,7 @@ def parse_common(obj: dict) -> dict:
     if message_length > 0:
         obj["message"] = io.read_str(message_length)
     if io.read_int(1):
-        obj["guards"] = parse_guards()
+        obj["guards"] = parse_creatures()
 
     io.seek(4)
     return obj
@@ -264,7 +266,7 @@ def write_common(obj: dict) -> None:
 
     if "guards" in obj:
         io.write_int(1, 1)
-        write_guards(obj["guards"])
+        write_creatures(obj["guards"])
     else: io.write_int(0, 1)
 
     io.write_int(0, 4)
@@ -414,7 +416,7 @@ def write_event(obj: dict) -> None:
 
 def parse_garrison(obj: dict) -> dict:
     obj["owner"]  = parse_owner()
-    obj["guards"] = parse_guards()
+    obj["guards"] = parse_creatures()
     obj["troops_removable"] = io.read_int(1)
 
     io.seek(8)
@@ -422,7 +424,7 @@ def parse_garrison(obj: dict) -> dict:
 
 def write_garrison(obj: dict) -> None:
     write_owner( obj["owner"])
-    write_guards(obj["guards"])
+    write_creatures(obj["guards"])
     io.write_int(obj["troops_removable"], 9)
 
 def parse_hero(obj: dict) -> dict:
@@ -469,7 +471,7 @@ def parse_hero(obj: dict) -> dict:
             hero["secondary_skills"].append(skill)
 
     if io.read_int(1): # Is the army set?
-        hero["creatures"] = parse_guards()
+        hero["creatures"] = parse_creatures()
 
     hero["formation"] = io.read_int(1)
 
@@ -558,7 +560,7 @@ def write_hero(obj: dict) -> None:
     #
     if hero["creatures"]:
         io.write_int(1, 1)
-        write_guards(hero["creatures"])
+        write_creatures(hero["creatures"])
     else: io.write_int(0, 1)
 
     #
@@ -686,7 +688,7 @@ def parse_town(obj: dict) -> dict:
         obj["name"] = io.read_str(io.read_int(4))
 
     if io.read_int(1): # Is the garrison customized?
-        obj["garrison_guards"] = parse_guards()
+        obj["garrison_guards"] = parse_creatures()
 
     obj["garrison_formation"] = io.read_int(1)
 
@@ -717,7 +719,7 @@ def write_town(obj: dict) -> None:
 
     if "garrison_guards" in obj:
         io.write_int(1, 1)
-        write_guards(obj["garrison_guards"])
+        write_creatures(obj["garrison_guards"])
     else: io.write_int(0, 1)
 
     io.write_int(obj["garrison_formation"], 1)
@@ -775,3 +777,190 @@ def write_scholar(obj: dict) -> None:
     else: io.write_int(0, 0)
 
     io.write_int(0, 6)
+
+class Quest(IntEnum):
+    NONE                        =  0
+    ACHIEVE_EXPERIENCE_LEVEL    =  1
+    ACHIEVE_PRIMARY_SKILL_LEVEL =  2
+    DEFEAT_SPECIFIC_HERO        =  3
+    DEFEAT_SPECIFIC_MONSTER     =  4
+    RETURN_WITH_ARTIFACTS       =  5
+    RETURN_WITH_CREATURES       =  6
+    RETURN_WITH_RESOURCES       =  7
+    BE_SPECIFIC_HERO            =  8
+    BELONG_TO_SPECIFIC_PLAYER   =  9
+    HOTA_QUEST                  = 10
+
+class HotA_Q(IntEnum):
+    BELONG_TO_SPECIFIC_CLASS = 0
+    RETURN_NOT_BEFORE_DATE   = 1
+
+class Reward(IntEnum):
+    NONE            =  0
+    EXPERIENCE      =  1
+    SPELL_POINTS    =  2
+    MORALE          =  3
+    LUCK            =  4
+    RESOURCE        =  5
+    PRIMARY_SKILL   =  6
+    SECONDARY_SKILL =  7
+    ARTIFACT        =  8
+    SPELL           =  9
+    CREATURES       = 10
+
+def parse_quest() -> dict:
+    quest = {
+        "quest_type"        : Quest.NONE,
+        "quest_value"       : 0,
+        "deadline"          : 4294967295, # 4 bytes of 255
+        "reward_type"       : Reward.NONE,
+        "reward_value"      : 0,
+        "proposal_message"  : "",
+        "progress_message"  : "",
+        "completion_message": ""
+    }
+
+    quest["quest_type"] = Quest(io.read_int(1))
+
+    match quest["quest_type"]:
+        case Quest.NONE:
+            io.seek(1)
+
+        case Quest.ACHIEVE_EXPERIENCE_LEVEL:
+            quest["quest_value"] = io.read_int(4)
+
+        case Quest.ACHIEVE_PRIMARY_SKILL_LEVEL:
+            skills = []
+            skills.append(io.read_int(1))
+            skills.append(io.read_int(1))
+            skills.append(io.read_int(1))
+            skills.append(io.read_int(1))
+            quest["quest_value"] = skills
+
+        case (Quest.DEFEAT_SPECIFIC_HERO | Quest.DEFEAT_SPECIFIC_MONSTER):
+            # In parse_hero() and parse_monster(), these are the "start_bytes".
+            # So it is most likely some identifier for the specific object.
+            quest["quest_value"] = io.read_raw(4)
+
+        case Quest.RETURN_WITH_ARTIFACTS:
+            quest["quest_value"] = []
+            for _ in range(io.read_int(1)):
+                quest["quest_value"].append(ad.ID(io.read_int(2)))
+
+        case Quest.RETURN_WITH_CREATURES:
+            quest["quest_value"] = parse_creatures(amount=io.read_int(1))
+
+        case Quest.RETURN_WITH_RESOURCES:
+            quest["quest_value"] = []
+            for _ in range(7):
+                quest["quest_value"].append(io.read_int(4))
+
+        case Quest.BE_SPECIFIC_HERO:
+            quest["quest_value"] = hd.ID(io.read_int(1))
+
+        case Quest.BELONG_TO_SPECIFIC_PLAYER:
+            quest["quest_value"] = io.read_int(1)
+
+        case Quest.HOTA_QUEST:
+            quest["hota_type"] = HotA_Q(io.read_int(4))
+
+            if quest["hota_type"] == HotA_Q.BELONG_TO_SPECIFIC_CLASS:
+                quest["hota_extra"]  = io.read_int(4)
+                quest["quest_value"] = io.read_bits(3)
+
+            elif quest["hota_type"] == HotA_Q.RETURN_NOT_BEFORE_DATE:
+                quest["quest_value"] = io.read_int(4)
+
+    quest["deadline"]           =        io.read_int(4)
+    quest["proposal_message"]   =        io.read_str(io.read_int(4))
+    quest["progress_message"]   =        io.read_str(io.read_int(4))
+    quest["completion_message"] =        io.read_str(io.read_int(4))
+    quest["reward_type"]        = Reward(io.read_int(1))
+
+    match quest["reward_type"]:
+        case (Reward.EXPERIENCE | Reward.SPELL_POINTS):
+            quest["reward_value"] = io.read_int(4)
+
+        case (Reward.MORALE | Reward.LUCK):
+            quest["reward_value"] = io.read_int(1)
+
+        case Reward.RESOURCE:
+            quest["reward_value"] = []
+            quest["reward_value"].append(od.Resource(io.read_int(1)))
+            quest["reward_value"].append(io.read_int(4))
+
+        case Reward.PRIMARY_SKILL:
+            quest["reward_value"] = []
+            quest["reward_value"].append(skd.Primary(io.read_int(1)))
+            quest["reward_value"].append(io.read_int(1))
+
+        case Reward.SECONDARY_SKILL:
+            quest["reward_value"] = []
+            quest["reward_value"].append(skd.Secondary(io.read_int(1)))
+            quest["reward_value"].append(io.read_int(1))
+
+        case Reward.ARTIFACT:
+            quest["reward_value"] = ad.ID(io.read_int(2))
+
+        case Reward.SPELL:
+            quest["reward_value"] = spd.ID(io.read_int(1))
+
+        case Reward.CREATURES:
+            quest["reward_value"] = parse_creatures(amount=1)
+
+    return quest
+
+def write_quest(info: dict) -> None:
+    pass
+
+def parse_seers_hut(obj: dict) -> dict:
+    obj["one_time_quests"]   = []
+    obj["repeatable_quests"] = []
+
+    for _ in range(io.read_int(4)): # Amount of one-time quests
+        obj["one_time_quests"].append(parse_quest())
+
+    for _ in range(io.read_int(4)): # Amount of repeatable quests
+        obj["repeatable_quests"].append(parse_quest())
+
+    io.seek(2)
+    return obj
+
+def write_seers_hut(obj: dict) -> None:
+    io.write_int(len(obj["one_time_quests"], 4))
+    for quest in obj["one_time_quests"]:
+        write_quest(quest)
+
+    io.write_int(len(obj["repeatable_quests"], 4))
+    for quest in obj["repeatable_quests"]:
+        write_quest(quest)
+
+    io.write_int(0, 2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

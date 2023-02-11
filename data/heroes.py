@@ -2,6 +2,41 @@
 
 from enum import IntEnum
 
+class Classes(IntEnum):
+#
+# Byte 1 ... (0-7)
+#
+    Knight       =  0
+    Cleric       =  1
+    Ranger       =  2
+    Druid        =  3
+    Alchemist    =  4
+    Wizard       =  5
+    Demoniac     =  6
+    Heretic      =  7
+#
+# Byte 2 ... (8-15)
+#
+    Death_Knight =  8
+    Necromancer  =  9
+    Overlord     = 10
+    Warlock      = 11
+    Barbarian    = 12
+    Battle_Mage  = 13
+    Beastmaster  = 14
+    Witch        = 15
+#
+# Byte 3 ... (16-23)
+#
+    Planeswalker = 16
+    Elementalist = 17
+    Captain      = 18
+    Navigator    = 19
+    #
+    #
+    #
+    #
+
 class ID(IntEnum):
     Default = 255
 #
