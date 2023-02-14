@@ -3,6 +3,7 @@
 from enum import IntEnum
 
 class ID(IntEnum):
+    Random = 255
 #
 # Byte 1 ... (0-7)
 #

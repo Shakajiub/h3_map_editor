@@ -106,7 +106,8 @@ def parse_object_data(objects: list) -> list:
                 io.seek(4)
 
             case (od.ID.Creature_Generator_1 | od.ID.Lighthouse |
-                  od.ID.Creature_Generator_4 | od.ID.Mine):
+                  od.ID.Creature_Generator_4 | od.ID.Mine       |
+                  od.ID.Shipyard):
                 obj["owner"] = parse_owner()
 
             case (od.ID.Garrison | od.ID.Garrison_Vertical):
@@ -115,6 +116,14 @@ def parse_object_data(objects: list) -> list:
             case od.ID.Abandoned_Mine:
                 obj["resources"] = io.read_bits(1)
                 io.seek(3)
+
+            case (od.ID.Shrine_of_Magic_Incantation |
+                  od.ID.Shrine_of_Magic_Gesture     |
+                  od.ID.Shrine_of_Magic_Thought):
+                obj = parse_shrine(obj)
+
+            case od.ID.Spell_Scroll:
+                obj = parse_spell_scroll(obj)
 
             case _ if obj_type in od.CREATURE_BANKS:
                 obj = parse_bank(obj)
@@ -148,7 +157,17 @@ def parse_object_data(objects: list) -> list:
                   od.ID.Redwood_Observatory  | od.ID.Pillar_of_Fire  |
                   od.ID.Star_Axis            | od.ID.Pyramid         |
                   od.ID.Rally_Flag           | od.ID.Refugee_Camp    |
-                  od.ID.Sanctuary            | od.ID.Sea_Chest):
+                  od.ID.Sanctuary            | od.ID.Sea_Chest       |
+                  od.ID.Shipwreck_Survivor   | od.ID.Sirens          |
+                  od.ID.Stables              | od.ID.Tavern          |
+                  od.ID.Temple               | od.ID.Den_of_Thieves  |
+                  od.ID.Trading_Post         | od.ID.Learning_Stone  |
+                  od.ID.Treasure_Chest       | od.ID.Tree_of_Knowledge |
+                  od.ID.Subterranean_Gate    | od.ID.University      |
+                  od.ID.Wagon                | od.ID.War_Machine_Factory |
+                  od.ID.School_of_War        | od.ID.Warriors_Tomb   |
+                  od.ID.Water_Wheel          | od.ID.Watering_Hole   |
+                  od.ID.Whirlpool            | od.ID.Windmill):
                 pass
             case _:
                 raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
@@ -201,12 +220,13 @@ def write_object_data(objects: list, info: list) -> None:
                 write_artifact(obj)
 
             case (od.ID.Ocean_Bottle | od.ID.Sign):
-                io.write_int(len(obj["message"]))
+                io.write_int(len(obj["message"]), 4)
                 io.write_str(    obj["message"])
                 io.write_int(0, 4)
 
             case (od.ID.Creature_Generator_1 | od.ID.Lighthouse |
-                  od.ID.Creature_Generator_4 | od.ID.Mine):
+                  od.ID.Creature_Generator_4 | od.ID.Mine       |
+                  od.ID.Shipyard):
                 write_owner(obj["owner"])
 
             case (od.ID.Garrison | od.ID.Garrison_Vertical):
@@ -215,6 +235,14 @@ def write_object_data(objects: list, info: list) -> None:
             case od.ID.Abandoned_Mine:
                 io.write_bits(obj["resources"])
                 io.write_int(0, 3)
+
+            case (od.ID.Shrine_of_Magic_Incantation |
+                  od.ID.Shrine_of_Magic_Gesture     |
+                  od.ID.Shrine_of_Magic_Thought):
+                write_shrine(obj)
+
+            case od.ID.Spell_Scroll:
+                write_spell_scroll(obj)
 
             case _ if obj_type in od.CREATURE_BANKS:
                 write_bank(obj)
@@ -1007,11 +1035,24 @@ def write_seers_hut(obj: dict) -> None:
 
     io.write_int(0, 2)
 
+def parse_shrine(obj: dict) -> dict:
+    obj["spell"] = spd.ID(io.read_int(4))
+    return obj
 
+def write_shrine(obj: dict) -> None:
+    io.write_int(obj["spell"], 4)
 
+def parse_spell_scroll(obj: dict) -> dict:
+    if io.read_int(1):
+        obj = parse_common(obj)
+    obj["spell"] = spd.ID(io.read_int(4))
+    return obj
 
-
-
+def write_spell_scroll(obj: dict) -> None:
+    if len(obj) > 3:
+        write_common(obj)
+    else: io.write_int(0, 1)
+    io.write_int(obj["spell"], 4)
 
 
 
