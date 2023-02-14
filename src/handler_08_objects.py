@@ -911,7 +911,77 @@ def parse_quest() -> dict:
     return quest
 
 def write_quest(info: dict) -> None:
-    pass
+    io.write_int(info["quest_type"], 1)
+
+    match info["quest_type"]:
+        case Quest.NONE:
+            io.write_int(0, 1)
+
+        case Quest.ACHIEVE_EXPERIENCE_LEVEL:
+            io.write_int(info["quest_value"], 4)
+
+        case Quest.ACHIEVE_PRIMARY_SKILL_LEVEL:
+            for skill in info["quest_value"]:
+                io.write_int(skill, 1)
+
+        case (Quest.DEFEAT_SPECIFIC_HERO | Quest.DEFEAT_SPECIFIC_MONSTER):
+            io.write_raw(info["quest_value"])
+
+        case Quest.RETURN_WITH_ARTIFACTS:
+            io.write_int(len(info["quest_value"]), 1)
+            for artifact in info["quest_value"]:
+                io.write_int(artifact, 2)
+
+        case Quest.RETURN_WITH_CREATURES:
+            io.write_int(len(info["quest_value"]), 1)
+            write_creatures(info["quest_value"])
+
+        case Quest.RETURN_WITH_RESOURCES:
+            for resource in info["quest_value"]:
+                io.write_int(resource, 4)
+
+        case (Quest.BE_SPECIFIC_HERO | Quest.BELONG_TO_SPECIFIC_PLAYER):
+            io.write_int(info["quest_value"], 1)
+
+        case Quest.HOTA_QUEST:
+            io.write_int(info["hota_type"], 4)
+
+            if info["hota_type"] == HotA_Q.BELONG_TO_SPECIFIC_CLASS:
+                io.write_int(info["hota_extra"], 4)
+                io.write_bits(info["quest_value"])
+
+            elif info["hota_type"] == HotA_Q.RETURN_NOT_BEFORE_DATE:
+                io.write_int(info["quest_value"], 4)
+
+    io.write_int(    info["deadline"], 4)
+    io.write_int(len(info["proposal_message"]), 4)
+    io.write_str(    info["proposal_message"])
+    io.write_int(len(info["progress_message"]), 4)
+    io.write_str(    info["progress_message"])
+    io.write_int(len(info["completion_message"]), 4)
+    io.write_str(    info["completion_message"])
+    io.write_int(    info["reward_type"], 1)
+
+    match info["reward_type"]:
+        case (Reward.EXPERIENCE | Reward.SPELL_POINTS):
+            io.write_int(info["reward_value"], 4)
+
+        case (Reward.MORALE | Reward.LUCK | Reward.SPELL):
+            io.write_int(info["reward_value"], 1)
+
+        case Reward.RESOURCE:
+            io.write_int(info["reward_value"][0], 1)
+            io.write_int(info["reward_value"][1], 4)
+
+        case (Reward.PRIMARY_SKILL | Reward.SECONDARY_SKILL):
+            io.write_int(info["reward_value"][0], 1)
+            io.write_int(info["reward_value"][1], 1)
+
+        case Reward.ARTIFACT:
+            io.write_int(info["reward_value"], 2)
+
+        case Reward.CREATURES:
+            write_creatures(info["reward_value"])
 
 def parse_seers_hut(obj: dict) -> dict:
     obj["one_time_quests"]   = []
@@ -927,11 +997,11 @@ def parse_seers_hut(obj: dict) -> dict:
     return obj
 
 def write_seers_hut(obj: dict) -> None:
-    io.write_int(len(obj["one_time_quests"], 4))
+    io.write_int(len(obj["one_time_quests"]), 4)
     for quest in obj["one_time_quests"]:
         write_quest(quest)
 
-    io.write_int(len(obj["repeatable_quests"], 4))
+    io.write_int(len(obj["repeatable_quests"]), 4)
     for quest in obj["repeatable_quests"]:
         write_quest(quest)
 
