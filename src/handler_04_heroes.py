@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import src.file_io as io
+import data.heroes as hd
 
 from src.handler_01_general import MapFormat
 
@@ -8,6 +9,7 @@ def parse_hero_flags(version: int) -> dict:
     info = {
         "hota_data"      : b'',
         "hero_flags"     : [],
+        "placeholders"   : [],
         "custom_heroes"  : [],
         "unhandled_bytes": b''
     }
@@ -19,7 +21,8 @@ def parse_hero_flags(version: int) -> dict:
     elif version == MapFormat.SoD:
         info["hero_flags"] = io.read_bits(20)
 
-    io.seek(4) # Skip 4 always-empty bytes
+    for _ in range(io.read_int(4)): # Amount of placeholder heroes
+        info["placeholders"].append(hd.ID(io.read_int(1)))
 
     for _ in range(io.read_int(1)):
         hero = {}
@@ -38,7 +41,11 @@ def write_hero_flags(info: dict) -> None:
         io.write_raw(info["hota_data"])
 
     io.write_bits(info["hero_flags"])
-    io.write_int(0, 4) # Write 4 always-empty bytes
+
+    io.write_int(len(info["placeholders"]), 4)
+    for hero in info["placeholders"]:
+        io.write_int(hero, 1)
+
     io.write_int(len(info["custom_heroes"]), 1)
 
     for hero in info["custom_heroes"]:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import src.file_io as io
+import data.heroes as hd
 
 from enum import IntEnum
 
@@ -37,7 +38,7 @@ def parse_player_specs() -> dict:
             "starting_hero_name"   : "",
             "available_heroes"     : [],
             "garbage_byte"         : b'\x00',
-            "unhandled_bytes"      : b''
+            "placeholder_heroes"   : []
         }
 
         info["playability_human"]     = bool(io.read_int(1))
@@ -55,53 +56,27 @@ def parse_player_specs() -> dict:
             info["town_coords"][1] =          io.read_int(1)
             info["town_coords"][2] =          io.read_int(1)
 
-        info["has_random_hero"]  = bool(io.read_int(1))
-        info["starting_hero_id"] =      io.read_int(1)
+        info["has_random_hero"]  =  bool(io.read_int(1))
+        info["starting_hero_id"] = hd.ID(io.read_int(1))
 
-        if info["starting_hero_id"] != 255:
-
-            info["starting_hero_face"] = io.read_int(1)
+        if info["starting_hero_id"] != hd.ID.Default:
+            info["starting_hero_face"] = hd.ID(io.read_int(1))
             info["starting_hero_name"] = io.read_str(io.read_int(4))
             info["garbage_byte"]       = io.read_raw(1)
 
             for _ in range(io.read_int(4)):
                 hero = {}
-                hero["id"]   = io.read_int(1)
+                hero["id"]   = hd.ID(io.read_int(1))
                 hero["name"] = io.read_str(io.read_int(4))
                 info["available_heroes"].append(hero)
-
-        else: info["unhandled_bytes"] = io.read_raw(5)
+        else:
+            io.seek(1)
+            for _ in range(io.read_int(4)): # Amount of placeholder heroes
+                info["placeholder_heroes"].append(hd.ID(io.read_int(5)))
 
         specs.append(info)
 
     return specs
-
-def parse_teams() -> dict:
-    info = {
-        "amount_of_teams": 0,
-        "Player1": 0,
-        "Player2": 0,
-        "Player3": 0,
-        "Player4": 0,
-        "Player5": 0,
-        "Player6": 0,
-        "Player7": 0,
-        "Player8": 0
-    }
-
-    info["amount_of_teams"] = io.read_int(1)
-
-    if info["amount_of_teams"] != 0:
-        info["Player1"] = io.read_int(1)
-        info["Player2"] = io.read_int(1)
-        info["Player3"] = io.read_int(1)
-        info["Player4"] = io.read_int(1)
-        info["Player5"] = io.read_int(1)
-        info["Player6"] = io.read_int(1)
-        info["Player7"] = io.read_int(1)
-        info["Player8"] = io.read_int(1)
-
-    return info
 
 def write_player_specs(specs: dict) -> None:
     for info in specs:
@@ -134,8 +109,39 @@ def write_player_specs(specs: dict) -> None:
                 io.write_int(    hero["id"], 1)
                 io.write_int(len(hero["name"]), 4)
                 io.write_str(    hero["name"])
+        else:
+            io.write_int(0, 1)
+            io.write_int(len(info["placeholder_heroes"]), 4)
 
-        else: io.write_raw(info["unhandled_bytes"])
+            for hero in info["placeholder_heroes"]:
+                io.write_int(hero, 5)
+
+def parse_teams() -> dict:
+    info = {
+        "amount_of_teams": 0,
+        "Player1": 0,
+        "Player2": 0,
+        "Player3": 0,
+        "Player4": 0,
+        "Player5": 0,
+        "Player6": 0,
+        "Player7": 0,
+        "Player8": 0
+    }
+
+    info["amount_of_teams"] = io.read_int(1)
+
+    if info["amount_of_teams"] != 0:
+        info["Player1"] = io.read_int(1)
+        info["Player2"] = io.read_int(1)
+        info["Player3"] = io.read_int(1)
+        info["Player4"] = io.read_int(1)
+        info["Player5"] = io.read_int(1)
+        info["Player6"] = io.read_int(1)
+        info["Player7"] = io.read_int(1)
+        info["Player8"] = io.read_int(1)
+
+    return info
 
 def write_teams(info: dict) -> None:
     io.write_int(info["amount_of_teams"], 1)

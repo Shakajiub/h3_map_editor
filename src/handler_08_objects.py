@@ -58,7 +58,7 @@ def parse_object_data(objects: list) -> list:
     info = []
 
     for _ in range(io.read_int(4)): # Amount of objects
-        io.peek(160)
+#        io.peek(160)
 
         obj = { "coords": [0, 0, 0] }
         obj["coords"][0] = io.read_int(1)
@@ -125,6 +125,12 @@ def parse_object_data(objects: list) -> list:
             case od.ID.Spell_Scroll:
                 obj = parse_spell_scroll(obj)
 
+            case od.ID.Witch_Hut:
+                obj = parse_witch_hut(obj)
+
+            case od.ID.Hero_Placeholder:
+                obj = parse_hero_placeholder(obj)
+
             case _ if obj_type in od.CREATURE_BANKS:
                 obj = parse_bank(obj)
 
@@ -167,7 +173,41 @@ def parse_object_data(objects: list) -> list:
                   od.ID.Wagon                | od.ID.War_Machine_Factory |
                   od.ID.School_of_War        | od.ID.Warriors_Tomb   |
                   od.ID.Water_Wheel          | od.ID.Watering_Hole   |
-                  od.ID.Whirlpool            | od.ID.Windmill):
+                  od.ID.Whirlpool            | od.ID.Windmill        |
+                  od.ID.Brush     | od.ID.Bush              | od.ID.Cactus            |
+                  od.ID.Canyon    | od.ID.Crater            | od.ID.Dead_Vegetation   |
+                  od.ID.Flowers   | od.ID.Frozen_Lake       | od.ID.Hedge             |
+                  od.ID.Hill      | od.ID.Hole              | od.ID.Kelp              |
+                  od.ID.Lake      | od.ID.Lava_Flow         | od.ID.Lava_Lake         |
+                  od.ID.Mushrooms | od.ID.Log               | od.ID.Mandrake          |
+                  od.ID.Moss      | od.ID.Mound             | od.ID.Mountain          |
+                  od.ID.Oak_Trees | od.ID.Outcropping       | od.ID.Pine_Trees        |
+                  od.ID.Plant     | od.ID.HotA_Decoration_1 | od.ID.HotA_Decoration_2 |
+                  od.ID.HotA_Warehouse       | od.ID.River_Delta      |
+                  od.ID.HotA_Visitable_1     | od.ID.HotA_Visitable_2 |
+                  od.ID.Rock         | od.ID.Sand_Dune     | od.ID.Sand_Pit   |
+                  od.ID.Shrub        | od.ID.Skull         | od.ID.Stalagmite |
+                  od.ID.Stump        | od.ID.Tar_Pit       | od.ID.Trees      |
+                  od.ID.Vine         | od.ID.Volcanic_Vent | od.ID.Volcano    |
+                  od.ID.Willow_Trees | od.ID.Yucca_Trees   | od.ID.Reef       |
+                  od.ID.Brush_2         | od.ID.Bush_2        | od.ID.Cactus_2          |
+                  od.ID.Canyon_2        | od.ID.Crater_2      | od.ID.Dead_Vegetation_2 |
+                  od.ID.Flowers_2       | od.ID.Frozen_Lake_2 | od.ID.Hedge_2           |
+                  od.ID.Hill_2          | od.ID.Hole_2        | od.ID.Kelp_2            |
+                  od.ID.Lake_2          | od.ID.Lava_Flow_2   | od.ID.Lava_Lake_2       |
+                  od.ID.Mushrooms_2     | od.ID.Log_2         | od.ID.Mandrake_2        |
+                  od.ID.Moss_2          | od.ID.Mound_2       | od.ID.Mountain_2        |
+                  od.ID.Oak_Trees_2     | od.ID.Outcropping_2 | od.ID.Pine_Trees_2      |
+                  od.ID.Plant_2         | od.ID.River_Delta_2 | od.ID.Rock_2            |
+                  od.ID.Sand_Dune_2     | od.ID.Sand_Pit_2    | od.ID.Shrub_2           |
+                  od.ID.Skull_2         | od.ID.Stalagmite_2  | od.ID.Stump_2           |
+                  od.ID.Tar_Pit_2       | od.ID.Trees_2       | od.ID.Vine_2            |
+                  od.ID.Volcanic_Vent_2 | od.ID.Volcano_2     | od.ID.Willow_Trees_2    |
+                  od.ID.Yucca_Trees_2   | od.ID.Reef_2           |
+                  od.ID.Desert_Hills       | od.ID.Dirt_Hills    |
+                  od.ID.Grass_Hills        | od.ID.Rough_Hills   |
+                  od.ID.Subterranean_Rocks | od.ID.Swamp_Foliage |
+                  od.ID.Border_Gate        | od.ID.Freelancers_Guild):
                 pass
             case _:
                 raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
@@ -243,6 +283,12 @@ def write_object_data(objects: list, info: list) -> None:
 
             case od.ID.Spell_Scroll:
                 write_spell_scroll(obj)
+
+            case od.ID.Witch_Hut:
+                write_witch_hut(obj)
+
+            case od.ID.Hero_Placeholder:
+                write_hero_placeholder(obj)
 
             case _ if obj_type in od.CREATURE_BANKS:
                 write_bank(obj)
@@ -654,6 +700,22 @@ def write_hero(obj: dict) -> None:
     #
     io.write_raw(obj["end_bytes"])
 
+def parse_hero_placeholder(obj: dict) -> dict:
+    obj["owner"]   =       io.read_int(1)
+    obj["hero_id"] = hd.ID(io.read_int(1))
+
+    if obj["hero_id"] == hd.ID.Default:
+        obj["power_rating"] = io.read_int(1)
+
+    return obj
+
+def write_hero_placeholder(obj: dict) -> None:
+    io.write_int(obj["owner"], 1)
+    io.write_int(obj["hero_id"], 1)
+
+    if obj["hero_id"] == hd.ID.Default:
+        io.write_int(obj["power_rating"], 1)
+
 class Disposition(IntEnum):
     Compliant  = 0
     Friendly   = 1
@@ -1054,7 +1116,12 @@ def write_spell_scroll(obj: dict) -> None:
     else: io.write_int(0, 1)
     io.write_int(obj["spell"], 4)
 
+def parse_witch_hut(obj: dict) -> dict:
+    obj["skills"] = io.read_bits(4)
+    return obj
 
+def write_witch_hut(obj: dict) -> None:
+    io.write_bits(obj["skills"])
 
 
 
