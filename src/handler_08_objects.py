@@ -76,6 +76,9 @@ def parse_object_data(objects: list) -> list:
             case od.ID.Event:        obj = parse_event(obj)
             case od.ID.Scholar:      obj = parse_scholar(obj)
             case od.ID.Seers_Hut:    obj = parse_seers_hut(obj)
+            case od.ID.Quest_Guard:  obj["quest"]  = parse_quest()
+            case od.ID.Grail:        obj["radius"] = io.read_int(4)
+            case od.ID.Witch_Hut:    obj["skills"] = io.read_bits(4)
 
             case (od.ID.Town | od.ID.Random_Town):
                 obj = parse_town(obj)
@@ -92,9 +95,6 @@ def parse_object_data(objects: list) -> list:
                   od.ID.Random_Monster_5 | od.ID.Random_Monster_6 |
                   od.ID.Random_Monster_7):
                 obj = parse_monster(obj)
-
-            case od.ID.Grail:
-                obj["radius"] = io.read_int(4)
 
             case (od.ID.Artifact                 | od.ID.Random_Artifact |
                   od.ID.Random_Treasure_Artifact | od.ID.Random_Minor_Artifact |
@@ -120,13 +120,10 @@ def parse_object_data(objects: list) -> list:
             case (od.ID.Shrine_of_Magic_Incantation |
                   od.ID.Shrine_of_Magic_Gesture     |
                   od.ID.Shrine_of_Magic_Thought):
-                obj = parse_shrine(obj)
+                obj["spell"] = spd.ID(io.read_int(4))
 
             case od.ID.Spell_Scroll:
                 obj = parse_spell_scroll(obj)
-
-            case od.ID.Witch_Hut:
-                obj = parse_witch_hut(obj)
 
             case od.ID.Hero_Placeholder:
                 obj = parse_hero_placeholder(obj)
@@ -235,6 +232,9 @@ def write_object_data(objects: list, info: list) -> None:
             case od.ID.Event:        write_event(obj)
             case od.ID.Scholar:      write_scholar(obj)
             case od.ID.Seers_Hut:    write_seers_hut(obj)
+            case od.ID.Quest_Guard:  write_quest(obj["quest"])
+            case od.ID.Grail:        io.write_int(obj["radius"], 4)
+            case od.ID.Witch_Hut:    io.write_bits(obj["skills"])
 
             case (od.ID.Town | od.ID.Random_Town):
                 write_town(obj)
@@ -251,8 +251,6 @@ def write_object_data(objects: list, info: list) -> None:
                   od.ID.Random_Monster_5 | od.ID.Random_Monster_6 |
                   od.ID.Random_Monster_7):
                 write_monster(obj)
-
-            case od.ID.Grail: io.write_int(obj["radius"], 4)
 
             case (od.ID.Artifact                 | od.ID.Random_Artifact |
                   od.ID.Random_Treasure_Artifact | od.ID.Random_Minor_Artifact |
@@ -279,13 +277,10 @@ def write_object_data(objects: list, info: list) -> None:
             case (od.ID.Shrine_of_Magic_Incantation |
                   od.ID.Shrine_of_Magic_Gesture     |
                   od.ID.Shrine_of_Magic_Thought):
-                write_shrine(obj)
+                io.write_int(obj["spell"], 4)
 
             case od.ID.Spell_Scroll:
                 write_spell_scroll(obj)
-
-            case od.ID.Witch_Hut:
-                write_witch_hut(obj)
 
             case od.ID.Hero_Placeholder:
                 write_hero_placeholder(obj)
@@ -885,6 +880,125 @@ class HotA_Q(IntEnum):
     BELONG_TO_SPECIFIC_CLASS = 0
     RETURN_NOT_BEFORE_DATE   = 1
 
+def parse_quest() -> dict:
+    quest = {
+        "type"              : Quest.NONE,
+        "value"             : 0,
+        "deadline"          : 4294967295, # 4 bytes of 255
+        "proposal_message"  : "",
+        "progress_message"  : "",
+        "completion_message": ""
+    }
+
+    quest["type"] = Quest(io.read_int(1))
+
+    match quest["type"]:
+        case Quest.NONE:
+            return quest
+
+        case Quest.ACHIEVE_EXPERIENCE_LEVEL:
+            quest["value"] = io.read_int(4)
+
+        case Quest.ACHIEVE_PRIMARY_SKILL_LEVEL:
+            skills = []
+            skills.append(io.read_int(1))
+            skills.append(io.read_int(1))
+            skills.append(io.read_int(1))
+            skills.append(io.read_int(1))
+            quest["value"] = skills
+
+        case (Quest.DEFEAT_SPECIFIC_HERO | Quest.DEFEAT_SPECIFIC_MONSTER):
+            # In parse_hero() and parse_monster(), these are the "start_bytes".
+            # So it is most likely some identifier for the specific object.
+            quest["value"] = io.read_raw(4)
+
+        case Quest.RETURN_WITH_ARTIFACTS:
+            quest["value"] = []
+            for _ in range(io.read_int(1)):
+                quest["value"].append(ad.ID(io.read_int(2)))
+
+        case Quest.RETURN_WITH_CREATURES:
+            quest["value"] = parse_creatures(amount=io.read_int(1))
+
+        case Quest.RETURN_WITH_RESOURCES:
+            quest["value"] = []
+            for _ in range(7):
+                quest["value"].append(io.read_int(4))
+
+        case Quest.BE_SPECIFIC_HERO:
+            quest["value"] = hd.ID(io.read_int(1))
+
+        case Quest.BELONG_TO_SPECIFIC_PLAYER:
+            quest["value"] = io.read_int(1)
+
+        case Quest.HOTA_QUEST:
+            quest["hota_type"] = HotA_Q(io.read_int(4))
+
+            if quest["hota_type"] == HotA_Q.BELONG_TO_SPECIFIC_CLASS:
+                quest["hota_extra"]  = io.read_int(4)
+                quest["value"] = io.read_bits(3)
+
+            elif quest["hota_type"] == HotA_Q.RETURN_NOT_BEFORE_DATE:
+                quest["value"] = io.read_int(4)
+
+    quest["deadline"]           = io.read_int(4)
+    quest["proposal_message"]   = io.read_str(io.read_int(4))
+    quest["progress_message"]   = io.read_str(io.read_int(4))
+    quest["completion_message"] = io.read_str(io.read_int(4))
+
+    return quest
+
+def write_quest(info: dict) -> None:
+    io.write_int(info["type"], 1)
+
+    match info["type"]:
+        case Quest.NONE:
+            return
+
+        case Quest.ACHIEVE_EXPERIENCE_LEVEL:
+            io.write_int(info["value"], 4)
+
+        case Quest.ACHIEVE_PRIMARY_SKILL_LEVEL:
+            for skill in info["value"]:
+                io.write_int(skill, 1)
+
+        case (Quest.DEFEAT_SPECIFIC_HERO | Quest.DEFEAT_SPECIFIC_MONSTER):
+            io.write_raw(info["value"])
+
+        case Quest.RETURN_WITH_ARTIFACTS:
+            io.write_int(len(info["value"]), 1)
+            for artifact in info["value"]:
+                io.write_int(artifact, 2)
+
+        case Quest.RETURN_WITH_CREATURES:
+            io.write_int(len(info["value"]), 1)
+            write_creatures(info["value"])
+
+        case Quest.RETURN_WITH_RESOURCES:
+            for resource in info["value"]:
+                io.write_int(resource, 4)
+
+        case (Quest.BE_SPECIFIC_HERO | Quest.BELONG_TO_SPECIFIC_PLAYER):
+            io.write_int(info["value"], 1)
+
+        case Quest.HOTA_QUEST:
+            io.write_int(info["hota_type"], 4)
+
+            if info["hota_type"] == HotA_Q.BELONG_TO_SPECIFIC_CLASS:
+                io.write_int(info["hota_extra"], 4)
+                io.write_bits(info["value"])
+
+            elif info["hota_type"] == HotA_Q.RETURN_NOT_BEFORE_DATE:
+                io.write_int(info["value"], 4)
+
+    io.write_int(    info["deadline"], 4)
+    io.write_int(len(info["proposal_message"]), 4)
+    io.write_str(    info["proposal_message"])
+    io.write_int(len(info["progress_message"]), 4)
+    io.write_str(    info["progress_message"])
+    io.write_int(len(info["completion_message"]), 4)
+    io.write_str(    info["completion_message"])
+
 class Reward(IntEnum):
     NONE            =  0
     EXPERIENCE      =  1
@@ -898,190 +1012,75 @@ class Reward(IntEnum):
     SPELL           =  9
     CREATURES       = 10
 
-def parse_quest() -> dict:
-    quest = {
-        "quest_type"        : Quest.NONE,
-        "quest_value"       : 0,
-        "deadline"          : 4294967295, # 4 bytes of 255
-        "reward_type"       : Reward.NONE,
-        "reward_value"      : 0,
-        "proposal_message"  : "",
-        "progress_message"  : "",
-        "completion_message": ""
-    }
+def parse_reward() -> dict:
+    reward = { "type": Reward(io.read_int(1)) }
 
-    quest["quest_type"] = Quest(io.read_int(1))
-
-    match quest["quest_type"]:
-        case Quest.NONE:
-            io.seek(1)
-
-        case Quest.ACHIEVE_EXPERIENCE_LEVEL:
-            quest["quest_value"] = io.read_int(4)
-
-        case Quest.ACHIEVE_PRIMARY_SKILL_LEVEL:
-            skills = []
-            skills.append(io.read_int(1))
-            skills.append(io.read_int(1))
-            skills.append(io.read_int(1))
-            skills.append(io.read_int(1))
-            quest["quest_value"] = skills
-
-        case (Quest.DEFEAT_SPECIFIC_HERO | Quest.DEFEAT_SPECIFIC_MONSTER):
-            # In parse_hero() and parse_monster(), these are the "start_bytes".
-            # So it is most likely some identifier for the specific object.
-            quest["quest_value"] = io.read_raw(4)
-
-        case Quest.RETURN_WITH_ARTIFACTS:
-            quest["quest_value"] = []
-            for _ in range(io.read_int(1)):
-                quest["quest_value"].append(ad.ID(io.read_int(2)))
-
-        case Quest.RETURN_WITH_CREATURES:
-            quest["quest_value"] = parse_creatures(amount=io.read_int(1))
-
-        case Quest.RETURN_WITH_RESOURCES:
-            quest["quest_value"] = []
-            for _ in range(7):
-                quest["quest_value"].append(io.read_int(4))
-
-        case Quest.BE_SPECIFIC_HERO:
-            quest["quest_value"] = hd.ID(io.read_int(1))
-
-        case Quest.BELONG_TO_SPECIFIC_PLAYER:
-            quest["quest_value"] = io.read_int(1)
-
-        case Quest.HOTA_QUEST:
-            quest["hota_type"] = HotA_Q(io.read_int(4))
-
-            if quest["hota_type"] == HotA_Q.BELONG_TO_SPECIFIC_CLASS:
-                quest["hota_extra"]  = io.read_int(4)
-                quest["quest_value"] = io.read_bits(3)
-
-            elif quest["hota_type"] == HotA_Q.RETURN_NOT_BEFORE_DATE:
-                quest["quest_value"] = io.read_int(4)
-
-    quest["deadline"]           =        io.read_int(4)
-    quest["proposal_message"]   =        io.read_str(io.read_int(4))
-    quest["progress_message"]   =        io.read_str(io.read_int(4))
-    quest["completion_message"] =        io.read_str(io.read_int(4))
-    quest["reward_type"]        = Reward(io.read_int(1))
-
-    match quest["reward_type"]:
+    match reward["type"]:
         case (Reward.EXPERIENCE | Reward.SPELL_POINTS):
-            quest["reward_value"] = io.read_int(4)
+            reward["value"] = io.read_int(4)
 
         case (Reward.MORALE | Reward.LUCK):
-            quest["reward_value"] = io.read_int(1)
+            reward["value"] = io.read_int(1)
 
         case Reward.RESOURCE:
-            quest["reward_value"] = []
-            quest["reward_value"].append(od.Resource(io.read_int(1)))
-            quest["reward_value"].append(io.read_int(4))
+            reward["value"] = []
+            reward["value"].append(od.Resource(io.read_int(1)))
+            reward["value"].append(io.read_int(4))
 
         case Reward.PRIMARY_SKILL:
-            quest["reward_value"] = []
-            quest["reward_value"].append(skd.Primary(io.read_int(1)))
-            quest["reward_value"].append(io.read_int(1))
+            reward["value"] = []
+            reward["value"].append(skd.Primary(io.read_int(1)))
+            reward["value"].append(io.read_int(1))
 
         case Reward.SECONDARY_SKILL:
-            quest["reward_value"] = []
-            quest["reward_value"].append(skd.Secondary(io.read_int(1)))
-            quest["reward_value"].append(io.read_int(1))
+            reward["value"] = []
+            reward["value"].append(skd.Secondary(io.read_int(1)))
+            reward["value"].append(io.read_int(1))
 
         case Reward.ARTIFACT:
-            quest["reward_value"] = ad.ID(io.read_int(2))
+            reward["value"] = ad.ID(io.read_int(2))
 
         case Reward.SPELL:
-            quest["reward_value"] = spd.ID(io.read_int(1))
+            reward["value"] = spd.ID(io.read_int(1))
 
         case Reward.CREATURES:
-            quest["reward_value"] = parse_creatures(amount=1)
+            reward["value"] = parse_creatures(amount=1)
 
-    return quest
+    return reward
 
-def write_quest(info: dict) -> None:
-    io.write_int(info["quest_type"], 1)
+def write_reward(info: dict) -> None:
+    io.write_int(info["type"], 1)
 
-    match info["quest_type"]:
-        case Quest.NONE:
-            io.write_int(0, 1)
-
-        case Quest.ACHIEVE_EXPERIENCE_LEVEL:
-            io.write_int(info["quest_value"], 4)
-
-        case Quest.ACHIEVE_PRIMARY_SKILL_LEVEL:
-            for skill in info["quest_value"]:
-                io.write_int(skill, 1)
-
-        case (Quest.DEFEAT_SPECIFIC_HERO | Quest.DEFEAT_SPECIFIC_MONSTER):
-            io.write_raw(info["quest_value"])
-
-        case Quest.RETURN_WITH_ARTIFACTS:
-            io.write_int(len(info["quest_value"]), 1)
-            for artifact in info["quest_value"]:
-                io.write_int(artifact, 2)
-
-        case Quest.RETURN_WITH_CREATURES:
-            io.write_int(len(info["quest_value"]), 1)
-            write_creatures(info["quest_value"])
-
-        case Quest.RETURN_WITH_RESOURCES:
-            for resource in info["quest_value"]:
-                io.write_int(resource, 4)
-
-        case (Quest.BE_SPECIFIC_HERO | Quest.BELONG_TO_SPECIFIC_PLAYER):
-            io.write_int(info["quest_value"], 1)
-
-        case Quest.HOTA_QUEST:
-            io.write_int(info["hota_type"], 4)
-
-            if info["hota_type"] == HotA_Q.BELONG_TO_SPECIFIC_CLASS:
-                io.write_int(info["hota_extra"], 4)
-                io.write_bits(info["quest_value"])
-
-            elif info["hota_type"] == HotA_Q.RETURN_NOT_BEFORE_DATE:
-                io.write_int(info["quest_value"], 4)
-
-    io.write_int(    info["deadline"], 4)
-    io.write_int(len(info["proposal_message"]), 4)
-    io.write_str(    info["proposal_message"])
-    io.write_int(len(info["progress_message"]), 4)
-    io.write_str(    info["progress_message"])
-    io.write_int(len(info["completion_message"]), 4)
-    io.write_str(    info["completion_message"])
-    io.write_int(    info["reward_type"], 1)
-
-    match info["reward_type"]:
+    match info["type"]:
         case (Reward.EXPERIENCE | Reward.SPELL_POINTS):
-            io.write_int(info["reward_value"], 4)
+            io.write_int(info["value"], 4)
 
         case (Reward.MORALE | Reward.LUCK | Reward.SPELL):
-            io.write_int(info["reward_value"], 1)
+            io.write_int(info["value"], 1)
 
         case Reward.RESOURCE:
-            io.write_int(info["reward_value"][0], 1)
-            io.write_int(info["reward_value"][1], 4)
+            io.write_int(info["value"][0], 1)
+            io.write_int(info["value"][1], 4)
 
         case (Reward.PRIMARY_SKILL | Reward.SECONDARY_SKILL):
-            io.write_int(info["reward_value"][0], 1)
-            io.write_int(info["reward_value"][1], 1)
+            io.write_int(info["value"][0], 1)
+            io.write_int(info["value"][1], 1)
 
         case Reward.ARTIFACT:
-            io.write_int(info["reward_value"], 2)
+            io.write_int(info["value"], 2)
 
         case Reward.CREATURES:
-            write_creatures(info["reward_value"])
+            write_creatures(info["value"])
 
 def parse_seers_hut(obj: dict) -> dict:
     obj["one_time_quests"]   = []
     obj["repeatable_quests"] = []
 
     for _ in range(io.read_int(4)): # Amount of one-time quests
-        obj["one_time_quests"].append(parse_quest())
+        obj["one_time_quests"].append([parse_quest(), parse_reward()])
 
     for _ in range(io.read_int(4)): # Amount of repeatable quests
-        obj["repeatable_quests"].append(parse_quest())
+        obj["repeatable_quests"].append([parse_quest(), parse_reward()])
 
     io.seek(2)
     return obj
@@ -1089,20 +1088,15 @@ def parse_seers_hut(obj: dict) -> dict:
 def write_seers_hut(obj: dict) -> None:
     io.write_int(len(obj["one_time_quests"]), 4)
     for quest in obj["one_time_quests"]:
-        write_quest(quest)
+        write_quest(quest[0])
+        write_reward(quest[1])
 
     io.write_int(len(obj["repeatable_quests"]), 4)
     for quest in obj["repeatable_quests"]:
-        write_quest(quest)
+        write_quest(quest[0])
+        write_reward(quest[1])
 
     io.write_int(0, 2)
-
-def parse_shrine(obj: dict) -> dict:
-    obj["spell"] = spd.ID(io.read_int(4))
-    return obj
-
-def write_shrine(obj: dict) -> None:
-    io.write_int(obj["spell"], 4)
 
 def parse_spell_scroll(obj: dict) -> dict:
     if io.read_int(1):
@@ -1115,13 +1109,6 @@ def write_spell_scroll(obj: dict) -> None:
         write_common(obj)
     else: io.write_int(0, 1)
     io.write_int(obj["spell"], 4)
-
-def parse_witch_hut(obj: dict) -> dict:
-    obj["skills"] = io.read_bits(4)
-    return obj
-
-def write_witch_hut(obj: dict) -> None:
-    io.write_bits(obj["skills"])
 
 
 
