@@ -76,6 +76,11 @@ def parse_object_data(objects: list) -> list:
             case od.ID.Event:        obj = parse_event(obj)
             case od.ID.Scholar:      obj = parse_scholar(obj)
             case od.ID.Seers_Hut:    obj = parse_seers_hut(obj)
+
+            case od.ID.Random_Dwelling:         obj = parse_dwelling(obj)
+            case od.ID.Random_Dwelling_Leveled: obj = parse_leveled(obj)
+            case od.ID.Random_Dwelling_Faction: obj = parse_faction(obj)
+
             case od.ID.Quest_Guard:  obj["quest"]  = parse_quest()
             case od.ID.Grail:        obj["radius"] = io.read_int(4)
             case od.ID.Witch_Hut:    obj["skills"] = io.read_bits(4)
@@ -232,6 +237,11 @@ def write_object_data(objects: list, info: list) -> None:
             case od.ID.Event:        write_event(obj)
             case od.ID.Scholar:      write_scholar(obj)
             case od.ID.Seers_Hut:    write_seers_hut(obj)
+
+            case od.ID.Random_Dwelling:         write_dwelling(obj)
+            case od.ID.Random_Dwelling_Leveled: write_leveled(obj)
+            case od.ID.Random_Dwelling_Faction: write_faction(obj)
+
             case od.ID.Quest_Guard:  write_quest(obj["quest"])
             case od.ID.Grail:        io.write_int(obj["radius"], 4)
             case od.ID.Witch_Hut:    io.write_bits(obj["skills"])
@@ -492,7 +502,7 @@ def parse_garrison(obj: dict) -> dict:
     return obj
 
 def write_garrison(obj: dict) -> None:
-    write_owner( obj["owner"])
+    write_owner(obj["owner"])
     write_creatures(obj["guards"])
     io.write_int(obj["troops_removable"], 9)
 
@@ -1110,14 +1120,53 @@ def write_spell_scroll(obj: dict) -> None:
     else: io.write_int(0, 1)
     io.write_int(obj["spell"], 4)
 
+def parse_dwelling(obj: dict) -> dict:
+    obj["owner"] = io.read_int(4)
 
+    obj["same_as_town"] = io.read_int(4)
+    if obj["same_as_town"] == 0:
+        obj["alignment"] = io.read_bits(2)
 
+    obj["minimum_level"] = io.read_int(1)
+    obj["maximum_level"] = io.read_int(1)
+    return obj
 
+def write_dwelling(obj: dict) -> None:
+    io.write_int(obj["owner"], 4)
 
+    io.write_int(obj["same_as_town"], 4)
+    if "alignment" in obj:
+        io.write_bits(obj["alignment"])
 
+    io.write_int(obj["minimum_level"], 1)
+    io.write_int(obj["maximum_level"], 1)
 
+def parse_leveled(obj: dict) -> dict:
+    obj["owner"] = io.read_int(4)
 
+    obj["same_as_town"] = io.read_int(4)
+    if obj["same_as_town"] == 0:
+        obj["alignment"] = io.read_bits(2)
 
+    return obj
+
+def write_leveled(obj: dict) -> None:
+    io.write_int(obj["owner"], 4)
+
+    io.write_int(obj["same_as_town"], 4)
+    if "alignment" in obj:
+        io.write_bits(obj["alignment"])
+
+def parse_faction(obj: dict) -> dict:
+    obj["owner"]         = io.read_int(4)
+    obj["minimum_level"] = io.read_int(1)
+    obj["maximum_level"] = io.read_int(1)
+    return obj
+
+def write_faction(obj: dict) -> None:
+    io.write_int(obj["owner"], 4)
+    io.write_int(obj["minimum_level"], 1)
+    io.write_int(obj["maximum_level"], 1)
 
 
 
