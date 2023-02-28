@@ -13,7 +13,7 @@ def read_int(length: int) -> int:
 
 def read_str(length: int) -> str:
     global in_file
-    return in_file.read(length).decode('utf-8')
+    return in_file.read(length).decode('latin-1')
 
 def read_bits(length: int) -> list:
     temp_bits = []
@@ -36,7 +36,7 @@ def write_int(data: int, length: int) -> None:
 
 def write_str(data: str) -> None:
     global out_file
-    out_file.write(data.encode())
+    out_file.write(data.encode('latin-1'))
 
 def write_bits(data: list) -> None:
     for i in range(0, len(data), 8):

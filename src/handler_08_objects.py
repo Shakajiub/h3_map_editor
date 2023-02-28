@@ -57,9 +57,7 @@ def write_objects(info: list) -> None:
 def parse_object_data(objects: list) -> list:
     info = []
 
-    for _ in range(io.read_int(4)): # Amount of objects
-#        io.peek(160)
-
+    for i in range(io.read_int(4)): # Amount of objects
         obj = { "coords": [0, 0, 0] }
         obj["coords"][0] = io.read_int(1)
         obj["coords"][1] = io.read_int(1)
@@ -84,6 +82,10 @@ def parse_object_data(objects: list) -> list:
             case od.ID.Quest_Guard:  obj["quest"]  = parse_quest()
             case od.ID.Grail:        obj["radius"] = io.read_int(4)
             case od.ID.Witch_Hut:    obj["skills"] = io.read_bits(4)
+
+            case od.ID.Border_Gate:
+                if objects[temp_id]["subtype"] == 1000: # HotA Quest Gate
+                    obj["quest"]  = parse_quest()
 
             case (od.ID.Town | od.ID.Random_Town):
                 obj = parse_town(obj)
@@ -136,83 +138,9 @@ def parse_object_data(objects: list) -> list:
             case _ if obj_type in od.CREATURE_BANKS:
                 obj = parse_bank(obj)
 
-            # Just a temporary list to make sure I've looked at all objects.
-            # This will be the default case once everything has been parsed.
-            case (od.ID.Altar_of_Sacrifice   | od.ID.Arena           |
-                  od.ID.Black_Market         | od.ID.Boat            |
-                  od.ID.Border_Guard         | od.ID.Keymasters_Tent |
-                  od.ID.Buoy                 | od.ID.Campfire        |
-                  od.ID.Cartographer         | od.ID.Swan_Pond       |
-                  od.ID.Cover_of_Darkness    | od.ID.Cursed_Ground_RoE |
-                  od.ID.Cursed_Ground        | od.ID.Magic_Plains_RoE  |
-                  od.ID.Magic_Plains         | od.ID.Clover_Field    |
-                  od.ID.Evil_Fog             | od.ID.Fiery_Fields    |
-                  od.ID.Holy_Ground          | od.ID.Lucid_Pools     |
-                  od.ID.Magic_Clouds         | od.ID.Rocklands       |
-                  od.ID.HotA_Ground          | od.ID.Corpse          |
-                  od.ID.Marletto_Tower       | od.ID.Eye_of_the_Magi |
-                  od.ID.Faerie_Ring          | od.ID.Flotsam         |
-                  od.ID.Fountain_of_Fortune  | od.ID.Fountain_of_Youth |
-                  od.ID.Garden_of_Revelation | od.ID.Hill_Fort       |
-                  od.ID.Hut_of_the_Magi      | od.ID.Idol_of_Fortune |
-                  od.ID.Lean_To              | od.ID.Library_of_Enlightenment |
-                  od.ID.Monolith_One_Way_Entrance | od.ID.Magic_Well       |
-                  od.ID.Monolith_One_Way_Exit     | od.ID.Two_Way_Monolith |
-                  od.ID.School_of_Magic      | od.ID.Magic_Spring    |
-                  od.ID.Market_of_Time       | od.ID.Mercenary_Camp  |
-                  od.ID.Mermaids             | od.ID.Mystical_Garden |
-                  od.ID.Oasis                | od.ID.Obelisk         |
-                  od.ID.Redwood_Observatory  | od.ID.Pillar_of_Fire  |
-                  od.ID.Star_Axis            | od.ID.Pyramid         |
-                  od.ID.Rally_Flag           | od.ID.Refugee_Camp    |
-                  od.ID.Sanctuary            | od.ID.Sea_Chest       |
-                  od.ID.Shipwreck_Survivor   | od.ID.Sirens          |
-                  od.ID.Stables              | od.ID.Tavern          |
-                  od.ID.Temple               | od.ID.Den_of_Thieves  |
-                  od.ID.Trading_Post         | od.ID.Learning_Stone  |
-                  od.ID.Treasure_Chest       | od.ID.Tree_of_Knowledge |
-                  od.ID.Subterranean_Gate    | od.ID.University      |
-                  od.ID.Wagon                | od.ID.War_Machine_Factory |
-                  od.ID.School_of_War        | od.ID.Warriors_Tomb   |
-                  od.ID.Water_Wheel          | od.ID.Watering_Hole   |
-                  od.ID.Whirlpool            | od.ID.Windmill        |
-                  od.ID.Brush     | od.ID.Bush              | od.ID.Cactus            |
-                  od.ID.Canyon    | od.ID.Crater            | od.ID.Dead_Vegetation   |
-                  od.ID.Flowers   | od.ID.Frozen_Lake       | od.ID.Hedge             |
-                  od.ID.Hill      | od.ID.Hole              | od.ID.Kelp              |
-                  od.ID.Lake      | od.ID.Lava_Flow         | od.ID.Lava_Lake         |
-                  od.ID.Mushrooms | od.ID.Log               | od.ID.Mandrake          |
-                  od.ID.Moss      | od.ID.Mound             | od.ID.Mountain          |
-                  od.ID.Oak_Trees | od.ID.Outcropping       | od.ID.Pine_Trees        |
-                  od.ID.Plant     | od.ID.HotA_Decoration_1 | od.ID.HotA_Decoration_2 |
-                  od.ID.HotA_Warehouse       | od.ID.River_Delta      |
-                  od.ID.HotA_Visitable_1     | od.ID.HotA_Visitable_2 |
-                  od.ID.Rock         | od.ID.Sand_Dune     | od.ID.Sand_Pit   |
-                  od.ID.Shrub        | od.ID.Skull         | od.ID.Stalagmite |
-                  od.ID.Stump        | od.ID.Tar_Pit       | od.ID.Trees      |
-                  od.ID.Vine         | od.ID.Volcanic_Vent | od.ID.Volcano    |
-                  od.ID.Willow_Trees | od.ID.Yucca_Trees   | od.ID.Reef       |
-                  od.ID.Brush_2         | od.ID.Bush_2        | od.ID.Cactus_2          |
-                  od.ID.Canyon_2        | od.ID.Crater_2      | od.ID.Dead_Vegetation_2 |
-                  od.ID.Flowers_2       | od.ID.Frozen_Lake_2 | od.ID.Hedge_2           |
-                  od.ID.Hill_2          | od.ID.Hole_2        | od.ID.Kelp_2            |
-                  od.ID.Lake_2          | od.ID.Lava_Flow_2   | od.ID.Lava_Lake_2       |
-                  od.ID.Mushrooms_2     | od.ID.Log_2         | od.ID.Mandrake_2        |
-                  od.ID.Moss_2          | od.ID.Mound_2       | od.ID.Mountain_2        |
-                  od.ID.Oak_Trees_2     | od.ID.Outcropping_2 | od.ID.Pine_Trees_2      |
-                  od.ID.Plant_2         | od.ID.River_Delta_2 | od.ID.Rock_2            |
-                  od.ID.Sand_Dune_2     | od.ID.Sand_Pit_2    | od.ID.Shrub_2           |
-                  od.ID.Skull_2         | od.ID.Stalagmite_2  | od.ID.Stump_2           |
-                  od.ID.Tar_Pit_2       | od.ID.Trees_2       | od.ID.Vine_2            |
-                  od.ID.Volcanic_Vent_2 | od.ID.Volcano_2     | od.ID.Willow_Trees_2    |
-                  od.ID.Yucca_Trees_2   | od.ID.Reef_2           |
-                  od.ID.Desert_Hills       | od.ID.Dirt_Hills    |
-                  od.ID.Grass_Hills        | od.ID.Rough_Hills   |
-                  od.ID.Subterranean_Rocks | od.ID.Swamp_Foliage |
-                  od.ID.Border_Gate        | od.ID.Freelancers_Guild):
-                pass
             case _:
-                raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
+#                raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
+                pass
 
         info.append(obj)
 
@@ -245,6 +173,10 @@ def write_object_data(objects: list, info: list) -> None:
             case od.ID.Quest_Guard:  write_quest(obj["quest"])
             case od.ID.Grail:        io.write_int(obj["radius"], 4)
             case od.ID.Witch_Hut:    io.write_bits(obj["skills"])
+
+            case od.ID.Border_Gate:
+                if objects[temp_id]["subtype"] == 1000: # HotA Quest Gate
+                    write_quest(obj["quest"])
 
             case (od.ID.Town | od.ID.Random_Town):
                 write_town(obj)

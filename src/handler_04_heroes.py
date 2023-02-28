@@ -60,7 +60,7 @@ def write_hero_flags(info: dict) -> None:
 def parse_hero_data() -> list:
     info = []
     
-    for _ in range(io.read_int(4)): # Amount of heroes
+    for idd in range(io.read_int(4)): # Amount of heroes
         if not io.read_int(1):
             info.append(0)
             continue
