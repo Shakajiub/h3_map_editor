@@ -57,7 +57,7 @@ def write_objects(info: list) -> None:
 def parse_object_data(objects: list) -> list:
     info = []
 
-    for i in range(io.read_int(4)): # Amount of objects
+    for _ in range(io.read_int(4)): # Amount of objects
         obj = { "coords": [0, 0, 0] }
         obj["coords"][0] = io.read_int(1)
         obj["coords"][1] = io.read_int(1)
@@ -85,7 +85,7 @@ def parse_object_data(objects: list) -> list:
 
             case od.ID.Border_Gate:
                 if objects[temp_id]["subtype"] == 1000: # HotA Quest Gate
-                    obj["quest"]  = parse_quest()
+                    obj["quest"] = parse_quest()
 
             case (od.ID.Town | od.ID.Random_Town):
                 obj = parse_town(obj)
@@ -124,6 +124,7 @@ def parse_object_data(objects: list) -> list:
                 obj["resources"] = io.read_bits(1)
                 io.seek(3)
 
+            # The level 4 HotA Shrine is just a subtype of the lvl 1 Shrine.
             case (od.ID.Shrine_of_Magic_Incantation |
                   od.ID.Shrine_of_Magic_Gesture     |
                   od.ID.Shrine_of_Magic_Thought):
@@ -138,9 +139,8 @@ def parse_object_data(objects: list) -> list:
             case _ if obj_type in od.CREATURE_BANKS:
                 obj = parse_bank(obj)
 
-            case _:
+#            case _:
 #                raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
-                pass
 
         info.append(obj)
 
@@ -740,7 +740,7 @@ def write_town(obj: dict) -> None:
 
     if "name" in obj:
         io.write_int(1, 1)
-        io.write_int(len(obj["name"]), 1)
+        io.write_int(len(obj["name"]), 4)
         io.write_str(    obj["name"])
     else: io.write_int(0, 1)
 
@@ -801,7 +801,7 @@ def write_scholar(obj: dict) -> None:
 
     if "reward" in obj:
         io.write_int(obj["reward"], 1)
-    else: io.write_int(0, 0)
+    else: io.write_int(0, 1)
 
     io.write_int(0, 6)
 
@@ -877,7 +877,7 @@ def parse_quest() -> dict:
             quest["hota_type"] = HotA_Q(io.read_int(4))
 
             if quest["hota_type"] == HotA_Q.BELONG_TO_SPECIFIC_CLASS:
-                quest["hota_extra"]  = io.read_int(4)
+                quest["hota_extra"] = io.read_int(4)
                 quest["value"] = io.read_bits(3)
 
             elif quest["hota_type"] == HotA_Q.RETURN_NOT_BEFORE_DATE:

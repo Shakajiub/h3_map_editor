@@ -47,6 +47,7 @@ def main() -> None:
 #    print("\nRumors:\n\n", rumors)
 #    print("\nObjects:\n\n", objects)
 #    print("\nObject Data:\n\n", obj_data)
+#    print("\nEvents:\n\n", events)
 
     with gzip.open("output.h3m", 'wb') as io.out_file:
         h1.write_general(general)
