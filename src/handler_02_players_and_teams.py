@@ -17,7 +17,7 @@ class Factions(IntEnum):
     Conflux    = 8
     Cove       = 9
 
-def parse_player_specs() -> dict:
+def parse_player_specs() -> list:
     specs = []
 
     for _ in range(8):
@@ -78,7 +78,7 @@ def parse_player_specs() -> dict:
 
     return specs
 
-def write_player_specs(specs: dict) -> None:
+def write_player_specs(specs: list) -> None:
     for info in specs:
         io.write_int(info["playability_human"], 1)
         io.write_int(info["playability_ai"], 1)

@@ -12,7 +12,7 @@ from src.handler_06_rumors_and_events import parse_events, write_events
 
 from enum import IntEnum
 
-def parse_objects() -> list:
+def parse_object_defs() -> list:
     info = []
 
     for _ in range(io.read_int(4)): # Amount of objects
@@ -38,7 +38,7 @@ def parse_objects() -> list:
 
     return info
 
-def write_objects(info: list) -> None:
+def write_object_defs(info: list) -> None:
     io.write_int(len(info), 4)
 
     for obj in info:
@@ -54,7 +54,7 @@ def write_objects(info: list) -> None:
         io.write_int(    obj["below_ground"], 1)
         io.write_raw(    obj["null_bytes"])
 
-def parse_object_data(objects: list) -> list:
+def parse_object_data(object_defs: list) -> list:
     info = []
 
     for _ in range(io.read_int(4)): # Amount of objects
@@ -63,13 +63,13 @@ def parse_object_data(objects: list) -> list:
         obj["coords"][1] = io.read_int(1)
         obj["coords"][2] = io.read_int(1)
 
-        temp_id = io.read_int(4)
-        obj["id"] = temp_id
+        obj["id"] = io.read_int(4)
         io.seek(5)
 
-        obj_type = objects[temp_id]["type"]
+        obj["type"]    = object_defs[obj["id"]]["type"]
+        obj["subtype"] = object_defs[obj["id"]]["subtype"]
 
-        match obj_type:
+        match obj["type"]:
             case od.ID.Pandoras_Box: obj = parse_pandoras_box(obj)
             case od.ID.Event:        obj = parse_event(obj)
             case od.ID.Scholar:      obj = parse_scholar(obj)
@@ -79,12 +79,12 @@ def parse_object_data(objects: list) -> list:
             case od.ID.Random_Dwelling_Leveled: obj = parse_leveled(obj)
             case od.ID.Random_Dwelling_Faction: obj = parse_faction(obj)
 
-            case od.ID.Quest_Guard:  obj["quest"]  = parse_quest()
-            case od.ID.Grail:        obj["radius"] = io.read_int(4)
-            case od.ID.Witch_Hut:    obj["skills"] = io.read_bits(4)
+            case od.ID.Quest_Guard: obj["quest"]  = parse_quest()
+            case od.ID.Grail:       obj["radius"] = io.read_int(4)
+            case od.ID.Witch_Hut:   obj["skills"] = io.read_bits(4)
 
             case od.ID.Border_Gate:
-                if objects[temp_id]["subtype"] == 1000: # HotA Quest Gate
+                if obj["subtype"] == 1000: # HotA Quest Gate
                     obj["quest"] = parse_quest()
 
             case (od.ID.Town | od.ID.Random_Town):
@@ -136,31 +136,25 @@ def parse_object_data(objects: list) -> list:
             case od.ID.Hero_Placeholder:
                 obj = parse_hero_placeholder(obj)
 
-            case _ if obj_type in od.CREATURE_BANKS:
+            case (od.ID.Creature_Bank | od.ID.Derelict_Ship |
+                  od.ID.Dragon_Utopia | od.ID.Crypt | od.ID.Shipwreck):
                 obj = parse_bank(obj)
-
-#            case _:
-#                raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
 
         info.append(obj)
 
     return info
 
-def write_object_data(objects: list, info: list) -> None:
+def write_object_data(info: list) -> None:
     io.write_int(len(info), 4)
 
     for obj in info:
         io.write_int(obj["coords"][0], 1)
         io.write_int(obj["coords"][1], 1)
         io.write_int(obj["coords"][2], 1)
-
-        temp_id = obj["id"]
-        io.write_int(temp_id, 4)
+        io.write_int(obj["id"], 4)
         io.write_int(0, 5)
 
-        obj_type = objects[temp_id]["type"]
-
-        match obj_type:
+        match obj["type"]:
             case od.ID.Pandoras_Box: write_pandoras_box(obj)
             case od.ID.Event:        write_event(obj)
             case od.ID.Scholar:      write_scholar(obj)
@@ -170,12 +164,12 @@ def write_object_data(objects: list, info: list) -> None:
             case od.ID.Random_Dwelling_Leveled: write_leveled(obj)
             case od.ID.Random_Dwelling_Faction: write_faction(obj)
 
-            case od.ID.Quest_Guard:  write_quest(obj["quest"])
-            case od.ID.Grail:        io.write_int(obj["radius"], 4)
-            case od.ID.Witch_Hut:    io.write_bits(obj["skills"])
+            case od.ID.Quest_Guard: write_quest(obj["quest"])
+            case od.ID.Grail:       io.write_int(obj["radius"], 4)
+            case od.ID.Witch_Hut:   io.write_bits(obj["skills"])
 
             case od.ID.Border_Gate:
-                if objects[temp_id]["subtype"] == 1000: # HotA Quest Gate
+                if obj["subtype"] == 1000: # HotA Quest Gate
                     write_quest(obj["quest"])
 
             case (od.ID.Town | od.ID.Random_Town):
@@ -227,11 +221,9 @@ def write_object_data(objects: list, info: list) -> None:
             case od.ID.Hero_Placeholder:
                 write_hero_placeholder(obj)
 
-            case _ if obj_type in od.CREATURE_BANKS:
+            case (od.ID.Creature_Bank | od.ID.Derelict_Ship |
+                  od.ID.Dragon_Utopia | od.ID.Crypt | od.ID.Shipwreck):
                 write_bank(obj)
-
-#            case _:
-#                raise NotImplementedError(objects[temp_id]["type"], obj["coords"])
 
 def parse_owner() -> int:
     # TODO: The owner is actually just one byte, usually followed by three null

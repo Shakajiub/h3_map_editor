@@ -5,7 +5,7 @@ import data.heroes as hd
 
 from src.handler_01_general import MapFormat
 
-def parse_hero_flags(version: int) -> dict:
+def parse_starting_heroes(general_info: dict) -> dict:
     info = {
         "hota_data"      : b'',
         "hero_flags"     : [],
@@ -14,29 +14,29 @@ def parse_hero_flags(version: int) -> dict:
         "unhandled_bytes": b''
     }
 
-    if version == MapFormat.HotA:
+    if general_info["map_format"] == MapFormat.HotA:
         info["hota_data"]  = io.read_raw(4)
         info["hero_flags"] = io.read_bits(23)
 
-    elif version == MapFormat.SoD:
+    elif general_info["map_format"] == MapFormat.SoD:
         info["hero_flags"] = io.read_bits(20)
 
     for _ in range(io.read_int(4)): # Amount of placeholder heroes
         info["placeholders"].append(hd.ID(io.read_int(1)))
 
-    for _ in range(io.read_int(1)):
+    for _ in range(io.read_int(1)): # Amount of custom heroes
         hero = {}
-        hero["id"]   = io.read_int(1)
+        hero["id"] = io.read_int(1)
         hero["face"] = io.read_int(1)
         hero["name"] = io.read_str(io.read_int(4))
-        hero["may_be_hired_by"]  = io.read_int(1)
+        hero["may_be_hired_by"] = io.read_int(1)
         info["custom_heroes"].append(hero)
 
     info["unhandled_bytes"] = io.read_raw(49)
 
     return info
 
-def write_hero_flags(info: dict) -> None:
+def write_starting_heroes(info: dict) -> None:
     if info["hota_data"] != b'':
         io.write_raw(info["hota_data"])
 

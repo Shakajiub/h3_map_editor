@@ -40,18 +40,23 @@ class RoadType(IntEnum):
     Gravel      = 2
     Cobblestone = 3
 
-def parse_terrain(size: int, is_two_level: bool) -> list:
+def parse_terrain(general_info: dict) -> list:
     info = []
 
-    for _ in range(size*size*2 if is_two_level else size*size):
+    size         = general_info["map_size"]
+    is_two_level = general_info["is_two_level"]
+
+    tile_amount = size*size*2 if is_two_level else size*size
+
+    for _ in range(tile_amount):         # 7 bytes per tile:
         info.append([
-            TerrainType(io.read_int(1)),
-            io.read_int(1), # Terrain picture
-            RiverType(io.read_int(1)),
-            io.read_int(1), # River picture
-            RoadType(io.read_int(1)),
-            io.read_int(1), # Road picture
-            io.read_int(1)  # Tile mirroring
+            TerrainType(io.read_int(1)), # Byte 1: Terrain type
+            io.read_int(1),              # Byte 2: Terrain picture
+            RiverType(io.read_int(1)),   # Byte 3: River type
+            io.read_int(1),              # Byte 4: River picture
+            RoadType(io.read_int(1)),    # Byte 5: Road type
+            io.read_int(1),              # Byte 6: Road picture
+            io.read_int(1)               # Byte 7: Tile mirroring
         ])
 
     return info

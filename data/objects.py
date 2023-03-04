@@ -260,14 +260,6 @@ class ID(IntEnum):
     #                             254
     #                             255
 
-CREATURE_BANKS = [
-    ID.Creature_Bank,
-    ID.Derelict_Ship,
-    ID.Dragon_Utopia,
-    ID.Crypt,
-    ID.Shipwreck,
-]
-
 class Bank(IntEnum): # ID 16
     Cyclops_Stockpile    =  0
     Dwarven_Treasury     =  1
