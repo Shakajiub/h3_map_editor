@@ -2,17 +2,21 @@
 
 import data.creatures as cd # Creature details
 
-CREATURE_MAX  = [ 5, 10, 20, 50, 100, 250, 500, 1000 ]
-CREATURE_TEXT = [ "a few", "several", "a pack", "lots",
-                  "a horde", "a throng", "a swarm", "zounds" ]
+##
+##
+##
 
-def indicate_guards(amount: int) -> str:
-    t = "a legion"
-    for i in range(8):
-        if amount < CREATURE_MAX[i]:
-            t = CREATURE_TEXT[i]
-            break
-    return f"{t} ({{{amount}}})"
+GUARDS = [
+    [    1,   4, "a few"    ],
+    [    5,   9, "several"  ],
+    [   10,  19, "a pack"   ],
+    [   20,  49, "lots"     ],
+    [   50,  99, "a horde"  ],
+    [  100, 249, "a throng" ],
+    [  250, 499, "a swarm"  ],
+    [  500, 999, "zounds"   ],
+    [ 1000,  -1, "a legion" ]
+]
 
-def generate_guards(ai_value: int, max_amount: int = 7) -> list:
-    return []
+def describe_guards(map_data: dict) -> None:
+    pass

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 import src.file_io    as io
-import data.objects   as od  # Object details
-import data.creatures as cd  # Creature details
 import data.artifacts as ad  # Artifact details
+import data.creatures as cd  # Creature details
 import data.heroes    as hd  # Hero details
+import data.objects   as od  # Object details
 import data.skills    as skd # Skill details
 import data.spells    as spd # Spell details
 
@@ -12,24 +12,47 @@ from src.handler_06_rumors_and_events import parse_events, write_events
 
 from enum import IntEnum
 
+def get_subtype(obj_type: int, i: int) -> int:
+    match obj_type:
+        case od.ID.Artifact:                  return ad.ID(i)
+        case od.ID.Border_Guard:              return od.Border_Color(i)
+        case od.ID.Keymasters_Tent:           return od.Border_Color(i)
+        case od.ID.Cartographer:              return od.Cartographer(i)
+        case od.ID.Creature_Bank:             return od.Creature_Bank(i)
+        case od.ID.Creature_Generator_1:      return od.Dwelling(i)
+        case od.ID.Creature_Generator_4:      return od.Dwelling_Multi(i)
+        case od.ID.Hero:                      return hd.Classes(i)
+        case od.ID.Hill_Fort:                 return od.Hill_Fort(i)
+        case od.ID.Monolith_One_Way_Entrance: return od.One_Way_Monolith(i)
+        case od.ID.Monolith_One_Way_Exit:     return od.One_Way_Monolith(i)
+        case od.ID.Two_Way_Monolith:          return od.Two_Way_Monolith(i)
+        case od.ID.Mine:                      return od.Resource(i)
+        case od.ID.Monster:                   return cd.ID(i)
+        case od.ID.Resource:                  return od.Resource(i)
+        case od.ID.Town:                      return od.Town(i)
+        case od.ID.HotA_Decoration_1:         return od.HotA_Decoration_1(i)
+        case od.ID.HotA_Decoration_2:         return od.HotA_Decoration_2(i)
+        case od.ID.HotA_Ground:               return od.HotA_Ground(i)
+        case od.ID.HotA_Warehouse:            return od.Resource(i)
+        case od.ID.HotA_Visitable_1:          return od.HotA_Visitable_1(i)
+        case od.ID.HotA_Collectible:          return od.HotA_Collectible(i)
+        case od.ID.HotA_Visitable_2:          return od.HotA_Visitable_2(i)
+        case od.ID.Border_Gate:               return od.Border_Color(i)
+    return i
+
 def parse_object_defs() -> list:
     info = []
 
     for _ in range(io.read_int(4)): # Amount of objects
         obj = {}
         obj["sprite"] = io.read_str(io.read_int(4))
-        obj["red_squares"]       =  io.read_bits(6)
-        obj["yellow_squares"]    =  io.read_bits(6)
-        obj["placeable_terrain"] =  io.read_bits(2)
-        obj["editor_section"]    =  io.read_bits(2)
-        obj["type"] =         od.ID(io.read_int(4))
-        obj["subtype"]           =  io.read_int(4)
+        obj["red_squares"]        = io.read_bits(6)
+        obj["yellow_squares"]     = io.read_bits(6)
+        obj["placeable_terrain"]  = io.read_bits(2)
+        obj["editor_section"]     = io.read_bits(2)
 
-        # TODO: A full function for getting subtype IntEnum
-        if obj["type"] == od.ID.Resource:
-            obj["subtype"] = od.Resource(obj["subtype"])
-        elif obj["type"] == od.ID.Artifact:
-            obj["subtype"] = ad.ID(obj["subtype"])
+        obj["type"]    = od.ID(io.read_int(4))
+        obj["subtype"] = get_subtype(obj["type"], io.read_int(4))
 
         obj["editor_group"] =      io.read_int(1)
         obj["below_ground"] = bool(io.read_int(1))
@@ -63,11 +86,11 @@ def parse_object_data(object_defs: list) -> list:
         obj["coords"][1] = io.read_int(1)
         obj["coords"][2] = io.read_int(1)
 
-        obj["id"] = io.read_int(4)
+        obj["def_id"] = io.read_int(4)
         io.seek(5)
 
-        obj["type"]    = object_defs[obj["id"]]["type"]
-        obj["subtype"] = object_defs[obj["id"]]["subtype"]
+        obj["type"]    = object_defs[obj["def_id"]]["type"]
+        obj["subtype"] = object_defs[obj["def_id"]]["subtype"]
 
         match obj["type"]:
             case od.ID.Pandoras_Box: obj = parse_pandoras_box(obj)
@@ -152,7 +175,7 @@ def write_object_data(info: list) -> None:
         io.write_int(obj["coords"][1], 1)
         io.write_int(obj["coords"][2], 1)
 
-        io.write_int(obj["id"], 4)
+        io.write_int(obj["def_id"], 4)
         io.write_int(0, 5)
 
         match obj["type"]:

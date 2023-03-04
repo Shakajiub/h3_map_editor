@@ -2,20 +2,9 @@
 
 import src.file_io as io
 import data.heroes as hd
+from data.objects import Town
 
 from enum import IntEnum
-
-class Factions(IntEnum):
-    Castle     = 0
-    Rampart    = 1
-    Tower      = 2
-    Inferno    = 3
-    Necropolis = 4
-    Dungeon    = 5
-    Stronghold = 6
-    Fortress   = 7
-    Conflux    = 8
-    Cove       = 9
 
 def parse_player_specs() -> list:
     specs = []
@@ -50,11 +39,11 @@ def parse_player_specs() -> list:
         info["has_main_town"]         = bool(io.read_int(1))
 
         if info["has_main_town"]:
-            info["generate_hero"]  =     bool(io.read_int(1))
-            info["town_type"]      = Factions(io.read_int(1))
-            info["town_coords"][0] =          io.read_int(1)
-            info["town_coords"][1] =          io.read_int(1)
-            info["town_coords"][2] =          io.read_int(1)
+            info["generate_hero"]  = bool(io.read_int(1))
+            info["town_type"]      = Town(io.read_int(1))
+            info["town_coords"][0] =      io.read_int(1)
+            info["town_coords"][1] =      io.read_int(1)
+            info["town_coords"][2] =      io.read_int(1)
 
         info["has_random_hero"]  =  bool(io.read_int(1))
         info["starting_hero_id"] = hd.ID(io.read_int(1))

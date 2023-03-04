@@ -260,7 +260,24 @@ class ID(IntEnum):
     #                             254
     #                             255
 
-class Bank(IntEnum): # ID 16
+class Border_Color(IntEnum): # ID 9 & 212
+    Light_Blue =    0
+    Green      =    1
+    Red        =    2
+    Dark_Blue  =    3
+    Brown      =    4
+    Purple     =    5
+    White      =    6
+    Black      =    7
+    Quest_Gate = 1000 # only 212 - HotA
+    Grave      = 1001 # only 212 - HotA
+
+class Cartographer(IntEnum): # ID 13
+    Water      = 0
+    Land       = 1
+    Underworld = 2
+
+class Creature_Bank(IntEnum): # ID 16
     Cyclops_Stockpile    =  0
     Dwarven_Treasury     =  1
     Griffin_Conservatory =  2
@@ -404,7 +421,25 @@ class Dwelling_Multi(IntEnum): # ID 20
     Elementals = 0
     Golems     = 1
 
-class TwoWayMonolith(IntEnum): # ID 45
+class Hill_Fort(IntEnum): # ID 35
+    SoD  = 0
+    HotA = 1
+
+class One_Way_Monolith(IntEnum): # ID 43 & 44
+    Small_Blue       =  0
+    Small_Pink       =  1
+    Small_Orange     =  2
+    Small_Yellow     =  3
+    Big_Purple       =  4
+    Big_Orange       =  5
+    Big_Red          =  6
+    Big_Cyan         =  7
+    Small_Turquoise  =  8
+    Small_Violet     =  9
+    Small_Chartreuse = 10
+    Small_White      = 11
+
+class Two_Way_Monolith(IntEnum): # ID 45
     Small_Green      =  0
     Small_Brown      =  1
     Small_Violet     =  2
@@ -431,14 +466,27 @@ class TwoWayMonolith(IntEnum): # ID 45
     Water_Chartreuse = 23
     Water_Yellow     = 24
 
-class Resource(IntEnum): # ID 79
-    Wood    = 0
-    Mercury = 1
-    Ore     = 2
-    Sulfur  = 3
-    Crystal = 4
-    Gems    = 5
-    Gold    = 6
+class Resource(IntEnum): # ID 53, 79 & 220
+    Wood      = 0
+    Mercury   = 1
+    Ore       = 2
+    Sulfur    = 3
+    Crystal   = 4
+    Gems      = 5
+    Gold      = 6
+    Abandoned = 7
+
+class Town(IntEnum): # ID 98
+    Castle     = 0
+    Rampart    = 1
+    Tower      = 2
+    Inferno    = 3
+    Necropolis = 4
+    Dungeon    = 5
+    Stronghold = 6
+    Fortress   = 7
+    Conflux    = 8
+    Cove       = 9
 
 class HotA_Decoration_1(IntEnum): # ID 139
     Crate                    =  0
@@ -510,15 +558,3 @@ class HotA_Visitable_2(IntEnum): # ID 146
     Observatory       = 1
     Altar_of_Mana     = 2
     Town_Gate         = 3
-
-class BorderGate(IntEnum): # ID 212
-    Light_Blue =    0
-    Green      =    1
-    Red        =    2
-    Dark_Blue  =    3
-    Brown      =    4
-    Purple     =    5
-    White      =    6
-    Black      =    7
-    Quest_Gate = 1000 # HotA
-    Grave      = 1001 # HotA
