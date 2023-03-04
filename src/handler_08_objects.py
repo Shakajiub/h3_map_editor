@@ -151,6 +151,7 @@ def write_object_data(info: list) -> None:
         io.write_int(obj["coords"][0], 1)
         io.write_int(obj["coords"][1], 1)
         io.write_int(obj["coords"][2], 1)
+
         io.write_int(obj["id"], 4)
         io.write_int(0, 5)
 
@@ -777,22 +778,22 @@ def write_resource(obj: dict) -> None:
     io.write_int(0, 4)
 
 def parse_scholar(obj: dict) -> dict:
-    obj["type"] = io.read_int(1)
+    obj["reward_type"] = io.read_int(1)
     
-    match obj["type"]:
+    match obj["reward_type"]:
         case 255: io.seek(1) # Random
-        case 0:   obj["reward"] = skd.Primary(io.read_int(1))
-        case 1:   obj["reward"] = skd.Secondary(io.read_int(1))
-        case 2:   obj["reward"] = spd.ID(io.read_int(1))
+        case 0:   obj["reward_value"] = skd.Primary(io.read_int(1))
+        case 1:   obj["reward_value"] = skd.Secondary(io.read_int(1))
+        case 2:   obj["reward_value"] = spd.ID(io.read_int(1))
 
     io.seek(6)
     return obj
 
 def write_scholar(obj: dict) -> None:
-    io.write_int(obj["type"], 1)
+    io.write_int(obj["reward_type"], 1)
 
-    if "reward" in obj:
-        io.write_int(obj["reward"], 1)
+    if "reward_value" in obj:
+        io.write_int(obj["reward_value"], 1)
     else: io.write_int(0, 1)
 
     io.write_int(0, 6)
