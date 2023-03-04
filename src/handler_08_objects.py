@@ -12,34 +12,6 @@ from src.handler_06_rumors_and_events import parse_events, write_events
 
 from enum import IntEnum
 
-def get_subtype(obj_type: int, i: int) -> int:
-    match obj_type:
-        case od.ID.Artifact:                  return ad.ID(i)
-        case od.ID.Border_Guard:              return od.Border_Color(i)
-        case od.ID.Keymasters_Tent:           return od.Border_Color(i)
-        case od.ID.Cartographer:              return od.Cartographer(i)
-        case od.ID.Creature_Bank:             return od.Creature_Bank(i)
-        case od.ID.Creature_Generator_1:      return od.Dwelling(i)
-        case od.ID.Creature_Generator_4:      return od.Dwelling_Multi(i)
-        case od.ID.Hero:                      return hd.Classes(i)
-        case od.ID.Hill_Fort:                 return od.Hill_Fort(i)
-        case od.ID.Monolith_One_Way_Entrance: return od.One_Way_Monolith(i)
-        case od.ID.Monolith_One_Way_Exit:     return od.One_Way_Monolith(i)
-        case od.ID.Two_Way_Monolith:          return od.Two_Way_Monolith(i)
-        case od.ID.Mine:                      return od.Resource(i)
-        case od.ID.Monster:                   return cd.ID(i)
-        case od.ID.Resource:                  return od.Resource(i)
-        case od.ID.Town:                      return od.Town(i)
-        case od.ID.HotA_Decoration_1:         return od.HotA_Decoration_1(i)
-        case od.ID.HotA_Decoration_2:         return od.HotA_Decoration_2(i)
-        case od.ID.HotA_Ground:               return od.HotA_Ground(i)
-        case od.ID.HotA_Warehouse:            return od.Resource(i)
-        case od.ID.HotA_Visitable_1:          return od.HotA_Visitable_1(i)
-        case od.ID.HotA_Collectible:          return od.HotA_Collectible(i)
-        case od.ID.HotA_Visitable_2:          return od.HotA_Visitable_2(i)
-        case od.ID.Border_Gate:               return od.Border_Color(i)
-    return i
-
 def parse_object_defs() -> list:
     info = []
 
@@ -76,6 +48,34 @@ def write_object_defs(info: list) -> None:
         io.write_int(    obj["editor_group"], 1)
         io.write_int(    obj["below_ground"], 1)
         io.write_raw(    obj["null_bytes"])
+
+def get_subtype(obj_type: int, i: int) -> int:
+    match obj_type:
+        case od.ID.Artifact:                  return ad.ID(i)
+        case od.ID.Border_Guard:              return od.Border_Color(i)
+        case od.ID.Keymasters_Tent:           return od.Border_Color(i)
+        case od.ID.Cartographer:              return od.Cartographer(i)
+        case od.ID.Creature_Bank:             return od.Creature_Bank(i)
+        case od.ID.Creature_Generator_1:      return od.Dwelling(i)
+        case od.ID.Creature_Generator_4:      return od.Dwelling_Multi(i)
+        case od.ID.Hero:                      return hd.Classes(i)
+        case od.ID.Hill_Fort:                 return od.Hill_Fort(i)
+        case od.ID.Monolith_One_Way_Entrance: return od.One_Way_Monolith(i)
+        case od.ID.Monolith_One_Way_Exit:     return od.One_Way_Monolith(i)
+        case od.ID.Two_Way_Monolith:          return od.Two_Way_Monolith(i)
+        case od.ID.Mine:                      return od.Resource(i)
+        case od.ID.Monster:                   return cd.ID(i)
+        case od.ID.Resource:                  return od.Resource(i)
+        case od.ID.Town:                      return od.Town(i)
+        case od.ID.HotA_Decoration_1:         return od.HotA_Decoration_1(i)
+        case od.ID.HotA_Decoration_2:         return od.HotA_Decoration_2(i)
+        case od.ID.HotA_Ground:               return od.HotA_Ground(i)
+        case od.ID.HotA_Warehouse:            return od.Resource(i)
+        case od.ID.HotA_Visitable_1:          return od.HotA_Visitable_1(i)
+        case od.ID.HotA_Collectible:          return od.HotA_Collectible(i)
+        case od.ID.HotA_Visitable_2:          return od.HotA_Visitable_2(i)
+        case od.ID.Border_Gate:               return od.Border_Color(i)
+    return i
 
 def parse_object_data(object_defs: list) -> list:
     info = []
@@ -138,7 +138,7 @@ def parse_object_data(object_defs: list) -> list:
             case (od.ID.Creature_Generator_1 | od.ID.Lighthouse |
                   od.ID.Creature_Generator_4 | od.ID.Mine       |
                   od.ID.Shipyard):
-                obj["owner"] = parse_owner()
+                obj["owner"] = io.read_int(4)
 
             case (od.ID.Garrison | od.ID.Garrison_Vertical):
                 obj = parse_garrison(obj)
@@ -225,7 +225,7 @@ def write_object_data(info: list) -> None:
             case (od.ID.Creature_Generator_1 | od.ID.Lighthouse |
                   od.ID.Creature_Generator_4 | od.ID.Mine       |
                   od.ID.Shipyard):
-                write_owner(obj["owner"])
+                io.write_int(obj["owner"], 4)
 
             case (od.ID.Garrison | od.ID.Garrison_Vertical):
                 write_garrison(obj)
@@ -248,15 +248,6 @@ def write_object_data(info: list) -> None:
             case (od.ID.Creature_Bank | od.ID.Derelict_Ship |
                   od.ID.Dragon_Utopia | od.ID.Crypt | od.ID.Shipwreck):
                 write_bank(obj)
-
-def parse_owner() -> int:
-    # TODO: The owner is actually just one byte, usually followed by three null
-    # bytes (but not always!). Remove this method and just read the owner
-    # everywhere by themselves. 
-    return io.read_int(4)
-
-def write_owner(owner: int) -> None:
-    io.write_int(owner, 4)
 
 def parse_creatures(amount: int = 7) -> list:
     info = []
@@ -442,7 +433,7 @@ def write_event(obj: dict) -> None:
     io.write_int( obj["allow_human"], 1)
 
 def parse_garrison(obj: dict) -> dict:
-    obj["owner"]  = parse_owner()
+    obj["owner"]  = io.read_int(4)
     obj["guards"] = parse_creatures()
     obj["troops_removable"] = io.read_int(1)
 
@@ -450,7 +441,7 @@ def parse_garrison(obj: dict) -> dict:
     return obj
 
 def write_garrison(obj: dict) -> None:
-    write_owner(obj["owner"])
+    io.write_int(obj["owner"], 4)
     write_creatures(obj["guards"])
     io.write_int(obj["troops_removable"], 9)
 
