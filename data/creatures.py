@@ -177,7 +177,78 @@ class ID(IntEnum):
     Leprechaun          = 169
     Steel_Golem         = 170
 
-FACTIONS = {
+NAME = [
+    "Pikemen" , "Halberdiers"   , "Archers"  , "Marksmen" ,
+    "Griffins", "Royal Griffins", "Swordsmen", "Crusaders",
+    "Monks"   , "Zealots"       , "Cavaliers", "Champions",
+    "Angels"  , "Archangels"    ,
+
+    "Centaurs"       , "Centaur Captains" , "Dwarves" , "Battle Dwarves",
+    "Wood Elves"     , "Grand Elves"      , "Pegasi"  , "Silver Pegasi" ,
+    "Dendroid Guards", "Dendroid Soldiers", "Unicorns", "War Unicorns"  ,
+    "Green Dragons"  , "Gold Dragons"     ,
+
+    "Gremlins"    , "Master Gremlins", "Stone Gargoyles", "Obsidian Gargoyles",
+    "Stone Golems", "Iron Golems"    , "Magi"           , "Arch Magi"         ,
+    "Genies"      , "Master Genies"  , "Nagas"          , "Naga Queens"       ,
+    "Giants"      , "Titans"         ,
+
+    "Imps"       , "Familiars"  , "Gogs"   , "Magogs"        ,
+    "Hell Hounds", "Cerberi"    , "Demons" , "Horned Demons" ,
+    "Pit Fiends" , "Pit Lords"  , "Efreeti", "Efreet Sultans",
+    "Devils"     , "Arch Devils",
+
+    "Skeletons"   , "Skeleton Warriors", "Walking Dead" , "Zombies"      ,
+    "Wights"      , "Wraiths"          , "Vampires"     , "Vampire Lords",
+    "Liches"      , "Power Liches"     , "Black Knights", "Dread Knights",
+    "Bone Dragons", "Ghost Dragons"    ,
+
+    "Troglodytes", "Infernal Troglodytes", "Harpies"   , "Harpy Hags"   ,
+    "Beholders"  , "Evil Eyes"           , "Medusas"   , "Medusa Queens",
+    "Minotaurs"  , "Minotaur Kings"      , "Manticores", "Scorpicores"  ,
+    "Red Dragons", "Black Dragons"       ,
+
+    "Goblins"  , "Hobgoblins"       , "Wolf Riders", "Wolf Raiders" ,
+    "Orcs"     , "Orc Chieftains"   , "Ogres"      , "Ogre Magi"    ,
+    "Rocs"     , "Thunderbirds"     , "Cyclops"    , "Cyclops Kings",
+    "Behemoths", "Ancient Behemoths",
+
+    "Gnolls"   , "Gnoll Marauders"  , "Lizardmen"    , "Lizard Warriors",
+    "Gorgons"  , "Mighty Gorgons"   , "Serpent Flies", "Dragon Flies"   ,
+    "Basilisks", "Greater Basilisks", "Wyverns"      , "Wyvern Monarchs",
+    "Hydras"   , "Chaos Hydras"     ,
+
+    "Air Elementals" , "Earth Elementals",
+    "Fire Elementals", "Water Elementals",
+    "Gold Golems"    , "Diamond Golems"  ,
+
+    "Pixies"    , "Sprites"         , "Psychic Elementals", "Magic Elementals" ,
+    "NOT USED 1", "Ice Elementals"  , "NOT USED 2"        , "Magma Elementals" ,
+    "NOT USED 3", "Storm Elementals", "NOT USED 4"        , "Energy Elementals",
+    "Firebirds" , "Phoenixes"       ,
+
+    "Azure Dragons" , "Crystal Dragons",
+    "Faerie Dragons", "Rust Dragons"   ,
+    "Enchanters"    , "Sharpshooters"  ,
+    "Halflings"     , "Peasants"       ,
+    "Boars"         , "Mummies"        ,
+    "Nomads"        , "Rogues"         ,
+    "Trolls"        , "Catapults"      ,
+    "Ballistae"     , "First Aid Tents",
+    "Ammo Carts"    , "Arrow Towers"   ,
+
+    "Cannons", "Sea Dogs", "Unused",
+
+    "Nymphs"      , "Oceanids"   , "Crew Mates", "Seamen"      ,
+    "Pirates"     , "Corsairs"   , "Stormbirds", "Ayssids"     ,
+    "Sea Witches" , "Sorceresses", "Nixes"     , "Nix Warriors",
+    "Sea Serpents", "Haspids"    ,
+
+    "Satyrs"     , "Fangarms",
+    "Leprechauns", "Steel Golems"
+]
+
+FACTION = {
     "Castle"    : [   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13 ],
     "Rampart"   : [  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27 ],
     "Tower"     : [  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41 ],
