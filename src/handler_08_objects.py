@@ -525,7 +525,7 @@ def parse_hero(obj: dict) -> dict:
     hero["gender"] = io.read_int(1)
 
     if io.read_int(1): # Are spells set?
-        hero["spells"] = io.read_raw(9) # TODO: Parse spells.
+        hero["spells"] = io.read_bits(9)
 
     if io.read_int(1): # Are primary skills set?
         hero["primary_skills"]["attack"]      = io.read_int(1)
@@ -629,7 +629,7 @@ def write_hero(obj: dict) -> None:
     #
     if hero["spells"] != b'':
         io.write_int(1, 1)
-        io.write_raw(hero["spells"])
+        io.write_bits(hero["spells"])
     else: io.write_int(0, 1)
 
     #
