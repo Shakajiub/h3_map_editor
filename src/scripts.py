@@ -66,27 +66,55 @@ FACTIONS = {
 }
 
 def generate_guards(obj_data: dict, describe_guards: bool = True) -> dict:
-    print("\n[-Generating guards-]")
+    print("\n---[ Generating guards (v.101) ]---\n")
+
+    valid_types = {
+        od.ID.Pandoras_Box            : "{Pandora's Box}\n",
+        od.ID.Artifact                : "{Artifact}\n",
+        od.ID.Random_Artifact         : "{Artifact}\n",
+        od.ID.Random_Treasure_Artifact: "{Artifact}\n",
+        od.ID.Random_Minor_Artifact   : "{Artifact}\n",
+        od.ID.Random_Major_Artifact   : "{Artifact}\n",
+        od.ID.Random_Relic            : "{Artifact}\n",
+        od.ID.Event                   : "",
+        od.ID.Resource                : "{Resources}\n",
+        od.ID.Spell_Scroll            : "{Spell Scroll}\n",
+    }
 
     for obj in obj_data:
-        if obj["type"] != od.ID.Pandoras_Box or not "message" in obj:
+        if obj["type"] not in valid_types.keys() or not "message" in obj:
             continue
 
         # Split the message box into a list of separate lines
-        # and check if the last line starts with a number.
+        # and check if the last line contains "-guards xxx".
         obj_message = obj["message"].split('\n')
         last_line = obj_message[-1].split(' ')
 
-        if not last_line[0].isdigit():
+        if last_line[0] != "-guards":
             continue
 
-        total_guard_value = int(last_line[0])
+        if not last_line[1].isdigit():
+            continue
+
+        # If there is no message for the object (other than the desired AI
+        # value, then we generate a simple title and a yes/no prompt later).
+        add_prompt = False
+        if obj["type"] != od.ID.Pandoras_Box:
+            add_prompt = len(obj_message) == 1
+
+        desired_guard_value = int(last_line[1])
+
+        # Make sure we the desired guard value is large enough.
+        if desired_guard_value < 1000:
+            print("\nThe guard value for", obj["type"], "at", obj["coords"],
+                f"is too low! ({desired_guard_value}). Min value is 1000.\n")
+            continue
 
         # Limit the number of stacks so that the minimum
         # AI value of a single stack is at least 5000.
-        max_num = max(min(round(total_guard_value / 5000), 7), 3)
+        max_num = max(min(round(desired_guard_value / 5000), 7), 3)
         creature_num = randint(2, max_num)
-        max_creature_value = total_guard_value / creature_num
+        max_creature_value = desired_guard_value / creature_num
 
         # Get a list of creatures from two random factions.
         creature_list = []
@@ -108,10 +136,9 @@ def generate_guards(obj_data: dict, describe_guards: bool = True) -> dict:
             obj["guards"].append({ "id": temp_id, "amount": temp_amount })
             generated_ai_value += cd.AI_VALUE[temp_id] * temp_amount
 
-        print("Randomized guards at", obj["coords"], "for a total value of",
-              generated_ai_value, f"({total_guard_value})")
+        if describe_guards and obj["type"] != od.ID.Event:
+            # TODO - Move this into describe_guards() when it is done.
 
-        if describe_guards:
             guard_text = "Guarded by "
 
             # Get the total amount of each creature. (Necessary if
@@ -131,14 +158,24 @@ def generate_guards(obj_data: dict, describe_guards: bool = True) -> dict:
             guard_text += ", ".join(guard_list) + last_guard
 
             # Reconstruct the message box of the object.
+            if add_prompt:
+                obj_message.insert(0, valid_types[obj["type"]])
+
             obj_message[-1] = guard_text
             obj["message"] = "\n".join(obj_message)
+
+            if add_prompt:
+                obj["message"] += "\n\nDo you wish to fight the guards?"
 
         # Fill remaining guard slots (up to 7) with correct blank data.
         for _ in range(7-creature_num):
             obj["guards"].append({ "id": 65535, "amount": 65535 })
 
-    print("[-Finished-]\n")
+        print(f"Generated guards for", obj["type"], "at", obj["coords"],
+              "for a total AI value of", generated_ai_value,
+              f"({desired_guard_value} desired)")
+
+    print("\n---[ Finished generating guards ]---\n")
     return obj_data
 
 
