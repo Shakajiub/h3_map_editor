@@ -56,7 +56,9 @@ def main() -> None:
 ## RUN CUSTOM SCRIPTS ##
 ########################
 
-    print("This is where you run any scripts to edit the map!")
+#    print("This is where you run any scripts to edit the map!")
+
+    map_data["object_data"] = scripts.generate_guards(map_data["object_data"])
 
 ##################
 ## SAVE THE MAP ##

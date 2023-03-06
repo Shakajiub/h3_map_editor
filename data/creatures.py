@@ -177,7 +177,7 @@ class ID(IntEnum):
     Leprechaun          = 169
     Steel_Golem         = 170
 
-NAME = [
+NAME = [
     "Pikemen" , "Halberdiers"   , "Archers"  , "Marksmen" ,
     "Griffins", "Royal Griffins", "Swordsmen", "Crusaders",
     "Monks"   , "Zealots"       , "Cavaliers", "Champions",
@@ -193,9 +193,9 @@ NAME = [
     "Genies"      , "Master Genies"  , "Nagas"          , "Naga Queens"       ,
     "Giants"      , "Titans"         ,
 
-    "Imps"       , "Familiars"  , "Gogs"   , "Magogs"        ,
-    "Hell Hounds", "Cerberi"    , "Demons" , "Horned Demons" ,
-    "Pit Fiends" , "Pit Lords"  , "Efreeti", "Efreet Sultans",
+    "Imps"       , "Familiars"  , "Gogs"  , "Magogs"        ,
+    "Hell Hounds", "Cerberi"    , "Demons", "Horned Demons" ,
+    "Pit Fiends" , "Pit Lords"  , "Efreet", "Efreet Sultans",
     "Devils"     , "Arch Devils",
 
     "Skeletons"   , "Skeleton Warriors", "Walking Dead" , "Zombies"      ,
@@ -210,7 +210,7 @@ NAME = [
 
     "Goblins"  , "Hobgoblins"       , "Wolf Riders", "Wolf Raiders" ,
     "Orcs"     , "Orc Chieftains"   , "Ogres"      , "Ogre Magi"    ,
-    "Rocs"     , "Thunderbirds"     , "Cyclops"    , "Cyclops Kings",
+    "Rocs"     , "Thunderbirds"     , "Cyclopes"   , "Cyclops Kings",
     "Behemoths", "Ancient Behemoths",
 
     "Gnolls"   , "Gnoll Marauders"  , "Lizardmen"    , "Lizard Warriors",
@@ -234,7 +234,7 @@ NAME = [
     "Boars"         , "Mummies"        ,
     "Nomads"        , "Rogues"         ,
     "Trolls"        , "Catapults"      ,
-    "Ballistae"     , "First Aid Tents",
+    "Ballistas"     , "First Aid Tents",
     "Ammo Carts"    , "Arrow Towers"   ,
 
     "Cannons", "Sea Dogs", "Unused",
@@ -247,20 +247,6 @@ NAME = [
     "Satyrs"     , "Fangarms",
     "Leprechauns", "Steel Golems"
 ]
-
-FACTION = {
-    "Castle"    : [   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13 ],
-    "Rampart"   : [  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27 ],
-    "Tower"     : [  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41 ],
-    "Inferno"   : [  42,  43,  44,  45,  46,  47,  48,  49,  50,  51,  52,  53,  54,  55 ],
-    "Necropolis": [  56,  57,  58,  59,  60,  61,  62,  63,  64,  65,  66,  67,  68,  69 ],
-    "Dungeon"   : [  70,  71,  72,  73,  74,  75,  76,  77,  78,  79,  80,  81,  82,  83 ],
-    "Stronghold": [  84,  85,  86,  87,  88,  89,  90,  91,  92,  93,  94,  95,  96,  97 ],
-    "Fortress"  : [  98,  99, 100, 101, 106, 107, 104, 105, 102, 103, 108, 109, 110, 111 ],
-    "Conflux"   : [ 118, 119, 112, 127, 115, 123, 114, 129, 113, 125, 120, 121, 130, 131 ],
-    "Cove"      : [ 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 151 ],
-    "Neutral"   : [ 139, 138, 143, 140, 169, 141, 142, 167, 137, 170, 116, 117, 168, 144, 136, 135, 134, 133, 132 ]
-}
 
 AI_VALUE = [
        80, # Pikeman
@@ -433,5 +419,5 @@ AI_VALUE = [
       518, # Satyr
       929, # Fangarm
       208, # Leprechaun
-      597  # Steel_Golem
-]
+      597  # Steel_Golem
+]
