@@ -5,9 +5,30 @@ from random import choice, randint
 import data.creatures as cd # Creature details
 import data.objects   as od # Object details
 
-####################
-## COMMON METHODS ##
-####################
+###################
+## COUNT OBJECTS ##
+###################
+
+def count_objects(obj_data: dict) -> None:
+    print("\n---[ Counting objects (v.101) ]---")
+    print("\n[ Amount ] (Type, Subtype)\n")
+
+    obj_list = {}
+
+    for obj in obj_data:
+        key = (obj["type"], obj["subtype"])
+        if key in obj_list:
+            obj_list[key] += 1
+        else: obj_list[key] = 1
+
+    for k,v in sorted(obj_list.items()):
+        print(f"{v} {'.'*(9-len(str(v)))}", k)
+
+    print("\n---[ Finished counting objects ]---")
+
+#####################
+## GENERATE GUARDS ##
+#####################
 
 AMOUNT = [
     [    5, "a few ({1-4}) "           ],
@@ -19,46 +40,6 @@ AMOUNT = [
     [  500, "a swarm ({250-499}) of "  ],
     [ 1000, "zounds ({500-999}) of "   ]
 ]
-
-def get_creature_text(creature_id: int, amount: int) -> str:
-    text = "a legion ({1000+}) of "
-    for pair in AMOUNT:
-        if amount < pair[0]:
-            text = pair[1]
-            break
-    return text + cd.NAME[creature_id]
-
-###################
-## COUNT OBJECTS ##
-###################
-
-def count_objects(obj_data: dict) -> None:
-    print("\n---[ Counting objects (v.100) ]---")
-    print("\n[ Amount ] (Type, Subtype)")
-
-    master_list = {}
-
-    for obj in obj_data:
-        key = (obj["type"], obj["subtype"])
-        if not key in master_list:
-            master_list[key] = 1
-        else: master_list[key] += 1
-
-    for k,v in sorted(master_list.items()):
-        print(f"{v} {'.'*(9-len(str(v)))}", k)
-
-    print("\n---[ Finished counting objects ]---\n")
-
-#####################
-## DESCRIBE GUARDS ##
-#####################
-
-def describe_guards(map_data: dict) -> str:
-    return ""
-
-#####################
-## GENERATE GUARDS ##
-#####################
 
 FACTIONS = {
     "Castle"    : [   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13 ],
@@ -74,8 +55,16 @@ FACTIONS = {
     "Neutral"   : [ 139, 138, 143, 140, 169, 142, 167, 137, 170, 116, 117, 168, 144, 136, 135, 134, 133, 132 ]
 }
 
-def generate_guards(obj_data: dict, describe_guards: bool = True) -> dict:
-    print("\n---[ Generating guards (v.101) ]---\n")
+def get_creature_text(creature: int, amount: int) -> str:
+    text = "a legion ({1000+}) of "
+    for pair in AMOUNT:
+        if amount < pair[0]:
+            text = pair[1]
+            break
+    return text + cd.NAME[creature]
+
+def generate_guards(obj_data: dict) -> dict:
+    print("\n---[ Generating guards (v.102) ]---\n")
 
     valid_types = {
         od.ID.Pandoras_Box            : "{Pandora's Box}\n",
@@ -143,9 +132,7 @@ def generate_guards(obj_data: dict, describe_guards: bool = True) -> dict:
             obj["guards"].append({ "id": temp_id, "amount": temp_amount })
             generated_ai_value += cd.AI_VALUE[temp_id] * temp_amount
 
-        if describe_guards and obj["type"] != od.ID.Event:
-            # TODO - Move this into describe_guards() when it is done.
-
+        if obj["type"] != od.ID.Event:
             # Get the total amount of each creature (necessary if
             # there's more than one stack of a type of creature).
             total_guards = {}
@@ -182,29 +169,5 @@ def generate_guards(obj_data: dict, describe_guards: bool = True) -> dict:
               "for a total AI value of", generated_ai_value,
               f"({desired_guard_value} desired)")
 
-    print("\n---[ Finished generating guards ]---\n")
+    print("\n---[ Finished generating guards ]---")
     return obj_data
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

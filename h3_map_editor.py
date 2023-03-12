@@ -15,29 +15,87 @@ import src.handler_06_rumors_and_events  as h6
 import src.handler_07_terrain            as h7
 import src.handler_08_objects            as h8
 
+map_data = {
+    "general"     : {}, # General tab in Map Specifications
+    "player_specs": [], # ...
+    "conditions"  : {}, # Special Victory and Loss Conditions
+    "teams"       : {}, # ...
+    "start_heroes": {}, # Available starting heroes
+    "ban_flags"   : {}, # Available artifacts, spells, and skills
+    "rumors"      : [], # ...
+    "hero_data"   : [], # Custom hero details (name, bio, portrait, etc.)
+    "terrain"     : [], # ...
+    "object_defs" : [], # Object definitions (sprite, type, squares, etc.)
+    "object_data" : [], # Object details (messages, guards, quests, etc.)
+    "events"      : [], # ...
+    "null_bytes"  : b'' # All maps end with some null bytes
+}
+
+#######################
+## HANDLE USER INPUT ##
+#######################
+
 def main() -> None:
-    map_data = {
-        "general"     : {}, # General tab in Map Specifications
-        "player_specs": [], # ...
-        "conditions"  : {}, # Special Victory and Loss Conditions
-        "teams"       : {}, # ...
-        "start_heroes": {}, # Available starting heroes
-        "ban_flags"   : {}, # Available artifacts, spells, and skills
-        "rumors"      : [], # ...
-        "hero_data"   : [], # Custom hero details (name, bio, portrait, etc.)
-        "terrain"     : [], # ...
-        "object_defs" : [], # Object definitions (sprite, type, squares, etc.)
-        "object_data" : [], # Object details (messages, guards, quests, etc.)
-        "events"      : [], # ...
-        "null_bytes"  : b'' # All maps end with some null bytes
-    }
+    global map_data
 
-##################
-## OPEN THE MAP ##
-##################
+    # Print some block of text as an introduction to the editor.
+    # This should contain some common info, tips and maybe some news.
+    print("\n##############################")
+    print(  "##                          ##")
+    print(  "##  h3_map_editor.py v.010  ##")
+    print(  "##                          ##")
+    print(  "##############################")
 
-    with open(argv[1], 'rb') as io.in_file:
-        print(f"Reading map \"{argv[1]}\" ...")
+    # First argument passed when launching the editor can be a map file.
+    if len(argv) > 1:
+        print("")
+        open_map(argv[1])
+
+    while True:
+        command = input("\n[Enter command] > ")
+        match command.split():
+            case ["open", filename]: open_map(filename)
+            case ["save"]:           save_map()
+            case ["save", filename]: save_map(filename)
+
+            case ["print", key] | ["show", key]:
+                if key in map_data:
+                    print(map_data[key])
+                else: print("Unrecognized key.")
+
+            case ["count"] | ["list"]:
+                scripts.count_objects(map_data["object_data"])
+
+#    map_data["object_data"] = scripts.generate_guards(map_data["object_data"])
+
+            case ["q"] | ["quit"] | ["exit"]: break
+            case _: print("Unrecognized command.")
+
+################
+## OPEN A MAP ##
+################
+
+def open_map(filename: str) -> None:
+    global map_data
+
+    # Make sure that the filename ends with ".h3m". For convenience,
+    # users should be able to open maps without typing the extension.
+    if filename[-4:] != ".h3m":
+        filename += ".h3m"
+
+    print(f"Reading map '{filename}' ...", end=' ')
+
+    # Make sure that the file actually exists.
+    try:
+        with open(filename, 'rb'):
+            pass
+    except FileNotFoundError:
+        print(f"ERROR - Could not find '{filename}'")
+        return
+
+    # Parse file data byte by byte.
+    # Refer to the separate handlers for documentation.
+    with open(filename, 'rb') as io.in_file:
         map_data["general"]      = h1.parse_general()
         map_data["player_specs"] = h2.parse_player_specs()
         map_data["conditions"]   = h3.parse_conditions()
@@ -52,20 +110,27 @@ def main() -> None:
         map_data["events"]       = h6.parse_events()
         map_data["null_bytes"]   = io.in_file.read()
 
-########################
-## RUN CUSTOM SCRIPTS ##
-########################
+    print(f"DONE - '{map_data['general']['name']}':")
+    print(f"\n{map_data['general']['description']}")
 
-#    print("This is where you run any scripts to edit the map!")
+################
+## SAVE A MAP ##
+################
 
-    map_data["object_data"] = scripts.generate_guards(map_data["object_data"])
+def save_map(filename: str = "output.h3m") -> None:
+    global map_data
 
-##################
-## SAVE THE MAP ##
-##################
+    # Make sure that the filename ends with ".h3m". For convenience,
+    # users should be able to save maps without typing the extension.
+    if len(filename) > 4:
+        if filename[-4:] != ".h3m":
+            filename += ".h3m"
+    else: filename += ".h3m"
 
-    with open("output.h3m", 'wb') as io.out_file:
-        print("Writing map \"output.h3m\" ...")
+    print(f"Writing map '{filename}' ...", end=' ')
+
+    # Save the map byte by byte.
+    with open(filename, 'wb') as io.out_file:
         h1.write_general(        map_data["general"])
         h2.write_player_specs(   map_data["player_specs"])
         h3.write_conditions(     map_data["conditions"])
@@ -79,6 +144,8 @@ def main() -> None:
         h8.write_object_data(    map_data["object_data"])
         h6.write_events(         map_data["events"])
         io.out_file.write(       map_data["null_bytes"])
+
+    print("DONE")
 
 if __name__ == "__main__":
     main()
