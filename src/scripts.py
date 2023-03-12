@@ -32,13 +32,22 @@ def get_creature_text(creature_id: int, amount: int) -> str:
 ## COUNT OBJECTS ##
 ###################
 
-def count_objects(obj_data: dict) -> dict:
-    info = {}
+def count_objects(obj_data: dict) -> None:
+    print("\n---[ Counting objects (v.100) ]---")
+    print("\n[ Amount ] (Type, Subtype)")
+
+    master_list = {}
 
     for obj in obj_data:
-        print(obj)
+        key = (obj["type"], obj["subtype"])
+        if not key in master_list:
+            master_list[key] = 1
+        else: master_list[key] += 1
 
-    return info
+    for k,v in sorted(master_list.items()):
+        print(f"{v} {'.'*(9-len(str(v)))}", k)
+
+    print("\n---[ Finished counting objects ]---\n")
 
 #####################
 ## DESCRIBE GUARDS ##
@@ -96,15 +105,13 @@ def generate_guards(obj_data: dict, describe_guards: bool = True) -> dict:
         if not last_line[1].isdigit():
             continue
 
-        # If there is no message for the object (other than the desired AI
-        # value, then we generate a simple title and a yes/no prompt later).
-        add_prompt = False
-        if obj["type"] != od.ID.Pandoras_Box:
-            add_prompt = len(obj_message) == 1
+        # If there's no message for the object (other than the desired AI
+        # value), then we generate a simple title and a yes/no prompt later.
+        add_prompt = len(obj_message) == 1
 
         desired_guard_value = int(last_line[1])
 
-        # Make sure we the desired guard value is large enough.
+        # Make sure that the desired guard value is large enough.
         if desired_guard_value < 1000:
             print("\nThe guard value for", obj["type"], "at", obj["coords"],
                 f"is too low! ({desired_guard_value}). Min value is 1000.\n")
@@ -139,9 +146,7 @@ def generate_guards(obj_data: dict, describe_guards: bool = True) -> dict:
         if describe_guards and obj["type"] != od.ID.Event:
             # TODO - Move this into describe_guards() when it is done.
 
-            guard_text = "Guarded by "
-
-            # Get the total amount of each creature. (Necessary if
+            # Get the total amount of each creature (necessary if
             # there's more than one stack of a type of creature).
             total_guards = {}
             for c in obj["guards"]:
@@ -149,11 +154,12 @@ def generate_guards(obj_data: dict, describe_guards: bool = True) -> dict:
                     total_guards[c["id"]] += c["amount"]
                 else: total_guards[c["id"]] = c["amount"]
 
-            # Create a sentence with all the guards with proper grammar.
+            # Create a sentence describing all the guards.
             guard_list = []
             for k, v in total_guards.items():
                 guard_list.append(get_creature_text(k, v))
 
+            guard_text = "Guarded by "
             last_guard = " and " + guard_list.pop()
             guard_text += ", ".join(guard_list) + last_guard
 
@@ -164,7 +170,8 @@ def generate_guards(obj_data: dict, describe_guards: bool = True) -> dict:
             obj_message[-1] = guard_text
             obj["message"] = "\n".join(obj_message)
 
-            if add_prompt:
+            # No yes/no prompt for a Pandora's Box since it always has one.
+            if add_prompt and obj["type"] != od.ID.Pandoras_Box:
                 obj["message"] += "\n\nDo you wish to fight the guards?"
 
         # Fill remaining guard slots (up to 7) with correct blank data.
