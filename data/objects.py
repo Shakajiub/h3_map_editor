@@ -260,6 +260,15 @@ class ID(IntEnum):
     #                             254
     #                             255
 
+class Boat(IntEnum): # ID 8
+    Boat_0 = 0
+    Boat_1 = 1
+    Boat_2 = 2
+    Boat_3 = 3
+    Boat_4 = 4
+    Boat_5 = 5
+    Airship = 100
+
 class Border_Color(IntEnum): # ID 9 & 212
     Light_Blue =    0
     Green      =    1
@@ -416,14 +425,33 @@ class Dwelling(IntEnum): # ID 17
     Satyr               = 100
     Fangarm             = 101
     Leprechaun          = 102
+    Halfling_HotA       = 103
+    Mechanic            = 104
+    Armadillo           = 105
+    Automaton           = 106
+    Sandworm            = 107
+    Gunslinger          = 108
+    Couatl              = 109
+    Dreadnought         = 110
 
 class Dwelling_Multi(IntEnum): # ID 20
     Elementals = 0
     Golems     = 1
 
+class Garrison(IntEnum): # ID 33 & 219
+    Normal     = 0
+    Anti_Magic = 1
+
 class Hill_Fort(IntEnum): # ID 35
-    SoD  = 0
+    Old  = 0
     HotA = 1
+
+class Grail(IntEnum): # ID 36
+    Normal = 0
+    Combat_Place_1 = 1000
+    Combat_Place_2 = 1001
+    Combat_Place_3 = 1002
+    Combat_Place_4 = 1003
 
 class One_Way_Monolith(IntEnum): # ID 43 & 44
     Small_Blue       =  0
@@ -466,7 +494,7 @@ class Two_Way_Monolith(IntEnum): # ID 45
     Water_Chartreuse = 23
     Water_Yellow     = 24
 
-class Resource(IntEnum): # ID 53, 79 & 220
+class Resource(IntEnum): # ID 53, 79, 142 & 220
     Wood      = 0
     Mercury   = 1
     Ore       = 2
@@ -476,17 +504,34 @@ class Resource(IntEnum): # ID 53, 79 & 220
     Gold      = 6
     Abandoned = 7
 
-class Town(IntEnum): # ID 98
-    Castle     = 0
-    Rampart    = 1
-    Tower      = 2
-    Inferno    = 3
-    Necropolis = 4
-    Dungeon    = 5
-    Stronghold = 6
-    Fortress   = 7
-    Conflux    = 8
-    Cove       = 9
+class Redwood_Observatory(IntEnum): # ID 58
+    Land  = 0
+    Water = 1
+
+class Prison(IntEnum): # ID 62
+    Normal    = 0
+    Hero_Camp = 1
+
+class Shipyard(IntEnum): # ID 87
+    Water   = 0
+    Airship = 1
+
+class Town(IntEnum): # ID 98 & 218
+    Castle     =  0
+    Rampart    =  1
+    Tower      =  2
+    Inferno    =  3
+    Necropolis =  4
+    Dungeon    =  5
+    Stronghold =  6
+    Fortress   =  7
+    Conflux    =  8
+    Cove       =  9
+    Factory    = 10
+
+class War_Machine_Factory(IntEnum): # ID 106
+    Normal = 0
+    Cannon = 1
 
 class HotA_Decoration_1(IntEnum): # ID 139
     Crate                    =  0
@@ -499,16 +544,16 @@ class HotA_Decoration_1(IntEnum): # ID 139
     Frogs                    =  7
     Chicken                  =  8
     Rooster                  =  9
-    Bluebottle               = 10
-    Ruined_Camp              = 11
-    Ruined_Fountain          = 12
+    Seaweed                  = 10
+    Crumbled_Camp            = 11
+    Crumbled_Fountain        = 12
     Pig                      = 13
     Ancient_Altar            = 14
     Abandoned_Boat           = 15
     Fence                    = 16
     Waterfalls               = 17
     Fire                     = 18
-    Ruined_Subterranean_Gate = 19
+    Crumbled_Edifice         = 19
     Carnivorous_Plant        = 20
     Bridge                   = 21
     Bone                     = 22
@@ -516,17 +561,27 @@ class HotA_Decoration_1(IntEnum): # ID 139
     Puddles                  = 24
     Rubble                   = 25
     Limestone_Puddles        = 26
+    Pillars                  = 27
+    Reed                     = 28
+    Fissures                 = 29
+    Burnt_Structure          = 30
+    Stele                    = 31
 
 class HotA_Decoration_2(IntEnum): # ID 140
-    Stony_Sphere   = 0
-    Stone          = 1
-    Palms          = 2
-    Ice_Block      = 3
-    Pile_of_Stones = 4
-    Snow_Hills     = 5
-    Barchan_Dunes  = 6
-    Spruces        = 7
-    Limestone_Lake = 8
+    Boulder          =  0
+    Stone            =  1
+    Palms            =  2
+    Ice_Block        =  3
+    Pile_of_Stones   =  4
+    Snow_Hills       =  5
+    Barchan_Dunes    =  6
+    Spruces          =  7
+    Limestone_Lake   =  8
+    Wall             =  9
+    Stairs           = 10
+    Predatory_Plants = 11
+    Maple_Trees      = 12
+    Natural_Arch     = 13
 
 class HotA_Ground(IntEnum): # ID 141
     Cracked_Ice     = 0
@@ -558,3 +613,13 @@ class HotA_Visitable_2(IntEnum): # ID 146
     Observatory       = 1
     Altar_of_Mana     = 2
     Town_Gate         = 3
+    Ancient_Altar     = 4
+
+#class Random_Dwelling_Leveled(IntEnum): # ID 217
+#    Tier_1 = 0
+#    Tier_2 = 1
+#    Tier_3 = 2
+#    Tier_4 = 3
+#    Tier_5 = 4
+#    Tier_6 = 5
+#    Tier_7 = 6

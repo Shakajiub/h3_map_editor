@@ -32,8 +32,8 @@ class Classes(IntEnum):
     Elementalist = 17
     Captain      = 18
     Navigator    = 19
-    #
-    #
+    Mercenary    = 20
+    Artificer    = 21
     #
     #
 
@@ -284,11 +284,33 @@ class ID(IntEnum):
 #
 # Byte 23 ... (176-183)
 #
-    Kinkeria = 176
-    Ranloo   = 177
-    Giselle  = 178
-    #
-    #
-    #
+    Kinkeria  = 176
+    Ranloo    = 177
+    Giselle   = 178
+    Henrietta = 179
+    Sam       = 180
+    Tancred   = 181
+    Melchior  = 182
+    Floribert = 183
+#
+# Byte 24 ... (184-191)
+#
+    Wynona    = 184
+    Dury      = 185
+    Morton    = 186
+    Celestine = 187
+    Todd      = 188
+    Agar      = 189
+    Bertram   = 190
+    Wrathmont = 191
+#
+# Byte 25 ... (192-199)
+#
+    Ziph      = 192
+    Victoria  = 193
+    Eanswythe = 194
+    Frederick = 195
+    Tavin     = 196
+    Murdoch   = 197
     #
     #

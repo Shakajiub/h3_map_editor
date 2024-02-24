@@ -81,6 +81,8 @@ def parse_object_data(object_defs: list) -> list:
     info = []
 
     for _ in range(io.read_int(4)): # Amount of objects
+#        io.peek(80)
+
         obj = { "coords": [0, 0, 0] }
         obj["coords"][0] = io.read_int(1)
         obj["coords"][1] = io.read_int(1)
@@ -92,11 +94,36 @@ def parse_object_data(object_defs: list) -> list:
         obj["type"]    = object_defs[obj["def_id"]]["type"]
         obj["subtype"] = object_defs[obj["def_id"]]["subtype"]
 
+#        if obj["type"] == od.ID.Artifact:
+#            if obj["subtype"] == ad.ID.Shield_of_the_Yawning_Dead:
+#                print("\n\n", obj)
+
+#        if obj["coords"] == [130, 85, 1]:
+#            print(obj)
+
+#        if obj["type"] == od.ID.HotA_Decoration_1:
+#            if obj["subtype"] == od.HotA_Decoration_1.Crumbled_Camp:
+#                print(obj["coords"])
+
         match obj["type"]:
             case od.ID.Pandoras_Box: obj = parse_pandoras_box(obj)
+            case od.ID.Black_Market: obj = parse_black_market(obj)
+            case od.ID.Campfire:     obj = parse_campfire(obj)
+            case od.ID.Corpse:       obj = parse_corpse(obj)
             case od.ID.Event:        obj = parse_event(obj)
+            case od.ID.Flotsam:      obj = parse_flotsam(obj)
+            case od.ID.Lean_To:      obj = parse_lean_to(obj)
+            case od.ID.Pyramid:      obj = parse_pyramid(obj)
             case od.ID.Scholar:      obj = parse_scholar(obj)
+            case od.ID.Sea_Chest:    obj = parse_sea_chest(obj)
             case od.ID.Seers_Hut:    obj = parse_seers_hut(obj)
+
+            case od.ID.Shipwreck_Survivor: obj = parse_shipwreck_survivor(obj)
+            case od.ID.Treasure_Chest:     obj = parse_treasure_chest(obj)
+            case od.ID.Tree_of_Knowledge:  obj = parse_tree_of_knowledge(obj)
+            case od.ID.University:         obj = parse_university(obj)
+            case od.ID.Wagon:              obj = parse_wagon(obj)
+            case od.ID.Warriors_Tomb:      obj = parse_warriors_tomb(obj)
 
             case od.ID.Random_Dwelling:         obj = parse_dwelling(obj)
             case od.ID.Random_Dwelling_Leveled: obj = parse_leveled(obj)
@@ -106,12 +133,25 @@ def parse_object_data(object_defs: list) -> list:
             case od.ID.Grail:       obj["radius"] = io.read_int(4)
             case od.ID.Witch_Hut:   obj["skills"] = io.read_bits(4)
 
+            case od.ID.HotA_Collectible: obj = parse_hota_collectible(obj)
+            case od.ID.Abandoned_Mine:   obj = parse_abandoned_mine(obj)
+
+            case od.ID.Mine:
+                if obj["subtype"] == od.Resource.Abandoned:
+                    obj = parse_abandoned_mine(obj)
+                else: obj["owner"] = io.read_int(4)
+
+            case od.ID.HotA_Visitable_2:
+                if obj["subtype"] == 0: # HotA Seafaring_Academy
+                    obj = parse_university(obj)
             case od.ID.Border_Gate:
                 if obj["subtype"] == 1000: # HotA Quest Gate
                     obj["quest"] = parse_quest()
+                elif obj["subtype"] == 1001: # HotA Grave
+                    obj = parse_grave(obj)
 
-            case (od.ID.Town | od.ID.Random_Town):
-                obj = parse_town(obj)
+            case od.ID.Town:        obj = parse_town(obj)
+            case od.ID.Random_Town: obj = parse_town(obj, random=True)
 
             case (od.ID.Resource | od.ID.Random_Resource):
                 obj = parse_resource(obj)
@@ -136,18 +176,13 @@ def parse_object_data(object_defs: list) -> list:
                 io.seek(4)
 
             case (od.ID.Creature_Generator_1 | od.ID.Lighthouse |
-                  od.ID.Creature_Generator_4 | od.ID.Mine       |
-                  od.ID.Shipyard):
+                  od.ID.Creature_Generator_4 | od.ID.Shipyard):
                 obj["owner"] = io.read_int(4)
 
             case (od.ID.Garrison | od.ID.Garrison_Vertical):
                 obj = parse_garrison(obj)
 
-            case od.ID.Abandoned_Mine:
-                obj["resources"] = io.read_bits(1)
-                io.seek(3)
-
-            # The level 4 HotA Shrine is just a subtype of the lvl 1 Shrine.
+            # The level 4 HotA Shrine is just a subtype of the level 1 Shrine.
             case (od.ID.Shrine_of_Magic_Incantation |
                   od.ID.Shrine_of_Magic_Gesture     |
                   od.ID.Shrine_of_Magic_Thought):
@@ -180,9 +215,23 @@ def write_object_data(info: list) -> None:
 
         match obj["type"]:
             case od.ID.Pandoras_Box: write_pandoras_box(obj)
+            case od.ID.Black_Market: write_black_market(obj)
+            case od.ID.Campfire:     write_campfire(obj)
+            case od.ID.Corpse:       write_corpse(obj)
             case od.ID.Event:        write_event(obj)
+            case od.ID.Flotsam:      write_flotsam(obj)
+            case od.ID.Lean_To:      write_lean_to(obj)
+            case od.ID.Pyramid:      write_pyramid(obj)
             case od.ID.Scholar:      write_scholar(obj)
+            case od.ID.Sea_Chest:    write_sea_chest(obj)
             case od.ID.Seers_Hut:    write_seers_hut(obj)
+
+            case od.ID.Shipwreck_Survivor: write_shipwreck_survivor(obj)
+            case od.ID.Treasure_Chest:     write_treasure_chest(obj)
+            case od.ID.Tree_of_Knowledge:  write_tree_of_knowledge(obj)
+            case od.ID.University:         write_university(obj)
+            case od.ID.Wagon:              write_wagon(obj)
+            case od.ID.Warriors_Tomb:      write_warriors_tomb(obj)
 
             case od.ID.Random_Dwelling:         write_dwelling(obj)
             case od.ID.Random_Dwelling_Leveled: write_leveled(obj)
@@ -192,12 +241,25 @@ def write_object_data(info: list) -> None:
             case od.ID.Grail:       io.write_int(obj["radius"], 4)
             case od.ID.Witch_Hut:   io.write_bits(obj["skills"])
 
+            case od.ID.HotA_Collectible: write_hota_collectible(obj)
+            case od.ID.Abandoned_Mine:   write_abandoned_mine(obj)
+
+            case od.ID.Mine:
+                if obj["subtype"] == od.Resource.Abandoned:
+                    write_abandoned_mine(obj)
+                else: io.write_int(obj["owner"], 4)
+
+            case od.ID.HotA_Visitable_2:
+                if obj["subtype"] == 0: # HotA Seafaring_Academy
+                    write_university(obj)
             case od.ID.Border_Gate:
                 if obj["subtype"] == 1000: # HotA Quest Gate
                     write_quest(obj["quest"])
+                elif obj["subtype"] == 1001: # HotA Grave
+                    write_grave(obj)
 
-            case (od.ID.Town | od.ID.Random_Town):
-                write_town(obj)
+            case od.ID.Town:        write_town(obj)
+            case od.ID.Random_Town: write_town(obj, random=True)
 
             case (od.ID.Resource | od.ID.Random_Resource):
                 write_resource(obj)
@@ -223,16 +285,11 @@ def write_object_data(info: list) -> None:
                 io.write_int(0, 4)
 
             case (od.ID.Creature_Generator_1 | od.ID.Lighthouse |
-                  od.ID.Creature_Generator_4 | od.ID.Mine       |
-                  od.ID.Shipyard):
+                  od.ID.Creature_Generator_4 | od.ID.Shipyard):
                 io.write_int(obj["owner"], 4)
 
             case (od.ID.Garrison | od.ID.Garrison_Vertical):
                 write_garrison(obj)
-
-            case od.ID.Abandoned_Mine:
-                io.write_bits(obj["resources"])
-                io.write_int(0, 3)
 
             case (od.ID.Shrine_of_Magic_Incantation |
                   od.ID.Shrine_of_Magic_Gesture     |
@@ -248,6 +305,21 @@ def write_object_data(info: list) -> None:
             case (od.ID.Creature_Bank | od.ID.Derelict_Ship |
                   od.ID.Dragon_Utopia | od.ID.Crypt | od.ID.Shipwreck):
                 write_bank(obj)
+
+def parse_hota_collectible(obj: dict) -> dict:
+    match obj["subtype"]:
+        case od.HotA_Collectible.Ancient_Lamp: obj = parse_ancient_lamp(obj)
+        case od.HotA_Collectible.Sea_Barrel:   obj = parse_sea_barrel(obj)
+        case od.HotA_Collectible.Jetsam:       obj = parse_flotsam(obj)
+        case od.HotA_Collectible.Vial_of_Mana: obj = parse_vial_of_mana(obj)
+    return obj
+
+def write_hota_collectible(obj: dict) -> None:
+    match obj["subtype"]:
+        case od.HotA_Collectible.Ancient_Lamp: write_ancient_lamp(obj)
+        case od.HotA_Collectible.Sea_Barrel:   write_sea_barrel(obj)
+        case od.HotA_Collectible.Jetsam:       write_flotsam(obj)
+        case od.HotA_Collectible.Vial_of_Mana: write_vial_of_mana(obj)
 
 def parse_creatures(amount: int = 7) -> list:
     info = []
@@ -289,6 +361,13 @@ def write_common(obj: dict) -> None:
 
     io.write_int(0, 4)
 
+class Movement(IntEnum):
+    Give      = 0
+    Take      = 1
+    Nullify   = 2
+    Set       = 3
+    Replenish = 4
+
 def parse_contents() -> dict:
     contents = {
         "Experience"      : 0,
@@ -301,6 +380,8 @@ def parse_contents() -> dict:
         "Artifacts"       : [],
         "Spells"          : [],
         "Creatures"       : []
+#        "Movement_Mode"   : 0,
+#        "Movement_Points" : 0
     }
 
     contents["Experience"]   = io.read_int(4)
@@ -321,10 +402,10 @@ def parse_contents() -> dict:
         contents["Secondary_Skills"].append(skill)
 
     for _ in range(io.read_int(1)):
-        contents["Artifacts"].append(io.read_int(2))
+        contents["Artifacts"].append(parse_hero_artifact())
 
     for _ in range(io.read_int(1)):
-        contents["Spells"].append(io.read_int(1))
+        contents["Spells"].append(spd.ID(io.read_int(1)))
 
     for _ in range(io.read_int(1)):
         creature = {}
@@ -333,6 +414,7 @@ def parse_contents() -> dict:
         contents["Creatures"].append(creature)
 
     io.seek(8)
+
     return contents
 
 def write_contents(contents: dict) -> None:
@@ -354,7 +436,7 @@ def write_contents(contents: dict) -> None:
 
     io.write_int(len(contents["Artifacts"]), 1)
     for value in contents["Artifacts"]:
-        io.write_int(value, 2)
+        write_hero_artifact(value)
 
     io.write_int(len(contents["Spells"]), 1)
     for value in contents["Spells"]:
@@ -367,9 +449,17 @@ def write_contents(contents: dict) -> None:
 
     io.write_int(0, 8)
 
+class Pickup_Condition(IntEnum):
+    Disabled   = 0
+    Random     = 1
+    Customized = 2
+
 def parse_artifact(obj: dict) -> dict:
     if io.read_int(1):
-        return parse_common(obj)
+        obj = parse_common(obj)
+
+    obj["pickup_mode"] = Pickup_Condition(io.read_int(4))
+    obj["pickup_conditions"] =            io.read_bits(1)
     return obj
 
 def write_artifact(obj: dict) -> None:
@@ -377,17 +467,60 @@ def write_artifact(obj: dict) -> None:
         write_common(obj)
     else: io.write_int(0, 1)
 
+    io.write_int(obj["pickup_mode"], 4)
+    io.write_bits(obj["pickup_conditions"])
+
 def parse_pandoras_box(obj: dict) -> dict:
     if io.read_int(1):
         obj = parse_common(obj)
     obj["contents"] = parse_contents()
+
+    # HotA 1.7.0 Movement Points.
+    io.seek(1) # TODO - Is this something?
+    obj["contents"]["Movement_Mode"] = Movement(io.read_int(4))
+    obj["contents"]["Movement_Points"] =        io.read_int(4)
     return obj
 
 def write_pandoras_box(obj: dict) -> None:
     if len(obj) > 3:
         write_common(obj)
     else: io.write_int(0, 1)
+
     write_contents(obj["contents"])
+
+    io.write_int(0, 1)
+    io.write_int(obj["contents"]["Movement_Mode"], 4)
+    io.write_int(obj["contents"]["Movement_Points"], 4)
+
+def parse_black_market(obj: dict) -> dict:
+    obj["artifacts"] = []
+    for _ in range(7):
+        obj["artifacts"].append(parse_hero_artifact())
+
+#    if obj["coords"] == [74, 60, 1]:
+#        obj["artifacts"][4] = [ad.ID.Sword_of_Judgement, 0]
+
+    return obj
+
+def write_black_market(obj: dict) -> None:
+    for artifact in obj["artifacts"]:
+        write_hero_artifact(artifact)
+
+def parse_campfire(obj: dict) -> dict:
+    obj["null_bytes"] = io.read_raw(8)
+    obj["resources"] = {}
+
+    for _ in range(2):
+        amount = io.read_int(4)
+        obj["resources"][od.Resource(io.read_int(1))] = amount
+
+    return obj
+
+def write_campfire(obj: dict) -> None:
+    io.write_raw(obj["null_bytes"])
+    for k in obj["resources"].keys():
+        io.write_int(obj["resources"][k], 4)
+        io.write_int(k, 1)
 
 def parse_bank(obj: dict) -> dict:
     obj["difficulty"]     = io.read_int(4)
@@ -407,6 +540,20 @@ def write_bank(obj: dict) -> None:
     for reward in obj["rewards"]:
         io.write_int(reward, 4)
 
+class Corpse(IntEnum):
+    Random   = 4294967295 # 4 Bytes of 255
+    Nothing  = 0
+    Artifact = 1
+
+def parse_corpse(obj: dict) -> dict:
+    obj["contents"] = Corpse(io.read_int(4))
+    obj["value"]    =  ad.ID(io.read_int(4))
+    return obj
+
+def write_corpse(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_int(obj["value"], 4)
+
 def parse_event(obj: dict) -> dict:
     if io.read_int(1):
         obj = parse_common(obj)
@@ -417,6 +564,10 @@ def parse_event(obj: dict) -> dict:
     obj["cancel_event"]    = bool(io.read_int(1))
     io.seek(4)
     obj["allow_human"]     = bool(io.read_int(1))
+
+    # HotA 1.7.0 Movement Points.
+    obj["contents"]["Movement_Mode"]   = Movement(io.read_int(4))
+    obj["contents"]["Movement_Points"] =          io.read_int(4)
 
     return obj
 
@@ -431,6 +582,18 @@ def write_event(obj: dict) -> None:
     io.write_int( obj["allow_ai"], 1)
     io.write_int( obj["cancel_event"], 5)
     io.write_int( obj["allow_human"], 1)
+
+    io.write_int(obj["contents"]["Movement_Mode"], 4)
+    io.write_int(obj["contents"]["Movement_Points"], 4)
+
+def parse_flotsam(obj: dict) -> dict:
+    obj["contents"] = io.read_int(4)
+    obj["trash_bytes"] = io.read_int(4)
+    return obj
+
+def write_flotsam(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_int(obj["trash_bytes"], 4)
 
 def parse_garrison(obj: dict) -> dict:
     obj["owner"]  = io.read_int(4)
@@ -467,7 +630,10 @@ def parse_hero(obj: dict) -> dict:
         "biography"         : "",
         "gender"            : 255,
         "spells"            : b'',
-        "primary_skills"    : {}
+        "primary_skills"    : {},
+        "always_add_skills" : True,
+        "cannot_gain_xp"    : False,
+        "level"             : 1
     }
 
     hero["id"] = hd.ID(io.read_int(1))
@@ -491,31 +657,37 @@ def parse_hero(obj: dict) -> dict:
     if io.read_int(1): # Is the army set?
         hero["creatures"] = parse_creatures()
 
+#        if hero["id"] == hd.ID.Jeremy:
+#            hero["creatures"][5] = {"id": cd.ID.Cannon, "amount": 50}
+
+    if obj["coords"] == [142, 68, 1]:
+        hero["creatures"][2] = {"id": cd.ID.Skeleton, "amount": 25000}
+
     hero["formation"] = io.read_int(1)
 
     if io.read_int(1): # Are artifacts set?
-        hero["artifacts_equipped"]["head"]          = io.read_int(2)
-        hero["artifacts_equipped"]["shoulders"]     = io.read_int(2)
-        hero["artifacts_equipped"]["neck"]          = io.read_int(2)
-        hero["artifacts_equipped"]["right_hand"]    = io.read_int(2)
-        hero["artifacts_equipped"]["left_hand"]     = io.read_int(2)
-        hero["artifacts_equipped"]["torso"]         = io.read_int(2)
-        hero["artifacts_equipped"]["right_ring"]    = io.read_int(2)
-        hero["artifacts_equipped"]["left_ring"]     = io.read_int(2)
-        hero["artifacts_equipped"]["feet"]          = io.read_int(2)
-        hero["artifacts_equipped"]["misc_1"]        = io.read_int(2)
-        hero["artifacts_equipped"]["misc_2"]        = io.read_int(2)
-        hero["artifacts_equipped"]["misc_3"]        = io.read_int(2)
-        hero["artifacts_equipped"]["misc_4"]        = io.read_int(2)
-        hero["artifacts_equipped"]["war_machine_1"] = io.read_int(2)
-        hero["artifacts_equipped"]["war_machine_2"] = io.read_int(2)
-        hero["artifacts_equipped"]["war_machine_3"] = io.read_int(2)
-        hero["artifacts_equipped"]["war_machine_4"] = io.read_int(2)
-        hero["artifacts_equipped"]["spellbook"]     = io.read_int(2)
-        hero["artifacts_equipped"]["misc_5"]        = io.read_int(2)
+        hero["artifacts_equipped"]["head"]          = parse_hero_artifact()
+        hero["artifacts_equipped"]["shoulders"]     = parse_hero_artifact()
+        hero["artifacts_equipped"]["neck"]          = parse_hero_artifact()
+        hero["artifacts_equipped"]["right_hand"]    = parse_hero_artifact()
+        hero["artifacts_equipped"]["left_hand"]     = parse_hero_artifact()
+        hero["artifacts_equipped"]["torso"]         = parse_hero_artifact()
+        hero["artifacts_equipped"]["right_ring"]    = parse_hero_artifact()
+        hero["artifacts_equipped"]["left_ring"]     = parse_hero_artifact()
+        hero["artifacts_equipped"]["feet"]          = parse_hero_artifact()
+        hero["artifacts_equipped"]["misc_1"]        = parse_hero_artifact()
+        hero["artifacts_equipped"]["misc_2"]        = parse_hero_artifact()
+        hero["artifacts_equipped"]["misc_3"]        = parse_hero_artifact()
+        hero["artifacts_equipped"]["misc_4"]        = parse_hero_artifact()
+        hero["artifacts_equipped"]["war_machine_1"] = parse_hero_artifact()
+        hero["artifacts_equipped"]["war_machine_2"] = parse_hero_artifact()
+        hero["artifacts_equipped"]["war_machine_3"] = parse_hero_artifact()
+        hero["artifacts_equipped"]["war_machine_4"] = parse_hero_artifact()
+        hero["artifacts_equipped"]["spellbook"]     = parse_hero_artifact()
+        hero["artifacts_equipped"]["misc_5"]        = parse_hero_artifact()
         
         for _ in range(io.read_int(2)):
-            hero["artifacts_backpack"].append(io.read_int(2))
+            hero["artifacts_backpack"].append(parse_hero_artifact())
 
     hero["patrol"] = io.read_int(1)
 
@@ -534,6 +706,11 @@ def parse_hero(obj: dict) -> dict:
         hero["primary_skills"]["knowledge"]   = io.read_int(1)
 
     obj["end_bytes"] = io.read_raw(16)
+
+    hero["always_add_skills"] = bool(io.read_int(1))
+    hero["cannot_gain_xp"]    = bool(io.read_int(1))
+    hero["level"]             =      io.read_int(4)
+
     obj["hero_data"] = hero
     return obj
 
@@ -588,29 +765,29 @@ def write_hero(obj: dict) -> None:
     if hero["artifacts_equipped"] or hero["artifacts_backpack"]:
         io.write_int(1, 1)
 
-        io.write_int(hero["artifacts_equipped"]["head"], 2)
-        io.write_int(hero["artifacts_equipped"]["shoulders"], 2)
-        io.write_int(hero["artifacts_equipped"]["neck"], 2)
-        io.write_int(hero["artifacts_equipped"]["right_hand"], 2)
-        io.write_int(hero["artifacts_equipped"]["left_hand"], 2)
-        io.write_int(hero["artifacts_equipped"]["torso"], 2)
-        io.write_int(hero["artifacts_equipped"]["right_ring"], 2)
-        io.write_int(hero["artifacts_equipped"]["left_ring"], 2)
-        io.write_int(hero["artifacts_equipped"]["feet"], 2)
-        io.write_int(hero["artifacts_equipped"]["misc_1"], 2)
-        io.write_int(hero["artifacts_equipped"]["misc_2"], 2)
-        io.write_int(hero["artifacts_equipped"]["misc_3"], 2)
-        io.write_int(hero["artifacts_equipped"]["misc_4"], 2)
-        io.write_int(hero["artifacts_equipped"]["war_machine_1"], 2)
-        io.write_int(hero["artifacts_equipped"]["war_machine_2"], 2)
-        io.write_int(hero["artifacts_equipped"]["war_machine_3"], 2)
-        io.write_int(hero["artifacts_equipped"]["war_machine_4"], 2)
-        io.write_int(hero["artifacts_equipped"]["spellbook"], 2)
-        io.write_int(hero["artifacts_equipped"]["misc_5"], 2)
+        write_hero_artifact(hero["artifacts_equipped"]["head"])
+        write_hero_artifact(hero["artifacts_equipped"]["shoulders"])
+        write_hero_artifact(hero["artifacts_equipped"]["neck"])
+        write_hero_artifact(hero["artifacts_equipped"]["right_hand"])
+        write_hero_artifact(hero["artifacts_equipped"]["left_hand"])
+        write_hero_artifact(hero["artifacts_equipped"]["torso"])
+        write_hero_artifact(hero["artifacts_equipped"]["right_ring"])
+        write_hero_artifact(hero["artifacts_equipped"]["left_ring"])
+        write_hero_artifact(hero["artifacts_equipped"]["feet"])
+        write_hero_artifact(hero["artifacts_equipped"]["misc_1"])
+        write_hero_artifact(hero["artifacts_equipped"]["misc_2"])
+        write_hero_artifact(hero["artifacts_equipped"]["misc_3"])
+        write_hero_artifact(hero["artifacts_equipped"]["misc_4"])
+        write_hero_artifact(hero["artifacts_equipped"]["war_machine_1"])
+        write_hero_artifact(hero["artifacts_equipped"]["war_machine_2"])
+        write_hero_artifact(hero["artifacts_equipped"]["war_machine_3"])
+        write_hero_artifact(hero["artifacts_equipped"]["war_machine_4"])
+        write_hero_artifact(hero["artifacts_equipped"]["spellbook"])
+        write_hero_artifact(hero["artifacts_equipped"]["misc_5"])
         
         io.write_int(len(hero["artifacts_backpack"]), 2)
-        for art in hero["artifacts_backpack"]:
-            io.write_int(art, 2)
+        for artifact in hero["artifacts_backpack"]:
+            write_hero_artifact(artifact)
     else: io.write_int(0, 1)
 
     #
@@ -644,6 +821,24 @@ def write_hero(obj: dict) -> None:
     #
     io.write_raw(obj["end_bytes"])
 
+    #
+    io.write_int(hero["always_add_skills"], 1)
+    io.write_int(hero["cannot_gain_xp"], 1)
+    io.write_int(hero["level"], 4)
+
+def parse_hero_artifact() -> list:
+    artifact = [
+        ad.ID(io.read_int(2)),
+        io.read_int(2)
+    ]
+    if artifact[0] == ad.ID.Spell_Scroll:
+        artifact[1] = spd.ID(artifact[1])
+    return artifact
+
+def write_hero_artifact(artifact: list) -> None:
+    io.write_int(artifact[0], 2)
+    io.write_int(artifact[1], 2)
+
 def parse_hero_placeholder(obj: dict) -> dict:
     obj["owner"]   =       io.read_int(1)
     obj["hero_id"] = hd.ID(io.read_int(1))
@@ -659,6 +854,21 @@ def write_hero_placeholder(obj: dict) -> None:
 
     if obj["hero_id"] == hd.ID.Default:
         io.write_int(obj["power_rating"], 1)
+
+def parse_lean_to(obj: dict) -> dict:
+    obj["contents"]    =          io.read_int(4)
+    obj["trash_bytes"] =          io.read_int(4)
+    obj["amount"]      =          io.read_int(4)
+    obj["resource"] = od.Resource(io.read_int(1))
+    io.seek(5)
+    return obj
+
+def write_lean_to(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_int(obj["trash_bytes"], 4)
+    io.write_int(obj["amount"], 4)
+    io.write_int(obj["resource"], 1)
+    io.write_int(1, 5)
 
 class Disposition(IntEnum):
     Compliant  = 0
@@ -688,6 +898,25 @@ def parse_monster(obj: dict) -> dict:
     obj["joining_monster_percent"] =      io.read_int(4)
     obj["upgraded_stack"]          =      io.read_int(4)
     obj["stack_count"]             =      io.read_int(4)
+    obj["is_value"]                = bool(io.read_int(1))
+    obj["ai_value"]                =      io.read_int(4)
+
+#    if "message" in obj:
+#        if obj["message"].isdigit():
+#            obj["quantity"] = 0
+#            obj["is_value"] = True
+#
+#            desired_value = int(obj["message"])
+#            if desired_value < 5000:
+#                obj["ai_value"] = int(desired_value / 1.5) + 500
+#            else: obj["ai_value"] = int((desired_value + 5750) / 2.5)
+#
+#            obj.pop("message", None)
+#
+#            if obj["resources"] != [0, 0, 0, 0, 0, 0, 0]:
+#                print("!!!")
+#            if obj["artifact"] != 65535:
+#                print("!!!")
 
     return obj
 
@@ -713,8 +942,19 @@ def write_monster(obj: dict) -> None:
     io.write_int(obj["joining_monster_percent"], 4)
     io.write_int(obj["upgraded_stack"], 4)
     io.write_int(obj["stack_count"], 4)
+    io.write_int(obj["is_value"], 1)
+    io.write_int(obj["ai_value"], 4)
 
-def parse_town(obj: dict) -> dict:
+def parse_pyramid(obj: dict) -> dict:
+    obj["contents"] = io.read_int(4)
+    obj["spell"] = spd.ID(io.read_int(4))
+    return obj
+
+def write_pyramid(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_int(obj["spell"], 4)
+
+def parse_town(obj: dict, random: bool = False) -> dict:
     obj["start_bytes"] = io.read_raw(4)
     obj["owner"]       = io.read_int(1)
 
@@ -735,13 +975,17 @@ def parse_town(obj: dict) -> dict:
     obj["spells_cant_appear"]  =      io.read_bits(9)
     obj["spell_research"]      = bool(io.read_int(1))
 
+    obj["buildings_special"] = []
+    for _ in range(io.read_int(4)): # Amount of special buildings.
+        obj["buildings_special"].append(io.read_int(1))
+
     obj["events"]    = parse_events(is_town=True)
     obj["alignment"] = io.read_int(1)
 
     io.seek(3)
     return obj
 
-def write_town(obj: dict) -> None:
+def write_town(obj: dict, random: bool = False) -> None:
     io.write_raw(obj["start_bytes"])
     io.write_int(obj["owner"], 1)
 
@@ -769,6 +1013,10 @@ def write_town(obj: dict) -> None:
     io.write_bits(obj["spells_must_appear"])
     io.write_bits(obj["spells_cant_appear"])
     io.write_int( obj["spell_research"], 1)
+
+    io.write_int(len(obj["buildings_special"]), 4)
+    for i in obj["buildings_special"]:
+        io.write_int(i, 1)
 
     write_events(obj["events"], is_town=True)
 
@@ -811,6 +1059,15 @@ def write_scholar(obj: dict) -> None:
     else: io.write_int(0, 1)
 
     io.write_int(0, 6)
+
+def parse_sea_chest(obj: dict) -> dict:
+    obj["contents"] =       io.read_int(4)
+    obj["artifact"] = ad.ID(io.read_int(4))
+    return obj
+
+def write_sea_chest(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_int(obj["artifact"], 4)
 
 class Quest(IntEnum):
     NONE                        =  0
@@ -864,7 +1121,10 @@ def parse_quest() -> dict:
         case Quest.RETURN_WITH_ARTIFACTS:
             quest["value"] = []
             for _ in range(io.read_int(1)):
-                quest["value"].append(ad.ID(io.read_int(2)))
+                quest["value"].append([
+                    ad.ID(io.read_int(2)),
+                    spd.ID(io.read_int(2))
+                ])
 
         case Quest.RETURN_WITH_CREATURES:
             quest["value"] = parse_creatures(amount=io.read_int(1))
@@ -917,7 +1177,8 @@ def write_quest(info: dict) -> None:
         case Quest.RETURN_WITH_ARTIFACTS:
             io.write_int(len(info["value"]), 1)
             for artifact in info["value"]:
-                io.write_int(artifact, 2)
+                io.write_int(artifact[0], 2)
+                io.write_int(artifact[1], 2)
 
         case Quest.RETURN_WITH_CREATURES:
             io.write_int(len(info["value"]), 1)
@@ -987,7 +1248,10 @@ def parse_reward() -> dict:
             reward["value"].append(io.read_int(1))
 
         case Reward.ARTIFACT:
-            reward["value"] = ad.ID(io.read_int(2))
+            reward["value"] = [
+                ad.ID(io.read_int(2)),
+                spd.ID(io.read_int(2))
+            ]
 
         case Reward.SPELL:
             reward["value"] = spd.ID(io.read_int(1))
@@ -1016,7 +1280,8 @@ def write_reward(info: dict) -> None:
             io.write_int(info["value"][1], 1)
 
         case Reward.ARTIFACT:
-            io.write_int(info["value"], 2)
+            io.write_int(info["value"][0], 2)
+            io.write_int(info["value"][1], 2)
 
         case Reward.CREATURES:
             write_creatures(info["value"])
@@ -1030,6 +1295,10 @@ def parse_seers_hut(obj: dict) -> dict:
 
     for _ in range(io.read_int(4)): # Amount of repeatable quests
         obj["repeatable_quests"].append([parse_quest(), parse_reward()])
+
+#    if obj["coords"] == [85, 103, 1]:
+#        obj["one_time_quests"][0][0]["value"] = [{"id": cd.ID.Skeleton, "amount": 20000}]
+#        print(obj)
 
     io.seek(2)
     return obj
@@ -1047,6 +1316,15 @@ def write_seers_hut(obj: dict) -> None:
 
     io.write_int(0, 2)
 
+def parse_shipwreck_survivor(obj: dict) -> dict:
+    obj["contents"] =       io.read_int(4)
+    obj["artifact"] = ad.ID(io.read_int(4))
+    return obj
+
+def write_shipwreck_survivor(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_int(obj["artifact"], 4)
+
 def parse_spell_scroll(obj: dict) -> dict:
     if io.read_int(1):
         obj = parse_common(obj)
@@ -1058,6 +1336,69 @@ def write_spell_scroll(obj: dict) -> None:
         write_common(obj)
     else: io.write_int(0, 1)
     io.write_int(obj["spell"], 4)
+
+def parse_treasure_chest(obj: dict) -> dict:
+    obj["contents"] = io.read_int(4)
+    obj["artifact"] = io.read_int(4)
+#    obj["artifact"] = ad.ID(io.read_int(4))
+    return obj
+
+def write_treasure_chest(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_int(obj["artifact"], 4)
+
+def parse_tree_of_knowledge(obj: dict) -> dict:
+    obj["contents"] = io.read_int(4)
+    obj["end_bytes"] = io.read_int(4)
+    return obj
+
+def write_tree_of_knowledge(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_int(obj["end_bytes"], 4)
+
+class University(IntEnum):
+    Random = 4294967295
+    Custom = 0
+
+def parse_university(obj: dict) -> dict:
+    obj["mode"]   = University(io.read_int(4))
+    obj["skills"] =            io.read_bits(4)
+    return obj
+
+def write_university(obj: dict) -> None:
+    io.write_int(obj["mode"], 4)
+    io.write_bits(obj["skills"])
+
+#def parse_seafaring_academy(obj: dict) -> dict:
+#    return obj
+
+#def write_seafaring_academy(obj: dict) -> None:
+#    pass
+
+def parse_wagon(obj: dict) -> dict:
+    obj["contents"] =             io.read_int(4)
+    obj["artifact"] =       ad.ID(io.read_int(4))
+    obj["amount"]   =             io.read_int(4)
+    obj["resource"] = od.Resource(io.read_int(1))
+
+    obj["mystery_bytes"] = io.read_raw(5)
+    return obj
+
+def write_wagon(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_int(obj["artifact"], 4)
+    io.write_int(obj["amount"], 4)
+    io.write_int(obj["resource"], 1)
+    io.write_raw(obj["mystery_bytes"])
+
+def parse_warriors_tomb(obj: dict) -> dict:
+    obj["contents"] =       io.read_int(4)
+    obj["artifact"] = ad.ID(io.read_int(4))
+    return obj
+
+def write_warriors_tomb(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_int(obj["artifact"], 4)
 
 def parse_dwelling(obj: dict) -> dict:
     obj["owner"] = io.read_int(4)
@@ -1107,13 +1448,72 @@ def write_faction(obj: dict) -> None:
     io.write_int(obj["minimum_level"], 1)
     io.write_int(obj["maximum_level"], 1)
 
+def parse_ancient_lamp(obj: dict) -> dict:
+    obj["contents"]      = io.read_int(4)
+    obj["trash_bytes"]   = io.read_raw(4)
+    obj["amount"]        = io.read_int(4)
+    obj["mystery_bytes"] = io.read_raw(6)
+    return obj
 
+def write_ancient_lamp(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_raw(obj["trash_bytes"])
+    io.write_int(obj["amount"], 4)
+    io.write_raw(obj["mystery_bytes"])
 
+def parse_sea_barrel(obj: dict) -> dict:
+    obj["contents"]      =             io.read_int(4)
+    obj["trash_bytes"]   =             io.read_raw(4)
+    obj["amount"]        =             io.read_int(4)
+    obj["resource"]      = od.Resource(io.read_int(1))
+    obj["mystery_bytes"] =             io.read_raw(5)
+    return obj
 
+def write_sea_barrel(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_raw(obj["trash_bytes"])
+    io.write_int(obj["amount"], 4)
+    io.write_int(obj["resource"], 1)
+    io.write_raw(obj["mystery_bytes"])
 
+def parse_vial_of_mana(obj: dict) -> dict:
+    obj["contents"]    = io.read_int(4)
+    obj["trash_bytes"] = io.read_raw(4)
+    return obj
 
+def write_vial_of_mana(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_raw(obj["trash_bytes"])
 
+def parse_abandoned_mine(obj: dict) -> dict:
+    obj["resources"] =       io.read_bits(1)
+    obj["mid_bytes"] =       io.read_raw(3)
+    obj["is_custom"] =  bool(io.read_int(1))
+    obj["creature"]  = cd.ID(io.read_int(4))
+    obj["min_val"]   =       io.read_int(4)
+    obj["max_val"]   =       io.read_int(4)
+    return obj
 
+def write_abandoned_mine(obj: dict) -> None:
+    io.write_bits(obj["resources"])
+    io.write_raw(obj["mid_bytes"])
+    io.write_int(obj["is_custom"], 1)
+    io.write_int(obj["creature"], 4)
+    io.write_int(obj["min_val"], 4)
+    io.write_int(obj["max_val"], 4)
 
+def parse_grave(obj: dict) -> dict:
+    obj["contents"] =             io.read_int(4)
+    obj["artifact"] =       ad.ID(io.read_int(4))
+    obj["amount"]   =             io.read_int(4)
+    obj["resource"] = od.Resource(io.read_int(1))
 
+    obj["mystery_bytes"] = io.read_raw(5)
+    return obj
 
+def write_grave(obj: dict) -> None:
+    io.write_int(obj["contents"], 4)
+    io.write_int(obj["artifact"], 4)
+    io.write_int(obj["amount"], 4)
+    io.write_int(obj["resource"], 1)
+    io.write_raw(obj["mystery_bytes"])

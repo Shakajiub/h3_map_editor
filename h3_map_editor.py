@@ -42,7 +42,7 @@ def main() -> None:
     # This should contain some common info, tips and maybe some news.
     print("\n##############################")
     print(  "##                          ##")
-    print(  "##  h3_map_editor.py v.010  ##")
+    print(  "##  h3_map_editor.py v.170  ##")
     print(  "##                          ##")
     print(  "##############################")
 
@@ -66,7 +66,11 @@ def main() -> None:
             case ["count"] | ["list"]:
                 scripts.count_objects(map_data["object_data"])
 
-#    map_data["object_data"] = scripts.generate_guards(map_data["object_data"])
+            case ["guards"]:
+                map_data["object_data"] = scripts.generate_guards(map_data["object_data"])
+
+            case ["temp"]:
+                map_data["object_data"] = scripts.temp(map_data["object_data"])
 
             case ["q"] | ["quit"] | ["exit"]: break
             case _: print("Unrecognized command.")

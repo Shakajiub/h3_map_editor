@@ -5,6 +5,22 @@ from random import choice, randint
 import data.creatures as cd # Creature details
 import data.objects   as od # Object details
 
+def temp(obj_data: dict) -> dict:
+#    print("temp script")
+
+    for obj in obj_data:
+        if obj["type"] == od.ID.Seers_Hut:
+            if obj["coords"] == [85, 103, 1]:
+                print("\n", obj)
+                obj["one_time_quests"][0][0]["value"][0]["amount"] = 25000
+                print("\n", obj)
+            if obj["coords"] == [44, 80, 1]:
+                print("\n", obj)
+                obj["one_time_quests"][0][0]["value"][6] = 200000
+                print("\n", obj)
+
+    return obj_data
+
 ###################
 ## COUNT OBJECTS ##
 ###################
@@ -52,7 +68,8 @@ FACTIONS = {
     "Fortress"  : [  98,  99, 100, 101, 106, 107, 104, 105, 102, 103, 108, 109, 110, 111 ],
     "Conflux"   : [ 118, 119, 112, 127, 115, 123, 114, 129, 113, 125, 120, 121, 130, 131 ],
     "Cove"      : [ 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 151 ],
-    "Neutral"   : [ 139, 138, 143, 140, 169, 142, 167, 137, 170, 116, 117, 168, 144, 136, 135, 134, 133, 132 ]
+    "Factory"   : [ 138, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185 ],
+    "Neutral"   : [ 139, 143, 140, 169, 142, 167, 137, 170, 116, 117, 168, 144, 136, 135, 134, 133, 132 ]
 }
 
 def get_creature_text(creature: int, amount: int) -> str:
@@ -64,7 +81,7 @@ def get_creature_text(creature: int, amount: int) -> str:
     return text + cd.NAME[creature]
 
 def generate_guards(obj_data: dict) -> dict:
-    print("\n---[ Generating guards (v.102) ]---\n")
+    print("\n---[ Generating guards (v.110) ]---\n")
 
     valid_types = {
         od.ID.Pandoras_Box            : "{Pandora's Box}\n",
@@ -145,6 +162,9 @@ def generate_guards(obj_data: dict) -> dict:
             guard_list = []
             for k, v in total_guards.items():
                 guard_list.append(get_creature_text(k, v))
+
+            if len(guard_list) == 1:
+                print(obj["coords"])
 
             guard_text = "Guarded by "
             last_guard = " and " + guard_list.pop()
