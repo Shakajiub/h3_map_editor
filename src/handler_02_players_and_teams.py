@@ -7,6 +7,44 @@ from data.objects import Town
 from enum import IntEnum
 
 def parse_player_specs() -> list:
+    # The player specs of a map are stored as follows:
+
+    # For all 8 players:
+    # - Playable as human     | 1 byte bool
+    # - Playable as AI        | 1 byte bool
+    # - AI behaviour          | 1 byte int
+    # - Customized alignments | 1 byte bool
+    # - Allowed alignments    | 2 bytes (bits)
+    # - Random alignment      | 1 byte bool
+    # - Has main town         | 1 byte bool
+
+    # IF has_main_town:
+    # --- Generate hero       | 1 byte bool
+    # --- Town type           | 1 byte int
+    # --- Town coordinates    | 3 bytes int (x, y, z)
+
+    # - Has random hero       | 1 byte bool
+    # - Starting hero ID      | 1 byte int
+
+    # IF starting_hero_id:
+    # --- Hero face           | 1 byte int
+    # --- Hero name length    | 4 bytes int
+    # --- Hero name           | X bytes str
+    # --- unknown data        | 1 byte ???
+    # --- Starting heroes     | 4 bytes int
+
+    # --- FOREACH starting hero:
+    # ----- Hero ID           | 1 byte int
+    # ----- Hero name length  | 4 bytes int
+    # ----- Hero name         | X bytes str
+
+    # ELSE:
+    # --- unknown data        | 1 byte ???
+    # --- Placeholder heroes  | 4 bytes int
+
+    # --- FOREACH placeholder hero:
+    # ----- Placeholder ID    | 5 bytes int
+
     specs = []
 
     for _ in range(8):
@@ -34,7 +72,7 @@ def parse_player_specs() -> list:
         info["playability_ai"]        = bool(io.read_int(1))
         info["ai_behavior"]           =      io.read_int(1)
         info["alignments_customized"] = bool(io.read_int(1))
-        info["alignments_allowed"]    =      io.read_int(2)
+        info["alignments_allowed"]    =      io.read_bits(2)
         info["alignment_is_random"]   = bool(io.read_int(1))
         info["has_main_town"]         = bool(io.read_int(1))
 
@@ -70,13 +108,13 @@ def parse_player_specs() -> list:
 
 def write_player_specs(specs: list) -> None:
     for info in specs:
-        io.write_int(info["playability_human"], 1)
-        io.write_int(info["playability_ai"], 1)
-        io.write_int(info["ai_behavior"], 1)
-        io.write_int(info["alignments_customized"], 1)
-        io.write_int(info["alignments_allowed"], 2)
-        io.write_int(info["alignment_is_random"], 1)
-        io.write_int(info["has_main_town"], 1)
+        io.write_int( info["playability_human"], 1)
+        io.write_int( info["playability_ai"], 1)
+        io.write_int( info["ai_behavior"], 1)
+        io.write_int( info["alignments_customized"], 1)
+        io.write_bits(info["alignments_allowed"])
+        io.write_int( info["alignment_is_random"], 1)
+        io.write_int( info["has_main_town"], 1)
 
         if info["has_main_town"]:
             io.write_int(info["generate_hero"], 1)
@@ -107,6 +145,20 @@ def write_player_specs(specs: list) -> None:
                 io.write_int(hero, 5)
 
 def parse_teams() -> dict:
+    # The teams of a map are stored as follows:
+
+    # - Amount of teams | 1 byte int
+
+    # IF amount != 0:
+    # --- Player 1 team | 1 byte int
+    # --- Player 2 team | 1 byte int
+    # --- Player 3 team | 1 byte int
+    # --- Player 4 team | 1 byte int
+    # --- Player 5 team | 1 byte int
+    # --- Player 6 team | 1 byte int
+    # --- Player 7 team | 1 byte int
+    # --- Player 8 team | 1 byte int
+
     info = {
         "amount_of_teams": 0,
         "Player1": 0,

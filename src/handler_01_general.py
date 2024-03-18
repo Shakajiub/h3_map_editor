@@ -30,7 +30,7 @@ class Difficulty(IntEnum):
 
 def parse_general() -> dict:
     # The general information of a map is stored as follows:
-    #
+
     # - Map format           | 4 bytes int
     # - HotA version         | 4 bytes int
     # - unknown data         | 1 byte ???
@@ -45,7 +45,7 @@ def parse_general() -> dict:
     # - description length   | 4 bytes int
     # - description          | X bytes str
     # - difficulty           | 1 byte int
-    # - level cap            | 1 byte int
+    # - level_cap            | 1 byte int
 
     info = {
         "map_format"         : 0,
