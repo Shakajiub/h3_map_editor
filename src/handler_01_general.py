@@ -4,6 +4,24 @@ import src.file_io as io
 
 from enum import IntEnum
 
+# The general information of a map is stored as follows:
+#
+# - Map format           | 4 bytes int
+# - HotA version         | 4 bytes int
+# - unknown data         | 1 byte ???
+# - is_arena             | 1 byte bool
+# - unknown data         | 8 bytes ???
+# - allowed difficulties | 1 byte (bits)
+# - has_hero             | 1 byte bool
+# - map_size             | 4 bytes int
+# - is_two_level         | 1 byte bool
+# - name length          | 4 bytes int
+# - name                 | X bytes str
+# - description length   | 4 bytes int
+# - description          | X bytes str
+# - difficulty           | 1 byte int
+# - level_cap            | 1 byte int
+
 class MapFormat(IntEnum):
     RoE  = 14
     AB   = 21
@@ -29,24 +47,6 @@ class Difficulty(IntEnum):
     Impossible = 4
 
 def parse_general() -> dict:
-    # The general information of a map is stored as follows:
-
-    # - Map format           | 4 bytes int
-    # - HotA version         | 4 bytes int
-    # - unknown data         | 1 byte ???
-    # - is_arena             | 1 byte bool
-    # - unknown data         | 8 bytes ???
-    # - allowed difficulties | 1 byte (bits)
-    # - has_hero             | 1 byte bool
-    # - map_size             | 4 bytes int
-    # - is_two_level         | 1 byte bool
-    # - name length          | 4 bytes int
-    # - name                 | X bytes str
-    # - description length   | 4 bytes int
-    # - description          | X bytes str
-    # - difficulty           | 1 byte int
-    # - level_cap            | 1 byte int
-
     info = {
         "map_format"         : 0,
         "hota_version"       : 0,
