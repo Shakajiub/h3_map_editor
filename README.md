@@ -45,9 +45,9 @@ Is a simple example that goes through all the objects placed in the map and prin
 ```
 generate_guards [> guards]
 ```
-Is a more complex example. The script goes through specific objects (Pandora's Boxes, Artifacts, Resources, etc.) and checks if the last line in the objects message box is "-guards XXX". Whenever it finds that, it generates guards for the object with a total AI value XXX, then replaces the text with a "Guarded by XYZ" description. See the script itself for a more detailed explanation.
+Is a more complex example. The script goes through specific objects (Pandora's Boxes, Artifacts, Resources, etc.) and checks if the last line in the object's message box is "-guards XXX". Whenever it finds that, it generates guards for the object with a total AI value of XXX, then replaces the text with a "Guarded by XYZ" description. See the script itself for a more detailed explanation.
 
 
 ## Contributions
 
-Everyone is completely welcome to contribute in any way, be it by fixing typos, bugs, adding comments or useful scripts. The code needs quite a lot of cleanup, which is an ongoing project. The goal is for the editor to be as easy to use and expand as possible.
+Everyone is completely welcome to contribute in any way, be it by fixing typos, bugs, adding comments or useful scripts. The code needs quite a lot of cleanup, which is an ongoing project. The goal is for the editor to be as easy to use and expand as possible, especially for making custom scripts.
