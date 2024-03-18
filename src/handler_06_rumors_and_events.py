@@ -2,6 +2,14 @@
 
 import src.file_io as io
 
+# The rumors of a map are stored as follows:
+#
+# TODO
+
+# The events of a map are stored as follows:
+#
+# TODO
+
 def parse_rumors() -> list:
     info = []
     

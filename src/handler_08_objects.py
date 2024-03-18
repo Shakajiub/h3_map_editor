@@ -12,6 +12,14 @@ from src.handler_06_rumors_and_events import parse_events, write_events
 
 from enum import IntEnum
 
+# The object definitions of a map are stored as follows:
+#
+# TODO
+
+# The object data of a map is stored as follows:
+#
+# TODO
+
 def parse_object_defs() -> list:
     info = []
 

@@ -4,6 +4,10 @@ import src.file_io as io
 
 from enum import IntEnum
 
+# The terrain of a map is stored as follows:
+#
+# TODO
+
 class Tile(IntEnum):
     TerrainType    = 0
     TerrainPicture = 1

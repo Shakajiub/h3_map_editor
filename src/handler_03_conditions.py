@@ -6,6 +6,14 @@ from data.objects import Resource
 
 from enum import IntEnum
 
+# The victory conditions of a map are stored as follows:
+#
+# TODO
+
+# The loss conditions of a map are stored as follows:
+#
+# TODO
+
 class VictoryType(IntEnum):
     NONE                 = 255
     ACQUIRE_ARTIFACT     = 0

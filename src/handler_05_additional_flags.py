@@ -2,6 +2,12 @@
 
 import src.file_io as io
 
+# The banned artifacts/spells/skills of a map are stored as follows:
+#
+# - Enabled/banned artifacts | 21 bytes (bits)
+# - Enabled/banned spells    | 9 bytes (bits)
+# - Enabled/banned skills    | 4 bytes (bits)
+
 def parse_flags() -> dict:
     info = {
         "artifacts": [],

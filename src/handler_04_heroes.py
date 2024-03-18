@@ -7,6 +7,14 @@ import data.artifacts as ad
 
 from src.handler_01_general import MapFormat
 
+# The starting heroes of a map are stored as follows:
+#
+# TODO
+
+# The custom heroes of a map are stored as follows:
+#
+# TODO
+
 def parse_starting_heroes(general_info: dict) -> dict:
     info = {
         "total_heroes"   : 0,
