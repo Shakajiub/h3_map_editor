@@ -45,8 +45,7 @@ def parse_terrain(general_info: dict) -> list:
 
     size         = general_info["map_size"]
     is_two_level = general_info["is_two_level"]
-
-    tile_amount = size*size*2 if is_two_level else size*size
+    tile_amount  = size*size*2 if is_two_level else size*size
 
     for _ in range(tile_amount):         # 7 bytes per tile:
         info.append([

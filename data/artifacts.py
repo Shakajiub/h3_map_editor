@@ -235,5 +235,5 @@ class ID(IntEnum):
     Seal_of_Sunset       = 163
     Plate_of_Dying_Light = 164
     Sleepkeeper          = 165
-    #
-    #
+    # UNUSED
+    # UNUSED

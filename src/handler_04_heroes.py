@@ -95,9 +95,6 @@ def parse_hero_data() -> list:
                 skill["level"] = io.read_int(1)
                 hero["secondary_skills"].append(skill)
 
-        if i == hd.ID.Ciele:
-            hero["secondary_custom"] = True
-
         if io.read_int(1): # Are artifacts set?
             hero["artifacts_equipped"]["head"]          = parse_artifact()
             hero["artifacts_equipped"]["shoulders"]     = parse_artifact()

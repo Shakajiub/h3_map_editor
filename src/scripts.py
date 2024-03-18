@@ -6,19 +6,7 @@ import data.creatures as cd # Creature details
 import data.objects   as od # Object details
 
 def temp(obj_data: dict) -> dict:
-#    print("temp script")
-
-    for obj in obj_data:
-        if obj["type"] == od.ID.Seers_Hut:
-            if obj["coords"] == [85, 103, 1]:
-                print("\n", obj)
-                obj["one_time_quests"][0][0]["value"][0]["amount"] = 25000
-                print("\n", obj)
-            if obj["coords"] == [44, 80, 1]:
-                print("\n", obj)
-                obj["one_time_quests"][0][0]["value"][6] = 200000
-                print("\n", obj)
-
+    print("temp script")
     return obj_data
 
 ###################

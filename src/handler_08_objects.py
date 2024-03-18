@@ -81,8 +81,6 @@ def parse_object_data(object_defs: list) -> list:
     info = []
 
     for _ in range(io.read_int(4)): # Amount of objects
-#        io.peek(80)
-
         obj = { "coords": [0, 0, 0] }
         obj["coords"][0] = io.read_int(1)
         obj["coords"][1] = io.read_int(1)
@@ -94,30 +92,18 @@ def parse_object_data(object_defs: list) -> list:
         obj["type"]    = object_defs[obj["def_id"]]["type"]
         obj["subtype"] = object_defs[obj["def_id"]]["subtype"]
 
-#        if obj["type"] == od.ID.Artifact:
-#            if obj["subtype"] == ad.ID.Shield_of_the_Yawning_Dead:
-#                print("\n\n", obj)
-
-#        if obj["coords"] == [130, 85, 1]:
-#            print(obj)
-
-#        if obj["type"] == od.ID.HotA_Decoration_1:
-#            if obj["subtype"] == od.HotA_Decoration_1.Crumbled_Camp:
-#                print(obj["coords"])
-
         match obj["type"]:
-            case od.ID.Pandoras_Box: obj = parse_pandoras_box(obj)
-            case od.ID.Black_Market: obj = parse_black_market(obj)
-            case od.ID.Campfire:     obj = parse_campfire(obj)
-            case od.ID.Corpse:       obj = parse_corpse(obj)
-            case od.ID.Event:        obj = parse_event(obj)
-            case od.ID.Flotsam:      obj = parse_flotsam(obj)
-            case od.ID.Lean_To:      obj = parse_lean_to(obj)
-            case od.ID.Pyramid:      obj = parse_pyramid(obj)
-            case od.ID.Scholar:      obj = parse_scholar(obj)
-            case od.ID.Sea_Chest:    obj = parse_sea_chest(obj)
-            case od.ID.Seers_Hut:    obj = parse_seers_hut(obj)
-
+            case od.ID.Pandoras_Box:       obj = parse_pandoras_box(obj)
+            case od.ID.Black_Market:       obj = parse_black_market(obj)
+            case od.ID.Campfire:           obj = parse_campfire(obj)
+            case od.ID.Corpse:             obj = parse_corpse(obj)
+            case od.ID.Event:              obj = parse_event(obj)
+            case od.ID.Flotsam:            obj = parse_flotsam(obj)
+            case od.ID.Lean_To:            obj = parse_lean_to(obj)
+            case od.ID.Pyramid:            obj = parse_pyramid(obj)
+            case od.ID.Scholar:            obj = parse_scholar(obj)
+            case od.ID.Sea_Chest:          obj = parse_sea_chest(obj)
+            case od.ID.Seers_Hut:          obj = parse_seers_hut(obj)
             case od.ID.Shipwreck_Survivor: obj = parse_shipwreck_survivor(obj)
             case od.ID.Treasure_Chest:     obj = parse_treasure_chest(obj)
             case od.ID.Tree_of_Knowledge:  obj = parse_tree_of_knowledge(obj)
@@ -144,6 +130,8 @@ def parse_object_data(object_defs: list) -> list:
             case od.ID.HotA_Visitable_2:
                 if obj["subtype"] == 0: # HotA Seafaring_Academy
                     obj = parse_university(obj)
+
+            # Some of the HotA objects are implemented in a pretty hacky way.
             case od.ID.Border_Gate:
                 if obj["subtype"] == 1000: # HotA Quest Gate
                     obj["quest"] = parse_quest()
@@ -214,18 +202,17 @@ def write_object_data(info: list) -> None:
         io.write_int(0, 5)
 
         match obj["type"]:
-            case od.ID.Pandoras_Box: write_pandoras_box(obj)
-            case od.ID.Black_Market: write_black_market(obj)
-            case od.ID.Campfire:     write_campfire(obj)
-            case od.ID.Corpse:       write_corpse(obj)
-            case od.ID.Event:        write_event(obj)
-            case od.ID.Flotsam:      write_flotsam(obj)
-            case od.ID.Lean_To:      write_lean_to(obj)
-            case od.ID.Pyramid:      write_pyramid(obj)
-            case od.ID.Scholar:      write_scholar(obj)
-            case od.ID.Sea_Chest:    write_sea_chest(obj)
-            case od.ID.Seers_Hut:    write_seers_hut(obj)
-
+            case od.ID.Pandoras_Box:       write_pandoras_box(obj)
+            case od.ID.Black_Market:       write_black_market(obj)
+            case od.ID.Campfire:           write_campfire(obj)
+            case od.ID.Corpse:             write_corpse(obj)
+            case od.ID.Event:              write_event(obj)
+            case od.ID.Flotsam:            write_flotsam(obj)
+            case od.ID.Lean_To:            write_lean_to(obj)
+            case od.ID.Pyramid:            write_pyramid(obj)
+            case od.ID.Scholar:            write_scholar(obj)
+            case od.ID.Sea_Chest:          write_sea_chest(obj)
+            case od.ID.Seers_Hut:          write_seers_hut(obj)
             case od.ID.Shipwreck_Survivor: write_shipwreck_survivor(obj)
             case od.ID.Treasure_Chest:     write_treasure_chest(obj)
             case od.ID.Tree_of_Knowledge:  write_tree_of_knowledge(obj)
@@ -380,8 +367,6 @@ def parse_contents() -> dict:
         "Artifacts"       : [],
         "Spells"          : [],
         "Creatures"       : []
-#        "Movement_Mode"   : 0,
-#        "Movement_Points" : 0
     }
 
     contents["Experience"]   = io.read_int(4)
@@ -414,7 +399,6 @@ def parse_contents() -> dict:
         contents["Creatures"].append(creature)
 
     io.seek(8)
-
     return contents
 
 def write_contents(contents: dict) -> None:
@@ -459,7 +443,7 @@ def parse_artifact(obj: dict) -> dict:
         obj = parse_common(obj)
 
     obj["pickup_mode"] = Pickup_Condition(io.read_int(4))
-    obj["pickup_conditions"] =            io.read_bits(1)
+    obj["pickup_conditions"] = io.read_bits(1)
     return obj
 
 def write_artifact(obj: dict) -> None:
@@ -478,7 +462,7 @@ def parse_pandoras_box(obj: dict) -> dict:
     # HotA 1.7.0 Movement Points.
     io.seek(1) # TODO - Is this something?
     obj["contents"]["Movement_Mode"] = Movement(io.read_int(4))
-    obj["contents"]["Movement_Points"] =        io.read_int(4)
+    obj["contents"]["Movement_Points"] = io.read_int(4)
     return obj
 
 def write_pandoras_box(obj: dict) -> None:
@@ -496,10 +480,6 @@ def parse_black_market(obj: dict) -> dict:
     obj["artifacts"] = []
     for _ in range(7):
         obj["artifacts"].append(parse_hero_artifact())
-
-#    if obj["coords"] == [74, 60, 1]:
-#        obj["artifacts"][4] = [ad.ID.Sword_of_Judgement, 0]
-
     return obj
 
 def write_black_market(obj: dict) -> None:
@@ -566,8 +546,8 @@ def parse_event(obj: dict) -> dict:
     obj["allow_human"]     = bool(io.read_int(1))
 
     # HotA 1.7.0 Movement Points.
-    obj["contents"]["Movement_Mode"]   = Movement(io.read_int(4))
-    obj["contents"]["Movement_Points"] =          io.read_int(4)
+    obj["contents"]["Movement_Mode"] = Movement(io.read_int(4))
+    obj["contents"]["Movement_Points"] = io.read_int(4)
 
     return obj
 
@@ -656,12 +636,6 @@ def parse_hero(obj: dict) -> dict:
 
     if io.read_int(1): # Is the army set?
         hero["creatures"] = parse_creatures()
-
-#        if hero["id"] == hd.ID.Jeremy:
-#            hero["creatures"][5] = {"id": cd.ID.Cannon, "amount": 50}
-
-    if obj["coords"] == [142, 68, 1]:
-        hero["creatures"][2] = {"id": cd.ID.Skeleton, "amount": 25000}
 
     hero["formation"] = io.read_int(1)
 
@@ -900,23 +874,6 @@ def parse_monster(obj: dict) -> dict:
     obj["stack_count"]             =      io.read_int(4)
     obj["is_value"]                = bool(io.read_int(1))
     obj["ai_value"]                =      io.read_int(4)
-
-#    if "message" in obj:
-#        if obj["message"].isdigit():
-#            obj["quantity"] = 0
-#            obj["is_value"] = True
-#
-#            desired_value = int(obj["message"])
-#            if desired_value < 5000:
-#                obj["ai_value"] = int(desired_value / 1.5) + 500
-#            else: obj["ai_value"] = int((desired_value + 5750) / 2.5)
-#
-#            obj.pop("message", None)
-#
-#            if obj["resources"] != [0, 0, 0, 0, 0, 0, 0]:
-#                print("!!!")
-#            if obj["artifact"] != 65535:
-#                print("!!!")
 
     return obj
 
@@ -1296,10 +1253,6 @@ def parse_seers_hut(obj: dict) -> dict:
     for _ in range(io.read_int(4)): # Amount of repeatable quests
         obj["repeatable_quests"].append([parse_quest(), parse_reward()])
 
-#    if obj["coords"] == [85, 103, 1]:
-#        obj["one_time_quests"][0][0]["value"] = [{"id": cd.ID.Skeleton, "amount": 20000}]
-#        print(obj)
-
     io.seek(2)
     return obj
 
@@ -1368,12 +1321,6 @@ def parse_university(obj: dict) -> dict:
 def write_university(obj: dict) -> None:
     io.write_int(obj["mode"], 4)
     io.write_bits(obj["skills"])
-
-#def parse_seafaring_academy(obj: dict) -> dict:
-#    return obj
-
-#def write_seafaring_academy(obj: dict) -> None:
-#    pass
 
 def parse_wagon(obj: dict) -> dict:
     obj["contents"] =             io.read_int(4)
@@ -1507,8 +1454,7 @@ def parse_grave(obj: dict) -> dict:
     obj["artifact"] =       ad.ID(io.read_int(4))
     obj["amount"]   =             io.read_int(4)
     obj["resource"] = od.Resource(io.read_int(1))
-
-    obj["mystery_bytes"] = io.read_raw(5)
+    obj["mystery_bytes"] =        io.read_raw(5)
     return obj
 
 def write_grave(obj: dict) -> None:

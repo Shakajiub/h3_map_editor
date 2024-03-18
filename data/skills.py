@@ -50,6 +50,6 @@ class Secondary(IntEnum):
     Resistance   = 26
     First_Aid    = 27
     Interference = 28
-    #
-    #
-    #
+    # UNUSED
+    # UNUSED
+    # UNUSED

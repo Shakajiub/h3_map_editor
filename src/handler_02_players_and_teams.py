@@ -59,11 +59,6 @@ def parse_player_specs() -> list:
                 hero["name"] = io.read_str(io.read_int(4))
                 info["available_heroes"].append(hero)
 
-            if info["starting_hero_id"] == hd.ID.Aeris:
-                info["starting_hero_id"] = hd.ID.Rashka
-                info["starting_hero_face"] = hd.ID.Zydar
-                info["starting_hero_name"] = "Pyrannaste"
-
         else:
             io.seek(1)
             for _ in range(io.read_int(4)): # Amount of placeholder heroes

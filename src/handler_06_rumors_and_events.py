@@ -30,9 +30,6 @@ def parse_events(is_town: bool = False) -> list:
         event["name"]    = io.read_str(io.read_int(4))
         event["message"] = io.read_str(io.read_int(4))
 
-#        if i < 2 and not is_town:
-#            print(event)
-
         event["resources"] = []
         for _ in range(7):
             event["resources"].append(io.read_int(4))
@@ -45,7 +42,6 @@ def parse_events(is_town: bool = False) -> list:
         event["trash_bytes"]           = io.read_raw(17 if is_town else 31)
 
         if is_town:
-            # TODO - These 3 might be there for ALL events:
             event["hota_level_7b"] = io.read_int(4)
             event["hota_amount"]   = io.read_int(4)
             event["hota_special"]  = io.read_bits(6)
