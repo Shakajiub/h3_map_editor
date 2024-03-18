@@ -32,11 +32,6 @@ Shows you the parsed data for a specific key (e.g. "general"). See [h3_map_edito
 ```
 To exit the editor.
 
-```
-> temp
-```
-Runs the temporary script as explained below.
-
 
 ## Scripts
 
