@@ -11,7 +11,6 @@ import data.spells    as spd # Spell details
 from src.handler_06_rumors_and_events import parse_events, write_events
 
 from enum import IntEnum
-
 # The object definitions of a map are stored as follows:
 #
 # TODO
@@ -1365,8 +1364,9 @@ def write_warriors_tomb(obj: dict) -> None:
 def parse_dwelling(obj: dict) -> dict:
     obj["owner"] = io.read_int(4)
 
-    obj["same_as_town"] = io.read_int(4)
-    if obj["same_as_town"] == 0:
+    obj["same_as_town"] = io.read_raw(4)
+    is_same_as_town = int.from_bytes(obj["same_as_town"], 'little') != 0
+    if not is_same_as_town:
         obj["alignment"] = io.read_bits(2)
 
     obj["minimum_level"] = io.read_int(1)
@@ -1376,7 +1376,7 @@ def parse_dwelling(obj: dict) -> dict:
 def write_dwelling(obj: dict) -> None:
     io.write_int(obj["owner"], 4)
 
-    io.write_int(obj["same_as_town"], 4)
+    io.write_raw(obj["same_as_town"])
     if "alignment" in obj:
         io.write_bits(obj["alignment"])
 
@@ -1386,8 +1386,9 @@ def write_dwelling(obj: dict) -> None:
 def parse_leveled(obj: dict) -> dict:
     obj["owner"] = io.read_int(4)
 
-    obj["same_as_town"] = io.read_int(4)
-    if obj["same_as_town"] == 0:
+    obj["same_as_town"] = io.read_raw(4)
+    is_same_as_town = int.from_bytes(obj["same_as_town"], 'little') != 0
+    if not is_same_as_town:
         obj["alignment"] = io.read_bits(2)
 
     return obj
@@ -1395,7 +1396,7 @@ def parse_leveled(obj: dict) -> dict:
 def write_leveled(obj: dict) -> None:
     io.write_int(obj["owner"], 4)
 
-    io.write_int(obj["same_as_town"], 4)
+    io.write_raw(obj["same_as_town"])
     if "alignment" in obj:
         io.write_bits(obj["alignment"])
 
