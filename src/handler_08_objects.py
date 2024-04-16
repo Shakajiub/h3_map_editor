@@ -472,7 +472,7 @@ def parse_pandoras_box(obj: dict) -> dict:
     obj["contents"]["Movement_Mode"] = Movement(io.read_int(4))
     obj["contents"]["Movement_Points"] = io.read_int(4)
     # HotA 1.7.1 Difficulty
-    obj["difficulty"] = io.read_int(4)
+    obj["difficulty"] = io.read_bits(4)
     return obj
 
 def write_pandoras_box(obj: dict) -> None:
@@ -485,7 +485,7 @@ def write_pandoras_box(obj: dict) -> None:
     io.write_int(0, 1)
     io.write_int(obj["contents"]["Movement_Mode"], 4)
     io.write_int(obj["contents"]["Movement_Points"], 4)
-    io.write_int(obj["difficulty"], 4)
+    io.write_bits(obj["difficulty"])
 
 def parse_black_market(obj: dict) -> dict:
     obj["artifacts"] = []
@@ -560,7 +560,7 @@ def parse_event(obj: dict) -> dict:
     obj["contents"]["Movement_Mode"] = Movement(io.read_int(4))
     obj["contents"]["Movement_Points"] = io.read_int(4)
     # HotA 1.7.1 Difficulty Settings
-    obj["difficulty"] = io.read_int(4)
+    obj["difficulty"] = io.read_bits(4)
 
     return obj
 
@@ -579,7 +579,7 @@ def write_event(obj: dict) -> None:
     io.write_int(obj["contents"]["Movement_Mode"], 4)
     io.write_int(obj["contents"]["Movement_Points"], 4)
 
-    io.write_int(obj["difficulty"], 4)
+    io.write_bits(obj["difficulty"])
 
 def parse_flotsam(obj: dict) -> dict:
     obj["contents"] = io.read_int(4)
