@@ -3,7 +3,23 @@
 from enum import IntEnum
 
 class ID(IntEnum):
+    LEVEL_7_PLUS = 65521
+    LEVEL_7 = 65522
+    LEVEL_6_PLUS = 65323
+    LEVEL_6 = 65524
+    LEVEL_5_PLUS = 65525
+    LEVEL_5 = 65526
+    LEVEL_4_PLUS = 65527
+    LEVEL_4 = 65528
+    LEVEL_3_PLUS = 65529
+    LEVEL_3 = 65530
+    LEVEL_2_PLUS = 65531
+    LEVEL_2 = 65532
+    LEVEL_1_PLUS = 65533
+    LEVEL_1 = 65534
     NONE = 65535 # 2 bytes max
+    
+    
 
     Pikeman              =   0
     Halberdier           =   1

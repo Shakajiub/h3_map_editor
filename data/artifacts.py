@@ -5,6 +5,7 @@ from enum import IntEnum
 class ID(IntEnum):
     Empty_1_Byte  = 255
     Empty_2_Bytes = 65535
+    Empty_Unknown = 2637180971
     Empty_4_Bytes = 4294967295
 #
 # Byte 1 ... (0-7)
