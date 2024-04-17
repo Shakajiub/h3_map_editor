@@ -151,9 +151,6 @@ def generate_guards(obj_data: dict) -> dict:
             for k, v in total_guards.items():
                 guard_list.append(get_creature_text(k, v))
 
-            if len(guard_list) == 1:
-                print(obj["coords"])
-
             guard_text = "Guarded by "
             last_guard = " and " + guard_list.pop()
             guard_text += ", ".join(guard_list) + last_guard
