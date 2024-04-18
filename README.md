@@ -1,5 +1,5 @@
 # h3_map_editor.py
-Simple command-line HoMM 3 Map Editor made with pure python. Allows you to open a map, run custom scripts to edit the map, then save it. Useful for mass changes that are tedious to make with the normal editor, or changing things that the normal map editor does not allow you to change, like passing the limits for monster or resource quantities, having Seer's Huts that want you to bring a Cannon, or reward you with the Titan's Lightning Bolt directly into your spellbook. Currently supports HotA version 1.7.0.
+Simple command-line HoMM 3 Map Editor made with pure python. Allows you to open a map, run custom scripts to edit the map, then save it. Useful for mass changes that are tedious to make with the normal editor, or changing things that the normal map editor does not allow you to change, like passing the limits for monster or resource quantities, having Seer's Huts that want you to bring a Cannon, or reward you with the Titan's Lightning Bolt directly into your spellbook. Currently supports HotA version 1.7.1.
 
 
 ## Usage

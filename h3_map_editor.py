@@ -42,7 +42,7 @@ def main() -> None:
     # This should contain some common info, tips and maybe some news.
     print("\n##############################")
     print(  "##                          ##")
-    print(  "##  h3_map_editor.py v.170  ##")
+    print(  "##  h3_map_editor.py v.171  ##")
     print(  "##                          ##")
     print(  "##############################")
 
