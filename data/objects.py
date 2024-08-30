@@ -517,17 +517,18 @@ class Shipyard(IntEnum): # ID 87
     Airship = 1
 
 class Town(IntEnum): # ID 98 & 218
-    Castle     =  0
-    Rampart    =  1
-    Tower      =  2
-    Inferno    =  3
-    Necropolis =  4
-    Dungeon    =  5
-    Stronghold =  6
-    Fortress   =  7
-    Conflux    =  8
-    Cove       =  9
-    Factory    = 10
+    Castle     =   0
+    Rampart    =   1
+    Tower      =   2
+    Inferno    =   3
+    Necropolis =   4
+    Dungeon    =   5
+    Stronghold =   6
+    Fortress   =   7
+    Conflux    =   8
+    Cove       =   9
+    Factory    =  10
+    Random     = 255
 
 class War_Machine_Factory(IntEnum): # ID 106
     Normal = 0
