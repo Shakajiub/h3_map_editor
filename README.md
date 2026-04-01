@@ -1,6 +1,7 @@
 # h3_map_editor.py
 Simple command-line HoMM 3 Map Editor made with pure python. Allows you to open a map, run custom scripts to edit the map, then save it. Useful for mass changes that are tedious to make with the normal editor, or changing things that the normal map editor does not allow you to change, like passing the limits for monster or resource quantities, having Seer's Huts that want you to bring a Cannon, or reward you with the Titan's Lightning Bolt directly into your spellbook. Currently supports HotA version 1.7.1.
 
+Check out [https://github.com/Andarch/h3mex](h3mex) by Andarch for a more up-to-date GUI version!
 
 ## Usage
 
@@ -46,8 +47,3 @@ Is a simple example that goes through all the objects placed in the map and prin
 generate_guards [> guards]
 ```
 Is a more complex example. The script goes through specific objects (Pandora's Boxes, Artifacts, Resources, etc.) and checks if the last line in the object's message box is "-guards XXX". Whenever it finds that, it generates guards for the object with a total AI value of XXX, then replaces the text with a "Guarded by XYZ" description. See the script itself for a more detailed explanation.
-
-
-## Contributions
-
-Everyone is completely welcome to contribute in any way, be it by fixing typos, bugs, adding comments or useful scripts. The code needs quite a lot of cleanup, which is an ongoing project. The goal is for the editor to be as easy to use and expand as possible, especially for making custom scripts.
